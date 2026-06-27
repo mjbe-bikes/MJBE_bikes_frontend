@@ -4,7 +4,7 @@ function NavAdmi() {
 
   return (
     
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3 no-print">
       <div className="container-fluid px-4">
 
         {/* Logo */}
@@ -49,38 +49,19 @@ function NavAdmi() {
             </li>
 
             {/* Empleados */}
-            <li className="nav-item dropdown mx-2">
-              <Link
-                className="nav-link dropdown-toggle text-white"
-                to="/Gestion-empleados"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                👥 Empleados
+
+            <li className="nav-item mx-2">
+              <Link className="nav-link text-white" to="/VerEmpleados">
+               👥 Empleados
               </Link>
-
-              <ul className="dropdown-menu shadow border-0 rounded-3">
-                <li>
-                  <Link className="dropdown-item" to="/CrearEmpleado">
-                    Crear Empleado
-                  </Link>
-                </li>
-
-                <li>
-                  <Link className="dropdown-item" to="/ActualizarEmpleado">
-                    Actualizar Empleado
-                  </Link>
-                </li>
-
-                <li>
-                  <Link className="dropdown-item" to="/EliminarEmpleado">
-                    Eliminar Empleado
-                  </Link>
-                </li>
-              </ul>
             </li>
 
+            {/* Proveedores */}
+            <li className="nav-item mx-2">
+              <Link className="nav-link text-white" to="/VerProveedores">
+                🏭 Proveedores
+              </Link>
+            </li>
           </ul>
 
         </div>

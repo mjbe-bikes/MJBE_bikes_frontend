@@ -12,3 +12,11 @@ html, body, #root {
 .contenido {
     flex: 1;
 }
+
+
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

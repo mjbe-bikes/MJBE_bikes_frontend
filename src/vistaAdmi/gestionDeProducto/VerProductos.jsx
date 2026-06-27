@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { Dropdown } from "react-bootstrap";
 
 import NavAdmi from "../../componentes/NavAdmi"
 import FooterAdmi from "../../componentes/FooterAdmi";
@@ -7,7 +8,7 @@ function VerProductos() {
 
   return (
     <>
-      <div className="app">
+      <div className="app ">
 
         <NavAdmi />
 
@@ -18,9 +19,41 @@ function VerProductos() {
 
                     {/* Encabezado */}
 
-                    <div className="card-header bg-success text-white">
-                      <h4 className="mb-0">📦 Productos</h4>
-                      <small>Listado de productos registrados</small>
+                    <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
+
+                      <div>
+                        <h4 className="mb-0">📦 Productos</h4>
+                        <small>Listado de productos registrados</small>
+                      </div>
+
+                      <Dropdown className="no-print">
+                        <Dropdown.Toggle variant="light">
+                          Filtrar
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu className="p-3" style={{ minWidth: "250px" }}>
+                          <label className="form-label ">Filtrar por</label>
+
+                          <select className="form-select mb-3 ">
+                            <option>Producto</option>
+                            <option>Marca</option>
+                            <option>Modelo</option>
+                            <option>Estado</option>
+                            <option>Proveedor</option>
+                          </select>
+
+                          <input
+                            type="text"
+                            className="form-control mb-3 "
+                            placeholder="Ingrese el valor"
+                          />
+
+                          <button className="btn btn-success w-100">
+                            Aplicar filtro
+                          </button>
+                        </Dropdown.Menu>
+                      </Dropdown>
+
                     </div>
 
                     {/* Tabla */}
@@ -50,27 +83,17 @@ function VerProductos() {
                         </table>
                       </div>
 
-                      {/* Botón */}
-                      
-                      <div className="d-flex justify-content-end mt-3">
-                        <Link className="btn btn-success" to="/CrearProducto">
-                          <i className="bi bi-plus-circle me-2"></i>
-                          Crear Producto
-                        </Link >
-                      </div>
-
-                      <div className="col-8 mt-4 d-flex justify-content-end gap-2">
-
-                        <button type="reset" className="btn btn-outline-secondary">
-                          Cancelar
+                      {/* Imprimir */}
+                      <div className="btn no-print mx-auto d-block ">
+                        <button
+                          className="btn bg-success text-white ms-2 no-print col-2"
+                          onClick={() => window.print()}
+                        >
+                          <i className="bi bi-printer-fill me-2"></i>
+                            Imprimir
                         </button>
-
-                        <button type="submit" className="btn btn-outline-warning px-4" >
-                          Guardar Producto
-                        </button>
-
                       </div>
-
+                     
                     </div>
                   </div>
               </div>
