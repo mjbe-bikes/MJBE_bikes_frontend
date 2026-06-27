@@ -59,6 +59,18 @@ function VerProductos() {
                         </Link >
                       </div>
 
+                      <div className="col-8 mt-4 d-flex justify-content-end gap-2">
+
+                        <button type="reset" className="btn btn-outline-secondary">
+                          Cancelar
+                        </button>
+
+                        <button type="submit" className="btn btn-outline-warning px-4" >
+                          Guardar Producto
+                        </button>
+
+                      </div>
+
                     </div>
                   </div>
               </div>
