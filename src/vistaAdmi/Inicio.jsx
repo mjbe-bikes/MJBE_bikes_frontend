@@ -160,6 +160,7 @@ function Inicio() {
 
                         )}
 
+
                     </div>
 
                 </div>
@@ -208,16 +209,7 @@ function Inicio() {
 
                         )}
 
-                        <div className="text-center mt-4">
-
-                            <Link
-                                to="/VerProductos"
-                                className="btn btn-success"
-                            >
-                                Ver Productos
-                            </Link>
-
-                        </div>
+                       
 
                     </div>
 

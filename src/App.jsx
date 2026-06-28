@@ -10,7 +10,6 @@ import EliminarEmpleados from "./vistaAdmi/gestionDeEmpleados/EliminarEmpleados"
 import VerEmpleados from "./vistaAdmi/gestionDeEmpleados/VerEmpleados"
 
 // ------------ Apartado de gestion de Productos ---------------------
-import ReporteProductos from "./vistaAdmi/gestionDeProducto/ReporteProductos"
 import VerProductos from "./vistaAdmi/gestionDeProducto/VerProductos"
 
 // ------------ Apartado de gestion de Proveedores ---------------------
@@ -36,7 +35,6 @@ function App() {
 
 
           // --- Apartado de gestion de Productos ---
-          <Route path="/ReporteProductos" element={<ReporteProductos />} />
           <Route path="/VerProductos" element={<VerProductos />} />
 
           // --- Apartado de gestion de Proveedores ---
