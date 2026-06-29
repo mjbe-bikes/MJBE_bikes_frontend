@@ -152,7 +152,8 @@ const handleSubmit = async (e) => {
 
                     <div className="d-flex gap-2">
 
-                      <button
+                      <Link
+                        to = "/"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() =>
@@ -165,7 +166,7 @@ const handleSubmit = async (e) => {
                         }
                       >
                         Cancelar
-                      </button>
+                      </Link>
 
                       <button
                         type="submit"

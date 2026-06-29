@@ -1,266 +1,218 @@
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-function CrearProducto() {
+function CrearProveedor() {
+
+   const [form, setForm] = useState({
+    nombre_proveedor: "",
+    tipo_documento_id: "",
+    numero_identidad: "",
+    direccion: "",
+    telefono: "",
+    estado: "activo"
+  });
+
+  // 🔥 GUARDA AUTOMÁTICAMENTE EL VALUE DEL SELECT
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // 🔥 ENVIAR DATOS
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      nombre_proveedor: form.nombre_proveedor,
+      tipo_documento_id: Number(form.tipo_documento_id),
+      numero_identidad: form.numero_identidad,
+      direccion: form.direccion,
+      telefono: form.telefono,
+      estado: form.estado
+    };
+
+    try {
+      const res = await fetch("http://localhost:3001/proveedores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.mensaje || "Error al crear proveedor");
+        return;
+      }
+
+      alert("Proveedor creado correctamente");
+
+      setForm({
+        nombre_proveedor: "",
+        tipo_documento_id: "",
+        numero_identidad: "",
+        direccion: "",
+        telefono: "",
+        estado: "activo"
+      });
+
+    } catch (error) {
+      console.log(error);
+      alert("Error de servidor");
+    }
+  };
+
   return (
-    <>
-      <div className="app"> 
-        <NavAdmi />
+    <div className="app">
 
-        <main className="container-fluid py-4 contenido">
+      <NavAdmi />
 
-          <div className="row justify-content-center">
+      <main className="container-fluid py-4 contenido">
 
-            <div className="col-xl-11 col-lg-11 col-md-12">
+        <div className="row justify-content-center">
 
-              <div className="card shadow border-0 rounded-4">
+          <div className="col-xl-8 col-lg-9 col-md-12">
 
-                {/* Encabezado */}
-                <div className="card-header bg-success text-white py-3">
-                  <h3 className="mb-1">📦 Registrar Producto</h3>
-                  <small>Complete la información del producto</small>
-                </div>
+            {/* CARD PRINCIPAL */}
+            <div className="card shadow border-0 rounded-4">
 
-                <div className="card-body p-4">
-
-                  <form className="row g-4" noValidate>
-
-                    {/* ---------------- Información General ---------------- */}
-
-                    <div className="col-12">
-                      <h5 className="border-bottom pb-2 mb-3">
-                        Información General
-                      </h5>
-                    </div>
-
-                    {/* Nombre */}
-                    <div className="col-md-4">
-                      <label htmlFor="nombre" className="form-label fw-semibold">
-                        Nombre del producto
-                      </label>
-                      <input
-                        id="nombre"
-                        type="text"
-                        className="form-control"
-                        placeholder="Ingrese el nombre"
-                      />
-                    </div>
-
-                    {/* Modelo */}
-                    <div className="col-md-4">
-                      <label htmlFor="modelo" className="form-label fw-semibold">
-                        Modelo
-                      </label>
-                      
-                      <input
-                        id="modelo"
-                        type="text"
-                        className="form-control"
-                        placeholder="Ingrese el modelo"
-                      />
-                    </div>
-
-                    {/* Marca */}
-                    <div className="col-md-4">
-                      <label htmlFor="marca" className="form-label fw-semibold">
-                        Marca
-                      </label>
-                      <input
-                        id="marca"
-                        type="text"
-                        className="form-control"
-                        placeholder="Ingrese la marca"
-                      />
-                    </div>
-
-                    {/* Dirección */}
-                    <div className="col-md-8">
-                      <label htmlFor="direccion" className="form-label fw-semibold">
-                        Dirección del Local
-                      </label>
-                      <input
-                        id="direccion"
-                        type="text"
-                        className="form-control"
-                        placeholder="Ingrese la dirección"
-                      />
-                    </div>
-
-                    {/* Color */}
-                    <div className="col-md-4">
-                      <label htmlFor="color" className="form-label fw-semibold">
-                        Color
-                      </label>
-                      <select id="color" className="form-select" defaultValue="">
-                        <option value="">Seleccione...</option>
-                        <option>Rojo</option>
-                        <option>Azul</option>
-                        <option>Negro</option>
-                      </select>
-                    </div>
-
-                    {/* ---------------- Inventario ---------------- */}
-
-                    <div className="col-12 mt-4">
-                      <h5 className="border-bottom pb-2 mb-3">
-                        Inventario
-                      </h5>
-                    </div>
-
-                    {/* Cantidad */}
-                    <div className="col-md-3">
-                      <label className="form-label fw-semibold">
-                        Cantidad
-                      </label>
-
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="0"
-                      />
-                    </div>
-
-                    {/* Precio */}
-                    <div className="col-md-3">
-                      <label className="form-label fw-semibold">
-                        Precio
-                      </label>
-
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="$0.00"
-                      />
-                    </div>
-
-                    {/* Medida */}
-                    <div className="col-md-3">
-                      <label className="form-label fw-semibold">
-                        Medida
-                      </label>
-
-                      <select className="form-select" defaultValue="">
-                        <option value="">Seleccione...</option>
-                        <option>Unidad</option>
-                        <option>Caja</option>
-                        <option>Paquete</option>
-                      </select>
-                    </div>
-
-                    {/* Estado */}
-                    <div className="col-md-3">
-                      <label className="form-label fw-semibold">
-                        Estado
-                      </label>
-
-                      <select className="form-select" defaultValue="">
-                        <option value="">Seleccione...</option>
-                        <option>Disponible</option>
-                        <option>Agotado</option>
-                      </select>
-                    </div>
-
-                    {/* ---------------- Descripción ---------------- */}
-
-                    <div className="col-12 mt-4">
-                      <h5 className="border-bottom pb-2 mb-3">
-                        Descripción
-                      </h5>
-                    </div>
-
-                    <div className="col-12">
-                      <textarea
-                        className="form-control"
-                        rows="5"
-                        placeholder="Ingrese la descripción del producto..."
-                      ></textarea>
-                    </div>
-
-                    {/* ---------------- Proveedor ---------------- */}
-
-                    <div className="col-12 mt-4">
-                      <h5 className="border-bottom pb-2 mb-3">
-                        Proveedor
-                      </h5>
-                    </div>
-
-                    <div className="col-12">
-                      <select className="form-select" defaultValue="">
-                        <option value="">Seleccione un proveedor</option>
-                        <option>Proveedor 1</option>
-                        <option>Proveedor 2</option>
-                        <option>Proveedor 3</option>
-                      </select>
-                    </div>
-
-                    {/* Imagen */}
-
-                    <div className="col-12">
-                      <label className="form-label fw-semibold">
-                        Imagen del producto
-                      </label>
-
-                      <input
-                        className="form-control"
-                        type="file"
-                      />
-                    </div>
-
-                    {/* Confirmación */}
-
-                    <div className="col-12 mt-3">
-                      <div className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="confirmar"
-                        />
-
-                        <label
-                          className="form-check-label"
-                          htmlFor="confirmar"
-                        >
-                          Confirmo que la información es correcta.
-                        </label>
-                      </div>
-                    </div>
-
-                      {/* Botón */}
-
-                    <div className="col-4 mt-4 d-flex  justify-content gap-2">
-                      <Link type="reset" className="btn btn-outline-secondary" to="/VerProductos">
-                        Volver
-                      </Link>
-                    </div>
-
-                      <div className="col-8 mt-4 d-flex justify-content-end gap-2">
-                          <button type="reset" className="btn btn-outline-secondary">
-                              Cancelar
-                          </button>
-
-                          <button type="submit" className="btn btn-outline-success px-4">
-                              Guardar Producto
-                          </button>
-                      </div>
-
-                  </form>
-
-                </div>
-
+              {/* HEADER */}
+              <div className="card-header bg-primary text-white py-3">
+                <h3 className="mb-0">🚚 Registrar Proveedor</h3>
+                <small>Complete la información del proveedor</small>
               </div>
 
+              {/* BODY */}
+              <div className="card-body p-4">
+
+                <form className="row g-4" onSubmit={handleSubmit}>
+
+                  {/* NOMBRE */}
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">Nombre Proveedor</label>
+                    <input
+                      type="text"
+                      name="nombre_proveedor"
+                      className="form-control"
+                      value={form.nombre_proveedor}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  {/* TIPO DOCUMENTO */}
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">Tipo Documento</label>
+
+                    <select
+                      name="tipo_documento_id"
+                      className="form-select"
+                      value={form.tipo_documento_id}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Seleccione tipo de documento</option>
+
+                      <option value="1">Cédula Ciudadanía</option>
+                      <option value="2">Tarjeta Identidad</option>
+                      <option value="3">Registro Civil</option>
+                      <option value="4">NIT</option>
+
+                    </select>
+                  </div>
+
+                  {/* IDENTIDAD */}
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">Número de Identidad</label>
+                    <input
+                      type="text"
+                      name="numero_identidad"
+                      className="form-control"
+                      value={form.numero_identidad}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  {/* TELEFONO */}
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">Teléfono</label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      className="form-control"
+                      value={form.telefono}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  {/* DIRECCION */}
+                  <div className="col-md-12">
+                    <label className="form-label fw-semibold">Dirección</label>
+                    <input
+                      type="text"
+                      name="direccion"
+                      className="form-control"
+                      value={form.direccion}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  {/* ESTADO */}
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold">Estado</label>
+                    <select
+                      name="estado"
+                      className="form-select"
+                      value={form.estado}
+                      onChange={handleChange}
+                    >
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
+                    </select>
+                  </div>
+
+                  {/* BOTONES */}
+                  <div className="col-12 d-flex justify-content-between mt-3">
+
+                    <Link
+                      to="/VerProveedores"
+                      className="btn btn-outline-secondary"
+                    >
+                      Volver
+                    </Link>
+
+                    <button
+                      type="submit"
+                      className="btn btn-primary px-4"
+                    >
+                      Guardar Proveedor
+                    </button>
+
+                  </div>
+
+                </form>
+
+              </div>
             </div>
 
           </div>
+        </div>
 
-        </main>
+      </main>
 
-        <FooterAdmi />
-      </div> 
-    </>
+      <FooterAdmi />
+    </div>
   );
 }
 
-export default CrearProducto;
+export default CrearProveedor;
