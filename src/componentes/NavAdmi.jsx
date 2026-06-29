@@ -48,11 +48,11 @@ function NavAdmi() {
             
             </li>
 
-            {/* Empleados */}
+            {/* Usuarios */}
 
             <li className="nav-item mx-2">
-              <Link className="nav-link text-white" to="/VerEmpleados">
-               👥 Empleados
+              <Link className="nav-link text-white" to="/VerUsuarios">
+               👥 Usuarios
               </Link>
             </li>
 

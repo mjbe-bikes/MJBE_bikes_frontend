@@ -7,7 +7,7 @@ import Inicio from "./vistaAdmi/Inicio"
 import CrearEmpleados from "./vistaAdmi/gestionDeEmpleados/CrearEmpleados"
 import ActualizarEmpleados from "./vistaAdmi/gestionDeEmpleados/ActualizarEmpleados"
 import EliminarEmpleados from "./vistaAdmi/gestionDeEmpleados/EliminarEmpleados"
-import VerEmpleados from "./vistaAdmi/gestionDeEmpleados/VerEmpleados"
+import VerUsuarios from "./vistaAdmi/gestionDeEmpleados/VerUsuarios"
 
 // ------------ Apartado de gestion de Productos ---------------------
 import VerProductos from "./vistaAdmi/gestionDeProducto/VerProductos"
@@ -31,7 +31,7 @@ function App() {
           <Route path="/CrearEmpleado" element={<CrearEmpleados />} />
           <Route path="/ActualizarEmpleado" element={<ActualizarEmpleados />} />
           <Route path="/EliminarEmpleado" element={<EliminarEmpleados />} />
-          <Route path="/VerEmpleados" element={<VerEmpleados />} />
+          <Route path="/VerUsuarios" element={<VerUsuarios />} />
 
 
           // --- Apartado de gestion de Productos ---
