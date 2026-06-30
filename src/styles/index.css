@@ -1,0 +1,119 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+}
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.contenido {
+    flex: 1;
+}
+
+
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media print {
+
+  /* Oculta botones, filtros, etc */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Tabla completa */
+  table {
+    width: 100% !important;
+    font-size: 12px;
+  }
+
+  /* Evita cortes en filas */
+  tr, td, th {
+    page-break-inside: avoid !important;
+  }
+
+  /* Encabezado repetido en cada hoja */
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* Mejora impresión */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Evita recortes del contenido */
+  .card, .container, .table-responsive {
+    overflow: visible !important;
+  }
+}
+
+
+@media print {
+
+  @page {
+    size: landscape;
+    margin: 5mm;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-area {
+    width: 100% !important;
+  }
+
+  .print-area .container,
+  .print-area .container-fluid,
+  .print-area .row {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-area .card {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .no-print,
+  .d-print-none {
+    display: none !important;
+  }
+
+  table {
+    width: 100% !important;
+    font-size: 10px !important;
+  }
+
+  th, td {
+    padding: 3px !important;
+    white-space: nowrap;
+  }
+
+  tr, td, th {
+    page-break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}
