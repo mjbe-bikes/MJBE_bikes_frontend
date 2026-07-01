@@ -1,149 +1,303 @@
-const formulario = document.getElementById("formPedido");
-const tabla = document.querySelector("#tablaPedidos tbody");
+import { useEffect, useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-// Cargar pedidos guardados al abrir la página
-document.addEventListener("DOMContentLoaded", cargarPedidos);
+const API_URL = "http://localhost:3000/pedidos";
 
-formulario.addEventListener("submit", function(e){
+export default function App() {
 
+  const [pedidos, setPedidos] = useState([]);
+
+  const [form, setForm] = useState({
+    cliente: "",
+    documento: "",
+    telefono: "",
+    direccion: "",
+    categoria: "Bicicleta",
+    producto: "Bicicleta MTB Rin 29",
+    cantidad: 1,
+    precio: "",
+    observaciones: ""
+  });
+
+  // 🔥 Cargar pedidos (GET API)
+  useEffect(() => {
+    obtenerPedidos();
+  }, []);
+
+  const obtenerPedidos = async () => {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    setPedidos(data);
+  };
+
+  // 🔥 Cambiar inputs
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // 🔥 Crear pedido (POST API)
+  const crearPedido = async (e) => {
     e.preventDefault();
 
-    const cliente = document.getElementById("cliente").value;
-    const documento = document.getElementById("documento").value;
-    const telefono = document.getElementById("telefono").value;
-    const direccion = document.getElementById("direccion").value;
-    const categoria = document.getElementById("categoria").value;
-    const producto = document.getElementById("producto").value;
-    const cantidad = document.getElementById("cantidad").value;
-    const precio = document.getElementById("precio").value;
-    const observaciones = document.getElementById("observaciones").value;
+    if (Object.values(form).some(v => v === "")) {
+      alert("Debes completar todos los campos obligatorios.");
+      return;
+    }
 
-    if(
-        cliente.trim() === "" ||
-        documento.trim() === "" ||
-        telefono.trim() === "" ||
-        direccion.trim() === "" ||
-        categoria.trim() === "" ||
-        producto.trim() === "" ||
-        cantidad.trim() === "" ||
-        precio.trim() === ""
-        ){  
-        alert("Debes completar todos los campos obligatorios.");
-        return;
-        }   
-
-
-    const pedido = {
-        cliente,
-        documento,
-        telefono,
-        direccion,
-        categoria,
-        producto,
-        cantidad,
-        precio,
-        observaciones
-    };
-
-    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-
-    pedidos.push(pedido);
-
-    localStorage.setItem("pedidos", JSON.stringify(pedidos));
-
-    mostrarPedidos();
-
-    formulario.reset();
-
-});
-
-function mostrarPedidos(){
-
-    tabla.innerHTML = "";
-
-    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-
-    pedidos.forEach((pedido, index)=>{
-
-        const total = pedido.cantidad * pedido.precio;
-
-        tabla.innerHTML += `
-        <tr>
-
-            <td>${pedido.cliente}</td>
-
-            <td>${pedido.documento}</td>
-
-            <td>${pedido.producto}</td>
-
-            <td>${pedido.cantidad}</td>
-
-            <td>$${Number(pedido.precio).toLocaleString()}</td>
-
-            <td>$${Number(total).toLocaleString()}</td>
-
-            <td>${pedido.direccion}</td>
-
-            <td>${pedido.observaciones}</td>
-
-            <td>
-                <button class="btn btn-warning btn-sm"
-                onclick="editarPedido(${index})">
-                Editar
-                </button>
-
-                <button class="btn btn-danger btn-sm"
-                onclick="eliminarPedido(${index})">
-                Eliminar
-                </button>
-            </td>
-            
-
-        </tr>
-        `;
-
+    await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(form)
     });
 
+    setForm({
+      cliente: "",
+      documento: "",
+      telefono: "",
+      direccion: "",
+      categoria: "Bicicleta",
+      producto: "Bicicleta MTB Rin 29",
+      cantidad: 1,
+      precio: "",
+      observaciones: ""
+    });
+
+    obtenerPedidos();
+  };
+
+  // 🔥 Eliminar (DELETE API)
+  const eliminarPedido = async (id) => {
+    await fetch(`${API_URL}/${id}`, {
+      method: "DELETE"
+    });
+
+    obtenerPedidos();
+  };
+
+  // 🔥 Editar (simple: carga + borra + recrea luego)
+  const editarPedido = async (pedido) => {
+
+    setForm(pedido);
+
+    await fetch(`${API_URL}/${pedido.id}`, {
+      method: "DELETE"
+    });
+
+    obtenerPedidos();
+  };
+
+  const total = (p) => p.cantidad * p.precio;
+
+  return (
+
+    <div className="container py-5">
+
+      <div className="card shadow">
+
+        <div className="card-header bg-dark text-white text-center">
+          <h2>Crear Pedido</h2>
+        </div>
+
+        <div className="card-body">
+
+          {/* FORM */}
+          <form onSubmit={crearPedido}>
+
+            <div className="row">
+
+              <div className="col-md-6 mb-3">
+                <label>Cliente</label>
+                <input
+                  className="form-control"
+                  name="cliente"
+                  value={form.cliente}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="col-md-6 mb-3">
+                <label>Documento</label>
+                <input
+                  className="form-control"
+                  name="documento"
+                  value={form.documento}
+                  onChange={handleChange}
+                />
+              </div>
+
+            </div>
+
+            <div className="row">
+
+              <div className="col-md-6 mb-3">
+                <label>Teléfono</label>
+                <input
+                  className="form-control"
+                  name="telefono"
+                  value={form.telefono}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="col-md-6 mb-3">
+                <label>Dirección</label>
+                <input
+                  className="form-control"
+                  name="direccion"
+                  value={form.direccion}
+                  onChange={handleChange}
+                />
+              </div>
+
+            </div>
+
+            <div className="row">
+
+              <div className="col-md-4 mb-3">
+                <label>Categoría</label>
+                <select
+                  className="form-select"
+                  name="categoria"
+                  value={form.categoria}
+                  onChange={handleChange}
+                >
+                  <option>Bicicleta</option>
+                  <option>Repuesto</option>
+                  <option>Accesorio</option>
+                </select>
+              </div>
+
+              <div className="col-md-4 mb-3">
+                <label>Producto</label>
+                <select
+                  className="form-select"
+                  name="producto"
+                  value={form.producto}
+                  onChange={handleChange}
+                >
+                  <option>Bicicleta MTB Rin 29</option>
+                  <option>Bicicleta Ruta</option>
+                  <option>Cadena</option>
+                  <option>Llanta</option>
+                  <option>Casco</option>
+                </select>
+              </div>
+
+              <div className="col-md-2 mb-3">
+                <label>Cantidad</label>
+                <input
+                  className="form-control"
+                  name="cantidad"
+                  type="number"
+                  value={form.cantidad}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="col-md-2 mb-3">
+                <label>Precio</label>
+                <input
+                  className="form-control"
+                  name="precio"
+                  type="number"
+                  value={form.precio}
+                  onChange={handleChange}
+                />
+              </div>
+
+            </div>
+
+            <div className="mb-3">
+              <label>Observaciones</label>
+              <textarea
+                className="form-control"
+                name="observaciones"
+                value={form.observaciones}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="text-end">
+              <button className="btn btn-success me-2">
+                Guardar Pedido
+              </button>
+
+              <button type="reset" className="btn btn-secondary">
+                Limpiar
+              </button>
+            </div>
+
+          </form>
+
+          <hr />
+
+          {/* TABLA */}
+          <h3 className="text-center">Pedidos Registrados</h3>
+
+          <div className="table-responsive">
+
+            <table className="table table-bordered table-hover">
+
+              <thead className="table-dark">
+                <tr>
+                  <th>Cliente</th>
+                  <th>Documento</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Total</th>
+                  <th>Dirección</th>
+                  <th>Observaciones</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                {pedidos.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.cliente}</td>
+                    <td>{p.documento}</td>
+                    <td>{p.producto}</td>
+                    <td>{p.cantidad}</td>
+                    <td>${Number(p.precio).toLocaleString()}</td>
+                    <td>${Number(total(p)).toLocaleString()}</td>
+                    <td>{p.direccion}</td>
+                    <td>{p.observaciones}</td>
+                    <td>
+
+                      <button
+                        className="btn btn-warning btn-sm me-1"
+                        onClick={() => editarPedido(p)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => eliminarPedido(p.id)}
+                      >
+                        Eliminar
+                      </button>
+
+                    </td>
+                  </tr>
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  );
 }
-    function eliminarPedido(indice){
-
-        let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-
-        pedidos.splice(indice,1);
-
-        localStorage.setItem("pedidos",JSON.stringify(pedidos));
-
-        mostrarPedidos();
-
-    }   
-
-
-function editarPedido(indice){
-
-    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-
-    let pedido = pedidos[indice];
-
-    document.getElementById("cliente").value = pedido.cliente;
-    document.getElementById("documento").value = pedido.documento;
-    document.getElementById("telefono").value = pedido.telefono;
-    document.getElementById("direccion").value = pedido.direccion;
-    document.getElementById("categoria").value = pedido.categoria;
-    document.getElementById("producto").value = pedido.producto;
-    document.getElementById("cantidad").value = pedido.cantidad;
-    document.getElementById("precio").value = pedido.precio;
-    document.getElementById("observaciones").value = pedido.observaciones;
-
-    pedidos.splice(indice,1);
-
-    localStorage.setItem("pedidos",JSON.stringify(pedidos));
-
-    mostrarPedidos();
-
-}
-
-function cargarPedidos(){
-
-    mostrarPedidos();
-
-} 

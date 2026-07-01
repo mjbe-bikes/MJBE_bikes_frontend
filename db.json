@@ -1,0 +1,165 @@
+{
+  "productos": [
+    {
+      "id": 1,
+      "nombre": "Bicicleta MTB GW Panther",
+      "categoria": "Bicicletas",
+      "marca": "GW",
+      "precio": 1850000,
+      "stock": 8,
+      "descripcion": "Bicicleta de montaña rin 29",
+      "imagen": "/imagenes/mtb-gw.jpg"
+    },
+    {
+      "id": 2,
+      "nombre": "Bicicleta Ruta Trek Domane",
+      "categoria": "Bicicletas",
+      "marca": "Trek",
+      "precio": 4200000,
+      "stock": 5,
+      "descripcion": "Bicicleta de ruta en aluminio",
+      "imagen": "/imagenes/trek-domane.jpg"
+    },
+    {
+      "id": 3,
+      "nombre": "Casco GW Pro",
+      "categoria": "Accesorios",
+      "marca": "GW",
+      "precio": 185000,
+      "stock": 20,
+      "descripcion": "Casco con certificación",
+      "imagen": "/imagenes/casco-gw.jpg"
+    },
+    {
+      "id": 4,
+      "nombre": "Guantes Shimano",
+      "categoria": "Accesorios",
+      "marca": "Shimano",
+      "precio": 75000,
+      "stock": 35,
+      "descripcion": "Guantes antideslizantes",
+      "imagen": "/imagenes/guantes.jpg"
+    },
+    {
+      "id": 5,
+      "nombre": "Pedales Aluminio",
+      "categoria": "Repuestos",
+      "marca": "Venzo",
+      "precio": 120000,
+      "stock": 18,
+      "descripcion": "Pedales plataforma",
+      "imagen": "/imagenes/pedales.jpg"
+    },
+    {
+      "id": 6,
+      "nombre": "Cadena Shimano HG40",
+      "categoria": "Repuestos",
+      "marca": "Shimano",
+      "precio": 95000,
+      "stock": 30,
+      "descripcion": "Cadena de 8 velocidades",
+      "imagen": "/imagenes/cadena.jpg"
+    },
+    {
+      "id": 7,
+      "nombre": "Llanta Maxxis Ardent",
+      "categoria": "Llantas",
+      "marca": "Maxxis",
+      "precio": 220000,
+      "stock": 12,
+      "descripcion": "Llanta MTB rin 29",
+      "imagen": "/imagenes/maxxis.jpg"
+    },
+    {
+      "id": 8,
+      "nombre": "Inflador Portátil",
+      "categoria": "Herramientas",
+      "marca": "Rockbros",
+      "precio": 60000,
+      "stock": 40,
+      "descripcion": "Inflador de mano",
+      "imagen": "/imagenes/inflador.jpg"
+    }
+  ],
+
+  "clientes": [
+    {
+      "id": 1,
+      "nombre": "Juan Pérez",
+      "correo": "juan@gmail.com",
+      "telefono": "3104567890",
+      "direccion": "Bosa, Bogotá"
+    },
+    {
+      "id": 2,
+      "nombre": "María Rodríguez",
+      "correo": "maria@gmail.com",
+      "telefono": "3201234567",
+      "direccion": "Kennedy, Bogotá"
+    },
+    {
+      "id": 3,
+      "nombre": "Carlos Gómez",
+      "correo": "carlos@gmail.com",
+      "telefono": "3159876543",
+      "direccion": "Soacha"
+    }
+  ],
+
+  "pedidos": [
+    {
+      "id": 1,
+      "clienteId": 1,
+      "fecha": "2026-07-01",
+      "estado": "Pendiente",
+      "total": 370000
+    },
+    {
+      "id": 2,
+      "clienteId": 2,
+      "fecha": "2026-07-02",
+      "estado": "Entregado",
+      "total": 4200000
+    }
+  ],
+
+  "detallePedidos": [
+    {
+      "id": 1,
+      "pedidoId": 1,
+      "productoId": 3,
+      "cantidad": 2,
+      "precioUnitario": 185000
+    },
+    {
+      "id": 2,
+      "pedidoId": 2,
+      "productoId": 2,
+      "cantidad": 1,
+      "precioUnitario": 4200000
+    }
+  ],
+
+  "categorias": [
+    {
+      "id": 1,
+      "nombre": "Bicicletas"
+    },
+    {
+      "id": 2,
+      "nombre": "Accesorios"
+    },
+    {
+      "id": 3,
+      "nombre": "Repuestos"
+    },
+    {
+      "id": 4,
+      "nombre": "Herramientas"
+    },
+    {
+      "id": 5,
+      "nombre": "Llantas"
+    }
+  ]
+}
