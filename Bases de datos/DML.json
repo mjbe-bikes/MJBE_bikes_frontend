@@ -1,0 +1,643 @@
+{
+  "roles": [
+    {
+      "id": 1,
+      "tipo_rol": "Administrador"
+    },
+    {
+      "id": 2,
+      "tipo_rol": "Cliente"
+    },
+    {
+      "id": 3,
+      "tipo_rol": "Vendedor"
+    },
+    {
+      "id": 4,
+      "tipo_rol": "Bodeguero"
+    }
+  ],
+  "usuarios": [
+    {
+      "id": 1,
+      "login": "Eduard",
+      "email": "Edu@edu.com",
+      "password": "SHA2(123456)",
+      "image_url": null,
+      "token_activacion": "token_admin",
+      "reset_key": "reset_admin",
+      "reset_base": "base_admin",
+      "rol_id": 1,
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "login": "Jhair",
+      "email": "julian12040712@gmail.com",
+      "password": "SHA2(123456)",
+      "image_url": null,
+      "token_activacion": "token_cliente",
+      "reset_key": "reset_cliente",
+      "reset_base": "base_cliente",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 3,
+      "login": "Jharol",
+      "email": "Jharolwrld@gmail.com",
+      "password": "SHA2(123456)",
+      "image_url": null,
+      "token_activacion": "token_vendedor",
+      "reset_key": "reset_vendedor",
+      "reset_base": "base_vendedor",
+      "rol_id": 3,
+      "estado": "activo"
+    },
+    {
+      "id": 4,
+      "login": "Manuel",
+      "email": "manuelorduzperez@gmail.com",
+      "password": "SHA2(123456)",
+      "image_url": null,
+      "token_activacion": "token_bodeguero",
+      "reset_key": "reset_bodeguero",
+      "reset_base": "base_bodeguero",
+      "rol_id": 4,
+      "estado": "activo"
+    },
+    {
+      "id": 5,
+      "login": "JuanPerez",
+      "email": "juan.perez@gmail.com",
+      "password": "SHA2(Juan2026)",
+      "image_url": null,
+      "token_activacion": "token5",
+      "reset_key": "reset5",
+      "reset_base": "base5",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 6,
+      "login": "MariaGomez",
+      "email": "maria.gomez@gmail.com",
+      "password": "SHA2(Maria#123)",
+      "image_url": null,
+      "token_activacion": "token6",
+      "reset_key": "reset6",
+      "reset_base": "base6",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 7,
+      "login": "CarlosRuiz",
+      "email": "carlos.ruiz@gmail.com",
+      "password": "SHA2(CRuiz789)",
+      "image_url": null,
+      "token_activacion": "token7",
+      "reset_key": "reset7",
+      "reset_base": "base7",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 8,
+      "login": "LauraSanchez",
+      "email": "laura.sanchez@gmail.com",
+      "password": "SHA2(Laura2025)",
+      "image_url": null,
+      "token_activacion": "token8",
+      "reset_key": "reset8",
+      "reset_base": "base8",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 9,
+      "login": "AndresTorres",
+      "email": "andres.torres@gmail.com",
+      "password": "SHA2(ATorres88)",
+      "image_url": null,
+      "token_activacion": "token9",
+      "reset_key": "reset9",
+      "reset_base": "base9",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 10,
+      "login": "SofiaMartinez",
+      "email": "sofia.martinez@gmail.com",
+      "password": "SHA2(SofiaBike1)",
+      "image_url": null,
+      "token_activacion": "token10",
+      "reset_key": "reset10",
+      "reset_base": "base10",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 11,
+      "login": "FelipeLopez",
+      "email": "felipe.lopez@gmail.com",
+      "password": "SHA2(Felipe777)",
+      "image_url": null,
+      "token_activacion": "token11",
+      "reset_key": "reset11",
+      "reset_base": "base11",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 12,
+      "login": "ValentinaRojas",
+      "email": "valentina.rojas@gmail.com",
+      "password": "SHA2(ValeRojas9)",
+      "image_url": null,
+      "token_activacion": "token12",
+      "reset_key": "reset12",
+      "reset_base": "base12",
+      "rol_id": 2,
+      "estado": "activo"
+    }
+  ],
+  "tipos_documentos": [
+    {
+      "id": 1,
+      "sigla": "CC",
+      "nombre_documento": "Cedula Ciudadania",
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "sigla": "TI",
+      "nombre_documento": "Tarjeta Identidad",
+      "estado": "activo"
+    }
+  ],
+  "clientes": [
+    {
+      "id": 1,
+      "usuario_id": 5,
+      "tipo_documento_id": 1,
+      "numero_documento": "1001234567",
+      "nombres": "Juan",
+      "apellidos": "Pérez Gómez",
+      "direccion": "Bosa"
+    },
+    {
+      "id": 2,
+      "usuario_id": 6,
+      "tipo_documento_id": 1,
+      "numero_documento": "1002345678",
+      "nombres": "María",
+      "apellidos": "Gómez Ruiz",
+      "direccion": "Kennedy"
+    },
+    {
+      "id": 3,
+      "usuario_id": 7,
+      "tipo_documento_id": 1,
+      "numero_documento": "1003456789",
+      "nombres": "Carlos",
+      "apellidos": "Ruiz Torres",
+      "direccion": "Suba"
+    },
+    {
+      "id": 4,
+      "usuario_id": 8,
+      "tipo_documento_id": 2,
+      "numero_documento": "10234567",
+      "nombres": "Laura",
+      "apellidos": "Sánchez Díaz",
+      "direccion": "Engativá"
+    },
+    {
+      "id": 5,
+      "usuario_id": 9,
+      "tipo_documento_id": 1,
+      "numero_documento": "1004567890",
+      "nombres": "Andrés",
+      "apellidos": "Torres Rojas",
+      "direccion": "Fontibón"
+    },
+    {
+      "id": 6,
+      "usuario_id": 10,
+      "tipo_documento_id": 1,
+      "numero_documento": "1005678901",
+      "nombres": "Sofía",
+      "apellidos": "Martínez León",
+      "direccion": "Usaquén"
+    },
+    {
+      "id": 7,
+      "usuario_id": 11,
+      "tipo_documento_id": 1,
+      "numero_documento": "1006789012",
+      "nombres": "Felipe",
+      "apellidos": "López Vargas",
+      "direccion": "Ciudad Bolívar"
+    },
+    {
+      "id": 8,
+      "usuario_id": 12,
+      "tipo_documento_id": 2,
+      "numero_documento": "10345678",
+      "nombres": "Valentina",
+      "apellidos": "Rojas Castro",
+      "direccion": "Soacha"
+    }
+  ],
+  "telefonos": [
+    {
+      "id": 1,
+      "cliente_id": 1,
+      "no_telefono": "3104567890"
+    },
+    {
+      "id": 2,
+      "cliente_id": 1,
+      "no_telefono": "3201234567"
+    },
+    {
+      "id": 3,
+      "cliente_id": 2,
+      "no_telefono": "3112345678"
+    },
+    {
+      "id": 4,
+      "cliente_id": 3,
+      "no_telefono": "3123456789"
+    },
+    {
+      "id": 5,
+      "cliente_id": 3,
+      "no_telefono": "3009876543"
+    },
+    {
+      "id": 6,
+      "cliente_id": 4,
+      "no_telefono": "3134567890"
+    },
+    {
+      "id": 7,
+      "cliente_id": 5,
+      "no_telefono": "3145678901"
+    },
+    {
+      "id": 8,
+      "cliente_id": 5,
+      "no_telefono": "3214567890"
+    },
+    {
+      "id": 9,
+      "cliente_id": 6,
+      "no_telefono": "3156789012"
+    },
+    {
+      "id": 10,
+      "cliente_id": 7,
+      "no_telefono": "3167890123"
+    },
+    {
+      "id": 11,
+      "cliente_id": 7,
+      "no_telefono": "3223456789"
+    },
+    {
+      "id": 12,
+      "cliente_id": 8,
+      "no_telefono": "3178901234"
+    }
+  ],
+  "locales": [
+    {
+      "id": 1,
+      "nombre_local": "Local Bosa",
+      "direccion_local": "Cra 1 #12-34",
+      "correo": "bosa@mjbe.com",
+      "telefono": "3001234567",
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "nombre_local": "Local Centro",
+      "direccion_local": "Calle 20 #15-40",
+      "correo": "centro@mjbe.com",
+      "telefono": "3209876543",
+      "estado": "activo"
+    }
+  ],
+  "tallas": [
+    {
+      "id": 1,
+      "talla": "XS"
+    },
+    {
+      "id": 2,
+      "talla": "S"
+    },
+    {
+      "id": 3,
+      "talla": "M"
+    },
+    {
+      "id": 4,
+      "talla": "L"
+    },
+    {
+      "id": 5,
+      "talla": "XL"
+    },
+    {
+      "id": 6,
+      "talla": "XXL"
+    }
+  ],
+  "medidas": [
+    {
+      "id": 1,
+      "talla_id": 1,
+      "tipo_medida": "15 pulgadas"
+    },
+    {
+      "id": 2,
+      "talla_id": 2,
+      "tipo_medida": "16 pulgadas"
+    },
+    {
+      "id": 3,
+      "talla_id": 3,
+      "tipo_medida": "17 pulgadas"
+    },
+    {
+      "id": 4,
+      "talla_id": 4,
+      "tipo_medida": "18 pulgadas"
+    },
+    {
+      "id": 5,
+      "talla_id": 5,
+      "tipo_medida": "19 pulgadas"
+    },
+    {
+      "id": 6,
+      "talla_id": 6,
+      "tipo_medida": "21 pulgadas"
+    }
+  ],
+  "categorias": [
+    {
+      "id": 1,
+      "nombre_categoria": "Montaña"
+    },
+    {
+      "id": 2,
+      "nombre_categoria": "Ruta"
+    },
+    {
+      "id": 3,
+      "nombre_categoria": "BMX"
+    },
+    {
+      "id": 4,
+      "nombre_categoria": "Urbanas"
+    },
+    {
+      "id": 5,
+      "nombre_categoria": "Eléctricas"
+    },
+    {
+      "id": 6,
+      "nombre_categoria": "Infantiles"
+    },
+    {
+      "id": 7,
+      "nombre_categoria": "Cascos"
+    },
+    {
+      "id": 8,
+      "nombre_categoria": "Guantes"
+    },
+    {
+      "id": 9,
+      "nombre_categoria": "Jerseys"
+    },
+    {
+      "id": 10,
+      "nombre_categoria": "Licras"
+    },
+    {
+      "id": 11,
+      "nombre_categoria": "Calzado"
+    },
+    {
+      "id": 12,
+      "nombre_categoria": "Luces"
+    },
+    {
+      "id": 13,
+      "nombre_categoria": "Herramientas"
+    },
+    {
+      "id": 14,
+      "nombre_categoria": "Repuestos"
+    },
+    {
+      "id": 15,
+      "nombre_categoria": "Lubricantes"
+    },
+    {
+      "id": 16,
+      "nombre_categoria": "Accesorios"
+    }
+  ],
+  "proveedores": [
+    {
+      "id": 1,
+      "nombre_proveedor": "Bike Store SAS"
+    },
+    {
+      "id": 2,
+      "nombre_proveedor": "Ciclo Mundo SAS"
+    },
+    {
+      "id": 3,
+      "nombre_proveedor": "Importadora GW"
+    },
+    {
+      "id": 4,
+      "nombre_proveedor": "Shimano Colombia"
+    },
+    {
+      "id": 5,
+      "nombre_proveedor": "Specialized Colombia"
+    },
+    {
+      "id": 6,
+      "nombre_proveedor": "Trek Bikes Colombia"
+    },
+    {
+      "id": 7,
+      "nombre_proveedor": "Venzo Bike Parts"
+    },
+    {
+      "id": 8,
+      "nombre_proveedor": "GW Bicicletas"
+    },
+    {
+      "id": 9,
+      "nombre_proveedor": "Maxxis Tires"
+    },
+    {
+      "id": 10,
+      "nombre_proveedor": "Tektro Colombia"
+    },
+    {
+      "id": 11,
+      "nombre_proveedor": "Rockbros Importaciones"
+    },
+    {
+      "id": 12,
+      "nombre_proveedor": "CamelBak Colombia"
+    },
+    {
+      "id": 13,
+      "nombre_proveedor": "Thule Colombia"
+    },
+    {
+      "id": 14,
+      "nombre_proveedor": "Muc-Off Colombia"
+    },
+    {
+      "id": 15,
+      "nombre_proveedor": "Elite Cycling SAS"
+    }
+  ],
+  "productos": [
+    {
+      "id": 1,
+      "nombre_producto": "Casco Bell Tracker"
+    },
+    {
+      "id": 2,
+      "nombre_producto": "Casco Lazer Compact"
+    },
+    {
+      "id": 3,
+      "nombre_producto": "Pedales Shimano SPD"
+    },
+    {
+      "id": 4,
+      "nombre_producto": "Pedales Flat Nylon"
+    },
+    {
+      "id": 5,
+      "nombre_producto": "Guantes GW Gel"
+    },
+    {
+      "id": 6,
+      "nombre_producto": "Jersey Racing"
+    },
+    {
+      "id": 7,
+      "nombre_producto": "Jersey Pro Team"
+    },
+    {
+      "id": 8,
+      "nombre_producto": "Licra Hombre"
+    },
+    {
+      "id": 9,
+      "nombre_producto": "Licra Mujer"
+    },
+    {
+      "id": 10,
+      "nombre_producto": "Chaqueta Impermeable"
+    },
+    {
+      "id": 11,
+      "nombre_producto": "Chaleco Reflectivo"
+    },
+    {
+      "id": 12,
+      "nombre_producto": "Zapatos Shimano XC3"
+    },
+    {
+      "id": 13,
+      "nombre_producto": "Medias Deportivas"
+    },
+    {
+      "id": 14,
+      "nombre_producto": "Gafas Fotocromáticas"
+    },
+    {
+      "id": 15,
+      "nombre_producto": "Candado Tipo U"
+    },
+    {
+      "id": 16,
+      "nombre_producto": "Candado de Cable"
+    },
+    {
+      "id": 17,
+      "nombre_producto": "Computador GPS"
+    },
+    {
+      "id": 18,
+      "nombre_producto": "Soporte GPS"
+    },
+    {
+      "id": 19,
+      "nombre_producto": "Guardabarros MTB"
+    },
+    {
+      "id": 20,
+      "nombre_producto": "Portabicicletas"
+    },
+    {
+      "id": 21,
+      "nombre_producto": "Multiherramienta 16 en 1"
+    },
+    {
+      "id": 22,
+      "nombre_producto": "Botiquín Compacto"
+    },
+    {
+      "id": 23,
+      "nombre_producto": "Cinta para Manubrio"
+    },
+    {
+      "id": 24,
+      "nombre_producto": "Lubricante Cadena"
+    },
+    {
+      "id": 25,
+      "nombre_producto": "Limpiador Bicicleta"
+    },
+    {
+      "id": 26,
+      "nombre_producto": "Desengrasante"
+    },
+    {
+      "id": 27,
+      "nombre_producto": "Bolso Herramientas"
+    },
+    {
+      "id": 28,
+      "nombre_producto": "Maleta Hidratación"
+    },
+    {
+      "id": 29,
+      "nombre_producto": "Rodillo de Entrenamiento"
+    },
+    {
+      "id": 30,
+      "nombre_producto": "Parrilla Trasera"
+    }
+  ],
+  "ventas": []
+}
