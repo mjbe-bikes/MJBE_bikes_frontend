@@ -1,0 +1,255 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: #eef2f7;
+    color: #212529;
+}
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.contenido {
+    flex: 1;
+}
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0 4rem;
+    background: #f8f9fb;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 760px;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    box-shadow: 0 0.75rem 1.75rem rgba(33, 37, 41, 0.08);
+}
+
+.auth-card .card-body {
+    padding: 2rem;
+}
+
+.auth-side {
+    min-height: 100%;
+    background: linear-gradient(180deg, rgba(13,110,253,1) 0%, rgba(51, 102, 255, 1) 100%);
+    color: #ffffff;
+}
+
+.auth-side .auth-brand {
+    color: #ffffff;
+}
+
+.auth-side p {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.auth-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.75rem;
+}
+
+.auth-brand {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.auth-subtitle {
+    color: #6c757d;
+}
+
+.auth-note {
+    color: #6c757d;
+}
+
+.auth-link a {
+    color: #0d6efd;
+}
+
+.auth-link a:hover {
+    color: #084298;
+    text-decoration: underline;
+}
+
+.auth-link a:hover {
+    color: #084298;
+    text-decoration: underline;
+}
+
+.footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alert {
+    border-radius: 0.95rem;
+}
+
+.btn {
+    border-radius: 0.75rem;
+}
+
+.btn-primary {
+    background: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background: #157347;
+    border-color: #146c43;
+}
+
+@media (max-width: 576px) {
+    .auth-page {
+        padding: 1.5rem 0 3rem;
+    }
+
+    .auth-card .card-body {
+        padding: 1.5rem;
+    }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media print {
+
+  /* Oculta botones, filtros, etc */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Tabla completa */
+  table {
+    width: 100% !important;
+    font-size: 12px;
+  }
+
+  /* Evita cortes en filas */
+  tr, td, th {
+    page-break-inside: avoid !important;
+  }
+
+  /* Encabezado repetido en cada hoja */
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* Mejora impresión */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Evita recortes del contenido */
+  .card, .container, .table-responsive {
+    overflow: visible !important;
+  }
+
+  .login-page {
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 1rem;
+  }
+
+  .login-brand {
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+}
+
+/* HOJA EN HORIZONTAL (RECOMENDADO PARA TABLAS) */
+
+@media print {
+
+  @page {
+    size: landscape;
+    margin: 5mm;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 🔥 ESTE ES EL FIX CLAVE */
+  .print-area {
+    width: 100% !important;
+  }
+
+  .print-area .container,
+  .print-area .container-fluid,
+  .print-area .row {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ❌ EL PROBLEMA ERA LA CARD */
+  .print-area .card {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .no-print,
+  .d-print-none {
+    display: none !important;
+  }
+
+  table {
+    width: 100% !important;
+    font-size: 10px !important;
+  }
+
+  th, td {
+    padding: 3px !important;
+    white-space: nowrap;
+  }
+
+  tr, td, th {
+    page-break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}
