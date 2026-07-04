@@ -4,12 +4,15 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
+const API_URL = "http://localhost:3001/productos";
+
 function ActualizarProducto() {
 
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     img_producto: "",
@@ -49,69 +52,64 @@ function ActualizarProducto() {
     });
   };
 
-
   useEffect(() => {
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    const cargarProducto = async () => {
+      try {
+        const response = await fetch(`${API_URL}/${id}`);
+        if (!response.ok) throw new Error("Producto no encontrado");
 
-    const productoEncontrado = productos.find(
-      (p) => p.id == id
-    );
+        const productoEncontrado = await response.json();
+        setForm({
+          img_producto: productoEncontrado.img_producto || "",
+          nombre_producto: productoEncontrado.nombre_producto || "",
+          descripcion: productoEncontrado.descripcion || "",
+          color_producto: productoEncontrado.color_producto || "",
+          marca_producto: productoEncontrado.marca_producto || "",
+          cant_producto: productoEncontrado.cant_producto || "",
+          modelo: productoEncontrado.modelo || "",
+          id_medida: productoEncontrado.id_medida || "",
+          id_proveedor: productoEncontrado.id_proveedor || "",
+          id_local: productoEncontrado.id_local || "",
+          valor_unitario: productoEncontrado.valor_unitario || "",
+          estado: productoEncontrado.estado || "activo"
+        });
+      } catch (err) {
+        console.error(err);
+        setError("No se pudo cargar el producto desde la API.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!productoEncontrado) {
-      alert("Producto no encontrado");
-      navigate("/VerProductos");
-      return;
-    }
+    cargarProducto();
+  }, [id]);
 
-    setForm({
-      img_producto: productoEncontrado.img_producto || "",
-      nombre_producto: productoEncontrado.nombre_producto || "",
-      descripcion: productoEncontrado.descripcion || "",
-      color_producto: productoEncontrado.color_producto || "",
-      marca_producto: productoEncontrado.marca_producto || "",
-      cant_producto: productoEncontrado.cant_producto || "",
-      modelo: productoEncontrado.modelo || "",
-      id_medida: productoEncontrado.id_medida || "",
-      id_proveedor: productoEncontrado.id_proveedor || "",
-      id_local: productoEncontrado.id_local || "",
-      valor_unitario: productoEncontrado.valor_unitario || "",
-      estado: productoEncontrado.estado || "activo"
-    });
-
-    setLoading(false);
-
-  }, [id, navigate]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...form,
+          cant_producto: Number(form.cant_producto),
+          id_medida: Number(form.id_medida),
+          id_proveedor: Number(form.id_proveedor),
+          id_local: Number(form.id_local),
+          valor_unitario: Number(form.valor_unitario)
+        })
+      });
 
-    const nuevosProductos = productos.map((p) =>
-      p.id == id
-        ? {
-            ...p,
-            img_producto: form.img_producto,
-            nombre_producto: form.nombre_producto,
-            descripcion: form.descripcion,
-            color_producto: form.color_producto,
-            marca_producto: form.marca_producto,
-            cant_producto: Number(form.cant_producto),
-            modelo: form.modelo,
-            id_medida: Number(form.id_medida),
-            id_proveedor: Number(form.id_proveedor),
-            id_local: Number(form.id_local),
-            valor_unitario: Number(form.valor_unitario),
-            estado: form.estado
-          }
-        : p
-    );
+      if (!response.ok) throw new Error("No se pudo actualizar el producto");
 
-    localStorage.setItem("productos", JSON.stringify(nuevosProductos));
-
-    alert("✅ Producto actualizado correctamente");
-
-    navigate("/VerProductos");
+      navigate("/VerProductos");
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo actualizar el producto.");
+    }
   };
 
   if (loading) {

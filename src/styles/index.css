@@ -13,7 +13,71 @@ html, body, #root {
     flex: 1;
 }
 
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0 4rem;
+    background: #f8f9fb;
+}
 
+.auth-card {
+    width: 100%;
+    max-width: 760px;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    box-shadow: 0 0.75rem 1.75rem rgba(33, 37, 41, 0.08);
+}
+
+.auth-card .card-body {
+    padding: 2rem;
+}
+
+.auth-link a {
+    color: #0d6efd;
+}
+
+.auth-link a:hover {
+    color: #084298;
+    text-decoration: underline;
+}
+
+.footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alert {
+    border-radius: 0.95rem;
+}
+
+.btn {
+    border-radius: 0.75rem;
+}
+
+.btn-primary {
+    background: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background: #157347;
+    border-color: #146c43;
+}
 
 @media print {
   .no-print {

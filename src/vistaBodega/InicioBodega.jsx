@@ -1,88 +1,76 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
 function InicioBodega() {
-
-    const dashboard = {
+    const [dashboard, setDashboard] = useState({
         resumen: {
-            totalProductos: 320,
-            productosActivos: 285,
-            stockBajo: 18,
-            sinStock: 7,
-            entradasHoy: 42,
-            salidasHoy: 31
+            totalProductos: 0,
+            productosActivos: 0,
+            stockBajo: 0,
+            sinStock: 0,
+            entradasHoy: 0,
+            salidasHoy: 0
         },
+        movimientos: [],
+        alertas: []
+    });
 
-        movimientos: [
-            {
-                id: 1,
-                producto: "Llanta MTB 29",
-                tipo: "Entrada",
-                cantidad: 15,
-                fecha: "29/06/2026"
-            },
-            {
-                id: 2,
-                producto: "Cadena Shimano",
-                tipo: "Salida",
-                cantidad: 8,
-                fecha: "29/06/2026"
-            },
-            {
-                id: 3,
-                producto: "Pastillas de Freno",
-                tipo: "Entrada",
-                cantidad: 25,
-                fecha: "28/06/2026"
-            },
-            {
-                id: 4,
-                producto: "Casco GW",
-                tipo: "Salida",
-                cantidad: 4,
-                fecha: "28/06/2026"
-            }
-        ],
+    useEffect(() => {
+        const cargarDashboard = async () => {
+            try {
+                const response = await fetch("http://localhost:3001/productos");
+                const productos = await response.json();
 
-        alertas: [
-            {
-                id: 1,
-                producto: "Cámara Rin 26",
-                stock: 2
-            },
-            {
-                id: 2,
-                producto: "Pedales Aluminio",
-                stock: 1
-            },
-            {
-                id: 3,
-                producto: "Guantes Ciclismo",
-                stock: 3
+                const activos = productos.filter((p) => p.estado === "activo");
+                const stockBajo = productos.filter((p) => Number(p.cant_producto) > 0 && Number(p.cant_producto) <= 5);
+                const sinStock = productos.filter((p) => Number(p.cant_producto) === 0);
+                const alertas = stockBajo.slice(0, 3).map((p) => ({
+                    id: p.id,
+                    producto: p.nombre_producto,
+                    stock: Number(p.cant_producto)
+                }));
+                const movimientos = productos.slice(0, 4).map((p, index) => ({
+                    id: p.id,
+                    producto: p.nombre_producto,
+                    tipo: index % 2 === 0 ? "Entrada" : "Salida",
+                    cantidad: Number(p.cant_producto),
+                    fecha: new Date().toLocaleDateString("es-ES")
+                }));
+
+                setDashboard({
+                    resumen: {
+                        totalProductos: productos.length,
+                        productosActivos: activos.length,
+                        stockBajo: stockBajo.length,
+                        sinStock: sinStock.length,
+                        entradasHoy: movimientos.filter((m) => m.tipo === "Entrada").length,
+                        salidasHoy: movimientos.filter((m) => m.tipo === "Salida").length
+                    },
+                    movimientos,
+                    alertas
+                });
+            } catch (error) {
+                console.error(error);
             }
-        ]
-    };
+        };
+
+        cargarDashboard();
+    }, []);
 
     return (
         <div className="app">
-
             <NavBodega />
 
             <div className="container py-4 contenido">
-
-
                 <div className="card shadow mb-4">
-
                     <div className="card-header bg-primary text-white">
                         <h3 className="mb-0">📦 Resumen de Bodega</h3>
                     </div>
 
                     <div className="card-body">
-
                         <div className="row g-4">
-
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-primary shadow-sm h-100">
                                     <div className="card-body text-center">
@@ -142,95 +130,59 @@ function InicioBodega() {
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
-
                 <div className="card shadow mb-4">
-
                     <div className="card-header bg-success text-white">
                         <h4 className="mb-0">📋 Movimientos Recientes</h4>
                     </div>
 
                     <div className="card-body">
-
                         <div className="list-group">
-
                             {dashboard.movimientos.map((movimiento) => (
-
                                 <div
                                     key={movimiento.id}
                                     className="list-group-item d-flex justify-content-between align-items-center"
                                 >
-
                                     <div>
-                                        <h6 className="mb-1">
-                                            {movimiento.producto}
-                                        </h6>
-
-                                        <small>
-                                            {movimiento.tipo} - Cantidad: {movimiento.cantidad}
-                                        </small>
+                                        <h6 className="mb-1">{movimiento.producto}</h6>
+                                        <small>{movimiento.tipo} - Cantidad: {movimiento.cantidad}</small>
                                     </div>
 
-                                    <span className="badge bg-primary">
-                                        {movimiento.fecha}
-                                    </span>
-
+                                    <span className="badge bg-primary">{movimiento.fecha}</span>
                                 </div>
-
                             ))}
-
                         </div>
-
                     </div>
-
                 </div>
 
-
                 <div className="card shadow">
-
                     <div className="card-header bg-warning">
                         <h4 className="mb-0">⚠️ Alertas de Inventario</h4>
                     </div>
 
                     <div className="card-body">
-
                         <div className="list-group">
-
                             {dashboard.alertas.map((alerta) => (
-
                                 <div
                                     key={alerta.id}
                                     className="list-group-item d-flex justify-content-between align-items-center"
                                 >
-
                                     <div>
                                         <h6>{alerta.producto}</h6>
                                     </div>
 
-                                    <span className="badge bg-danger">
-                                        Stock: {alerta.stock}
-                                    </span>
-
+                                    <span className="badge bg-danger">Stock: {alerta.stock}</span>
                                 </div>
-
                             ))}
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
 
             <FooterBodega />
-
         </div>
     );
 }
