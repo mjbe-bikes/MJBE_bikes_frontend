@@ -1,12 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function NavBodega() {
+  const navigate = useNavigate();
+  const userName = localStorage.getItem("mjbe_user_login") || "Usuario";
+
+  const handleLogout = () => {
+    localStorage.removeItem("mjbe_auth");
+    localStorage.removeItem("mjbe_user_id");
+    localStorage.removeItem("mjbe_user_login");
+    localStorage.removeItem("mjbe_user_email");
+    localStorage.removeItem("mjbe_rol_id");
+    navigate("/login", { replace: true });
+  };
 
   return (
-    
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3 no-print">
       <div className="container-fluid px-4">
-
         <Link className="navbar-brand fw-bold fs-3" to="/InicioBodega">
           🚲 MJBE Bikes
         </Link>
@@ -23,32 +32,35 @@ function NavBodega() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div
-          className="collapse navbar-collapse"
-          id="navbarSupportedContent"
-        >
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto ms-4">
-
             <li className="nav-item mx-2">
               <Link className="nav-link text-white" to="/InicioBodega">
                 📊 Reportes
               </Link>
             </li>
 
-
             <li className="nav-item mx-2">
               <Link className="nav-link text-white" to="/VerProductos">
-               📦 Productos
+                📦 Productos
               </Link>
-            
             </li>
-
           </ul>
 
+          <div className="d-flex align-items-center text-white">
+            <span className="me-3">Hola, {userName}</span>
+            <button
+              type="button"
+              className="btn btn-outline-light btn-sm"
+              onClick={handleLogout}
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
       </div>
     </nav>
-  )
+  );
 }
 
 export default NavBodega;
