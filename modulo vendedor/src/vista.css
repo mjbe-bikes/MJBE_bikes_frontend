@@ -1,0 +1,16 @@
+body{
+    background-color: #f5f7fa;
+}
+
+.card{
+    border: none;
+    border-radius: 12px;
+}
+
+.card-header{
+    font-weight: 600;
+}
+
+h1{
+    font-weight: bold;
+}

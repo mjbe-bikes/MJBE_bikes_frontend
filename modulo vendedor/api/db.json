@@ -1,0 +1,219 @@
+{
+  "roles": [
+    {
+      "id": 1,
+      "tipo_rol": "Administrador"
+    },
+    {
+      "id": 2,
+      "tipo_rol": "Cliente"
+    },
+    {
+      "id": 3,
+      "tipo_rol": "Vendedor"
+    },
+    {
+      "id": 4,
+      "tipo_rol": "Bodeguero"
+    }
+  ],
+
+  "usuarios": [
+    {
+      "id": 1,
+      "login": "admin01",
+      "email": "admin@mjbe.com",
+      "password_harsh": "123456",
+      "rol_id": 1,
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "login": "cliente01",
+      "email": "cliente1@mjbe.com",
+      "password_harsh": "123456",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 3,
+      "login": "cliente02",
+      "email": "cliente2@mjbe.com",
+      "password_harsh": "123456",
+      "rol_id": 2,
+      "estado": "activo"
+    },
+    {
+      "id": 4,
+      "login": "vendedor01",
+      "email": "vendedor@mjbe.com",
+      "password_harsh": "123456",
+      "rol_id": 3,
+      "estado": "activo"
+    },
+    {
+      "id": 5,
+      "login": "bodeguero01",
+      "email": "bodeguero@mjbe.com",
+      "password_harsh": "123456",
+      "rol_id": 4,
+      "estado": "activo"
+    }
+  ],
+
+  "tipos_documentos": [
+    {
+      "id": 1,
+      "sigla": "CC",
+      "nombre_documento": "Cedula Ciudadania",
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "sigla": "TI",
+      "nombre_documento": "Tarjeta Identidad",
+      "estado": "activo"
+    },
+    {
+      "id": 3,
+      "sigla": "NIT",
+      "nombre_documento": "Numero Identificacion Tributaria",
+      "estado": "activo"
+    }
+  ],
+
+  "locales": [
+    {
+      "id": 1,
+      "nombre_local": "Local Bosa",
+      "direccion_local": "Cra 1 #12-34",
+      "correo": "bosa@mjbe.com",
+      "telefono": "3001234567",
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "nombre_local": "Local Centro",
+      "direccion_local": "Calle 20 #15-40",
+      "correo": "centro@mjbe.com",
+      "telefono": "3209876543",
+      "estado": "activo"
+    }
+  ],
+
+  "tallas": [
+    {
+      "id": 1,
+      "talla": "S"
+    },
+    {
+      "id": 2,
+      "talla": "M"
+    },
+    {
+      "id": 3,
+      "talla": "L"
+    },
+    {
+      "id": 4,
+      "talla": "XL"
+    }
+  ],
+
+  "medidas": [
+    {
+      "id": 1,
+      "talla_id": 1,
+      "tipo_medida": "26 pulgadas"
+    },
+    {
+      "id": 2,
+      "talla_id": 2,
+      "tipo_medida": "27.5 pulgadas"
+    },
+    {
+      "id": 3,
+      "talla_id": 3,
+      "tipo_medida": "29 pulgadas"
+    }
+  ],
+
+  "clientes": [
+    {
+      "id": 1,
+      "usuario_id": 2,
+      "tipo_documento_id": 1,
+      "numero_documento": "1001234567",
+      "nombres": "Juan David",
+      "apellidos": "Perez Lopez",
+      "direccion": "Bosa"
+    },
+    {
+      "id": 2,
+      "usuario_id": 3,
+      "tipo_documento_id": 1,
+      "numero_documento": "1009876543",
+      "nombres": "Maria Fernanda",
+      "apellidos": "Gomez Ruiz",
+      "direccion": "Kennedy"
+    }
+  ],
+
+  "telefonos": [
+    {
+      "id": 1,
+      "cliente_id": 1,
+      "no_telefono": "3115554444"
+    },
+    {
+      "id": 2,
+      "cliente_id": 1,
+      "no_telefono": "3208887777"
+    },
+    {
+      "id": 3,
+      "cliente_id": 2,
+      "no_telefono": "3002223333"
+    }
+  ],
+
+  "proveedores": [
+    {
+      "id": 1,
+      "nombre_proveedor": "Bike Store SAS",
+      "tipo_documento_id": 3,
+      "numero_identidad": "900123456",
+      "direccion": "Calle 100 #20",
+      "telefono": "3204445555",
+      "estado": "activo"
+    },
+    {
+      "id": 2,
+      "nombre_proveedor": "Componentes MTB Ltda",
+      "tipo_documento_id": 3,
+      "numero_identidad": "900654321",
+      "direccion": "Avenida 68 #45-12",
+      "telefono": "3157778899",
+      "estado": "activo"
+    }
+  ]
+,
+"facturas": [
+  {
+    "id": 1,
+    "numero_factura": "FAC-001",
+    "cliente_id": 1,
+    "fecha": "2026-07-01",
+    "total": 850000,
+    "estado": "Pagada"
+  },
+  {
+    "id": 2,
+    "numero_factura": "FAC-002",
+    "cliente_id": 2,
+    "fecha": "2026-07-01",
+    "total": 1200000,
+    "estado": "Pendiente"
+  }
+]
+}
