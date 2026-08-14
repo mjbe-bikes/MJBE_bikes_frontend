@@ -14,3 +14,7 @@ body{
 h1{
     font-weight: bold;
 }
+
+.container.py-4{
+    content-align: center; ;
+}
