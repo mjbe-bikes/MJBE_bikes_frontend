@@ -1,6 +1,9 @@
 html, body, #root {
     height: 100%;
     margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: #eef2f7;
+    color: #212529;
 }
 
 .app {
@@ -36,8 +39,47 @@ html, body, #root {
     padding: 2rem;
 }
 
+.auth-side {
+    min-height: 100%;
+    background: linear-gradient(180deg, rgba(13,110,253,1) 0%, rgba(51, 102, 255, 1) 100%);
+    color: #ffffff;
+}
+
+.auth-side .auth-brand {
+    color: #ffffff;
+}
+
+.auth-side p {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.auth-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.75rem;
+}
+
+.auth-brand {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.auth-subtitle {
+    color: #6c757d;
+}
+
+.auth-note {
+    color: #6c757d;
+}
+
 .auth-link a {
     color: #0d6efd;
+}
+
+.auth-link a:hover {
+    color: #084298;
+    text-decoration: underline;
 }
 
 .auth-link a:hover {
@@ -77,6 +119,16 @@ html, body, #root {
 .btn-success:focus {
     background: #157347;
     border-color: #146c43;
+}
+
+@media (max-width: 576px) {
+    .auth-page {
+        padding: 1.5rem 0 3rem;
+    }
+
+    .auth-card .card-body {
+        padding: 1.5rem;
+    }
 }
 
 @media print {
@@ -122,8 +174,26 @@ html, body, #root {
   .card, .container, .table-responsive {
     overflow: visible !important;
   }
+
+  .login-page {
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 1rem;
+  }
+
+  .login-brand {
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
 }
 
+/* HOJA EN HORIZONTAL (RECOMENDADO PARA TABLAS) */
 
 @media print {
 
@@ -137,6 +207,7 @@ html, body, #root {
     padding: 0 !important;
   }
 
+  /* 🔥 ESTE ES EL FIX CLAVE */
   .print-area {
     width: 100% !important;
   }
@@ -150,6 +221,7 @@ html, body, #root {
     padding: 0 !important;
   }
 
+  /* ❌ EL PROBLEMA ERA LA CARD */
   .print-area .card {
     width: 100% !important;
     margin: 0 !important;

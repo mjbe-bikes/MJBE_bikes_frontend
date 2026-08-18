@@ -2,39 +2,43 @@
   "usuarios": [
     {
       "id": 1,
-      "login": "admin1",
-      "email": "admin1@mjbe.com",
-      "password": "Admin123*",
-      "image_url": "img/u1.jpg",
-      "token_activacion": "tok1",
-      "reset_key": "key1",
-      "reset_base": "base1",
+      "login": "admin",
+      "email": "admin@mjbebikes.com",
+      "password_harsh": "ef92b778bafe771e89245b89ecbcf8a1f1d1676a3f7a0d7f8f6d7f10f1c0f3fb",
       "rol_id": 1,
-      "estado": "Activo"
+      "estado": "activo"
     },
     {
       "id": 2,
-      "login": "bodega1",
-      "email": "bod1@mjbe.com",
-      "password": "Bodega123*",
-      "image_url": "img/u4.jpg",
-      "token_activacion": "tok4",
-      "reset_key": "key4",
-      "reset_base": "base4",
-      "rol_id": 4,
-      "estado": "Activo"
+      "login": "empleado1",
+      "email": "empleado1@mjbebikes.com",
+      "password_harsh": "7bd4e43ca1122688ccc160b79d6ad8a5d0ff81768e7ca7cf2f0b9ef69a3b26db",
+      "rol_id": 2,
+      "estado": "activo"
     },
     {
       "id": 3,
-      "login": "bodega2",
-      "email": "bod2@mjbe.com",
-      "password": "Bodega456*",
-      "image_url": "img/u5.jpg",
-      "token_activacion": "tok5",
-      "reset_key": "key5",
-      "reset_base": "base5",
+      "login": "bodeguero1",
+      "email": "bodeguero1@mjbebikes.com",
+      "password_harsh": "228fb89b2fb1d38d5f61c5e1c8ba80c68a989d7d14a4ba5153f9a3eb3db1f45c",
+      "rol_id": 3,
+      "estado": "activo"
+    },
+    {
+      "id": 4,
+      "login": "cliente1",
+      "email": "cliente1@mjbebikes.com",
+      "password_harsh": "4c17b5ae9fa8595ff9386f0d9cc30f9f8b756e81f4f6c7a6ae8da1fe2d16d64e",
       "rol_id": 4,
-      "estado": "Activo"
+      "estado": "activo"
+    },
+    {
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "password_harsh": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "rol_id": 1,
+      "estado": "activo",
+      "id": 5
     }
   ],
   "productos": [
@@ -412,21 +416,129 @@
       "valor_unitario": 40000,
       "estado": "Activo",
       "id": 25
+    }
+  ],
+  "proveedores": [
+    {
+      "id": 1,
+      "nombre_proveedor": "Proveedora Uno",
+      "tipo_documento_id": 4,
+      "numero_identidad": "900123456-1",
+      "direccion": "Calle 123 #45-67",
+      "telefono": "3001234567",
+      "estado": "activo"
     },
     {
-      "img_producto": "urlfalsa.com",
-      "nombre_producto": "Bici a",
-      "descripcion": "descripcion de bici a",
-      "color_producto": "blanca",
-      "marca_producto": "marca x",
-      "cant_producto": 50,
-      "modelo": "modelo 20",
-      "id_medida": 23,
-      "id_proveedor": 25,
-      "id_local": 9,
-      "valor_unitario": 500000,
+      "id": 2,
+      "nombre_proveedor": "Proveedora Dos",
+      "tipo_documento_id": 4,
+      "numero_identidad": "900987654-2",
+      "direccion": "Av. Principal 78",
+      "telefono": "3007654321",
+      "estado": "activo"
+    }
+  ],
+  "dashboard": {
+    "resumen": {
+      "totalProductos": 2,
+      "totalClientes": 45,
+      "totalVentas": 240,
+      "ventasHoy": 8,
+      "ventasMes": 72,
+      "stockBajo": 3
+    },
+    "reportes": [
+      {
+        "id": 1,
+        "titulo": "Ventas semanales",
+        "descripcion": "Las ventas crecieron 12% esta semana.",
+        "fecha": "2026-07-01"
+      },
+      {
+        "id": 2,
+        "titulo": "Inventario actualizado",
+        "descripcion": "Hay 3 productos con stock bajo.",
+        "fecha": "2026-07-01"
+      }
+    ],
+    "novedades": [
+      {
+        "id": 1,
+        "titulo": "Nuevo proveedor",
+        "descripcion": "Se añadió un proveedor nacional a la red.",
+        "fecha": "2026-06-28"
+      },
+      {
+        "id": 2,
+        "titulo": "Promoción de verano",
+        "descripcion": "Pronto se lanzarán descuentos en bicicletas urbanas.",
+        "fecha": "2026-06-29"
+      }
+    ]
+  },
+  "sessions": [
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
       "estado": "activo",
-      "id": 26
+      "fecha_login": "2026-07-02T03:52:18.278Z",
+      "id": 1
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-07-02T03:57:27.583Z",
+      "id": 2
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-07-02T04:00:54.645Z",
+      "id": 3
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-07-02T04:08:29.292Z",
+      "id": 4
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-07-02T04:08:40.764Z",
+      "id": 5
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-07-31T16:12:58.213Z",
+      "id": 6
+    },
+    {
+      "user_id": 2,
+      "login": "bodega1",
+      "email": "bod1@mjbe.com",
+      "rol_id": 4,
+      "estado": "Activo",
+      "fecha_login": "2026-08-18T03:11:44.264Z",
+      "id": 7
     }
   ]
 }
