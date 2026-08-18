@@ -12,6 +12,7 @@ import VerUsuarios from "./vistaAdmi/gestionDeEmpleados/VerUsuarios"
 
 // ------------ Apartado de gestion de Productos ---------------------
 import VerProductos from "./vistaAdmi/gestionDeProducto/VerProductos"
+import ActualizarProducto from "./vistaAdmi/gestionDeProducto/ActualizarProducto"
 
 // ------------ Apartado de gestion de Proveedores ---------------------
 import CrearProveedores from "./vistaAdmi/gestionDeProveedores/CrearProveedores"
@@ -54,6 +55,12 @@ function App() {
             path="/VerProductos"
             element={
               isLoggedIn ? <VerProductos /> : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/ActualizarProducto/:id"
+            element={
+              isLoggedIn ? <ActualizarProducto /> : <Navigate to="/login" replace />
             }
           />
 
