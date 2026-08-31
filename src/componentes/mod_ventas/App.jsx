@@ -8,6 +8,8 @@ import InfoVenta from "./InformacionVenta";
 import Cliente from "./Cliente";
 import Historialventas from "./Historialventas";
 import Footer from "./footer";
+import ProductoDetalle from "./ProductoDetalle";
+import Inicio from "./Inicio";
 
 function App() {
   return (
@@ -18,10 +20,16 @@ function App() {
           <Route path="/ventas" element={<Vista />} />
           <Route path="/facturacion" element={<Facturacion />} />
           <Route path="/productos" element={<Productos />} />
+          <Route path="/Inicio" element={<Inicio />} />
 
           <Route
             path="/InformacionEntrega"
             element={<InfoEntrega />}
+          />
+
+          <Route
+            path="/producto/:id"
+            element={<ProductoDetalle />}
           />
 
           <Route

@@ -1,5 +1,6 @@
 import Navar from "./navar";
 import Footer from "./footer";
+import { Link } from "react-router-dom";
 
 function Ventas() {
   return (

@@ -7,7 +7,7 @@ function Navar() {
         
 
         {/* Logo */}
-        <Link className="navbar-brand fw-bold fs-3" to="/">
+        <Link className="navbar-brand fw-bold fs-3" to="/Inicio">
           🚲 MJBE Bikes
         </Link>
 
