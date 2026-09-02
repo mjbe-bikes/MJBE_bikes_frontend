@@ -4,6 +4,14 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 function CrearEmpleados() {
 
  const [form, setForm] = useState({
@@ -25,6 +33,8 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
+    const hashedPassword = await hashPassword(form.password_harsh);
+
     const res = await fetch("http://localhost:3001/usuarios", {
       method: "POST",
       headers: {
@@ -33,7 +43,7 @@ const handleSubmit = async (e) => {
       body: JSON.stringify({
         login: form.login,
         email: form.email,
-        password_harsh: form.password_harsh,
+        password_harsh: hashedPassword,
         rol_id: Number(form.rol_id),
         estado: form.estado
       }),

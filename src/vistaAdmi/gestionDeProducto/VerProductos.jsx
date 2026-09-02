@@ -12,6 +12,7 @@ function VerProductos() {
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [filtroPor, setFiltroPor] = useState("nombre_producto");
   const [valorFiltro, setValorFiltro] = useState("");
+  const [ordenCantidad, setOrdenCantidad] = useState("desc");
   const [showModal, setShowModal] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,8 +45,16 @@ function VerProductos() {
       return String(valor).toLowerCase().includes(valorFiltro.toLowerCase());
     });
 
-    setProductosFiltrados(filtrados);
-  }, [productos, filtroPor, valorFiltro]);
+    const productosOrdenados = filtroPor === "cant_producto"
+      ? [...filtrados].sort((a, b) => {
+          const cantidadA = Number(a.cant_producto) || 0;
+          const cantidadB = Number(b.cant_producto) || 0;
+          return ordenCantidad === "asc" ? cantidadA - cantidadB : cantidadB - cantidadA;
+        })
+      : filtrados;
+
+    setProductosFiltrados(productosOrdenados);
+  }, [productos, filtroPor, valorFiltro, ordenCantidad]);
 
   const abrirModal = (producto) => {
     setProductoSeleccionado(producto);
@@ -107,7 +116,6 @@ function VerProductos() {
                 <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                   <div>
                     <h4 className="mb-0">🛒 Productos</h4>
-                    <small>Listado de productos desde la API</small>
                   </div>
 
                   <Dropdown className="no-print">
@@ -125,6 +133,7 @@ function VerProductos() {
                         <option value="modelo">Modelo</option>
                         <option value="marca_producto">Marca</option>
                         <option value="color_producto">Color</option>
+                        <option value="cant_producto">Cantidad</option>
                         <option value="estado">Estado</option>
                       </select>
 
@@ -135,6 +144,16 @@ function VerProductos() {
                         value={valorFiltro}
                         onChange={(e) => setValorFiltro(e.target.value)}
                       />
+
+                      <label className="form-label">Orden por cantidad</label>
+                      <select
+                        className="form-select mb-3"
+                        value={ordenCantidad}
+                        onChange={(e) => setOrdenCantidad(e.target.value)}
+                      >
+                        <option value="desc">Mayor a menor</option>
+                        <option value="asc">Menor a mayor</option>
+                      </select>
 
                       <button className="btn btn-primary w-100" onClick={() => {}}>
                         Aplicar filtro
@@ -159,6 +178,7 @@ function VerProductos() {
                           <th>Modelo</th>
                           <th>Marca</th>
                           <th>Color</th>
+                          <th>Cantidad</th>
                           <th>Estado</th>
                           <th className="no-print">Acciones</th>
                         </tr>
@@ -167,13 +187,13 @@ function VerProductos() {
                       <tbody>
                         {loading ? (
                           <tr>
-                            <td colSpan="7" className="text-center">
+                            <td colSpan="8" className="text-center">
                               Cargando productos...
                             </td>
                           </tr>
                         ) : productosFiltrados.length === 0 ? (
                           <tr>
-                            <td colSpan="7" className="text-center">
+                            <td colSpan="8" className="text-center">
                               No hay productos disponibles
                             </td>
                           </tr>
@@ -185,6 +205,7 @@ function VerProductos() {
                               <td>{p.modelo}</td>
                               <td>{p.marca_producto}</td>
                               <td>{p.color_producto}</td>
+                              <td>{p.cant_producto}</td>
                               <td>{p.estado}</td>
 
                               <td className="no-print">

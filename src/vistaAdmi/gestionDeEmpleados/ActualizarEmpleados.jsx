@@ -4,6 +4,14 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 function ActualizarEmpleados() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -68,9 +76,8 @@ function ActualizarEmpleados() {
         estado: form.estado
       };
 
-      // solo enviar password si fue modificada
       if (form.password_harsh.trim() !== "") {
-        body.password_harsh = form.password_harsh;
+        body.password_harsh = await hashPassword(form.password_harsh);
       }
 
       const res = await fetch(`http://localhost:3001/usuarios/${id}`, {

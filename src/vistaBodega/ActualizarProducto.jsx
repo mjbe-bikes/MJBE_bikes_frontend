@@ -7,7 +7,6 @@ import FooterBodega from "../componentes/FooterBodega";
 const API_URL = "http://localhost:3001/productos";
 
 function ActualizarProducto() {
-
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -26,29 +25,29 @@ function ActualizarProducto() {
     id_proveedor: "",
     id_local: "",
     valor_unitario: "",
-    estado: "activo"
+    estado: "activo",
   });
 
   const medidas = [
     { id: 1, nombre: "Unidad" },
     { id: 2, nombre: "Caja" },
-    { id: 3, nombre: "Kilogramo" }
+    { id: 3, nombre: "Kilogramo" },
   ];
 
   const proveedores = [
     { id: 1, nombre: "Shimano Import" },
-    { id: 2, nombre: "GW Distribuciones" }
+    { id: 2, nombre: "GW Distribuciones" },
   ];
 
   const locales = [
     { id: 1, nombre: "Local Centro" },
-    { id: 2, nombre: "Local Norte" }
+    { id: 2, nombre: "Local Norte" },
   ];
 
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -71,7 +70,7 @@ function ActualizarProducto() {
           id_proveedor: productoEncontrado.id_proveedor || "",
           id_local: productoEncontrado.id_local || "",
           valor_unitario: productoEncontrado.valor_unitario || "",
-          estado: productoEncontrado.estado || "activo"
+          estado: productoEncontrado.estado || "activo",
         });
       } catch (err) {
         console.error(err);
@@ -91,7 +90,7 @@ function ActualizarProducto() {
       const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...form,
@@ -99,8 +98,8 @@ function ActualizarProducto() {
           id_medida: Number(form.id_medida),
           id_proveedor: Number(form.id_proveedor),
           id_local: Number(form.id_local),
-          valor_unitario: Number(form.valor_unitario)
-        })
+          valor_unitario: Number(form.valor_unitario),
+        }),
       });
 
       if (!response.ok) throw new Error("No se pudo actualizar el producto");
@@ -118,26 +117,19 @@ function ActualizarProducto() {
 
   return (
     <div className="app">
-
       <NavBodega />
 
       <main className="container-fluid py-4 contenido">
-
         <div className="row justify-content-center">
-
           <div className="col-xl-10 col-lg-11 col-md-12">
-
             <div className="card shadow border-0 rounded-4">
-
               <div className="card-header bg-primary text-white py-3">
                 <h3 className="mb-0">✏️ Actualizar Producto</h3>
                 <small>Modifica la información del producto</small>
               </div>
 
               <div className="card-body p-4">
-
                 <form className="row g-4" onSubmit={handleSubmit}>
-
                   <div className="col-md-6">
                     <label>Imagen URL</label>
                     <input
@@ -243,8 +235,10 @@ function ActualizarProducto() {
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
-                      {medidas.map(m => (
-                        <option key={m.id} value={m.id}>{m.nombre}</option>
+                      {medidas.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -258,8 +252,10 @@ function ActualizarProducto() {
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
-                      {proveedores.map(p => (
-                        <option key={p.id} value={p.id}>{p.nombre}</option>
+                      {proveedores.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -273,8 +269,10 @@ function ActualizarProducto() {
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
-                      {locales.map(l => (
-                        <option key={l.id} value={l.id}>{l.nombre}</option>
+                      {locales.map((l) => (
+                        <option key={l.id} value={l.id}>
+                          {l.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -293,7 +291,6 @@ function ActualizarProducto() {
                   </div>
 
                   <div className="col-12 d-flex justify-content-between mt-3">
-
                     <Link
                       to="/VerProductos"
                       className="btn btn-outline-secondary"
@@ -301,28 +298,18 @@ function ActualizarProducto() {
                       Volver
                     </Link>
 
-                    <button
-                      type="submit"
-                      className="btn btn-primary px-4"
-                    >
+                    <button type="submit" className="btn btn-primary px-4">
                       Actualizar Producto
                     </button>
-
                   </div>
-
                 </form>
-
               </div>
-
             </div>
-
           </div>
         </div>
-
       </main>
 
       <FooterBodega />
-
     </div>
   );
 }

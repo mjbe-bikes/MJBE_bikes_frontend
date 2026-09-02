@@ -17,12 +17,12 @@
       "estado": "activo"
     },
     {
-      "id": 3,
       "login": "bodeguero1",
       "email": "bodeguero1@mjbebikes.com",
-      "password_harsh": "228fb89b2fb1d38d5f61c5e1c8ba80c68a989d7d14a4ba5153f9a3eb3db1f45c",
       "rol_id": 3,
-      "estado": "activo"
+      "estado": "activo",
+      "password_harsh": "20f3765880a5c269b747e1e906054a4b4a3a991259f1e16b5dde4742cec2319a",
+      "id": 3
     },
     {
       "id": 4,
@@ -539,6 +539,114 @@
       "estado": "Activo",
       "fecha_login": "2026-08-18T03:11:44.264Z",
       "id": 7
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T05:24:41.650Z",
+      "id": 8
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T06:15:16.546Z",
+      "id": 9
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T06:30:21.103Z",
+      "id": 10
+    },
+    {
+      "user_id": 3,
+      "login": "bodeguero1",
+      "email": "bodeguero1@mjbebikes.com",
+      "rol_id": 3,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T06:32:13.612Z",
+      "id": 11
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:14:30.742Z",
+      "id": 12
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:15:01.514Z",
+      "id": 13
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:16:55.595Z",
+      "id": 14
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:17:29.562Z",
+      "id": 15
+    },
+    {
+      "user_id": 3,
+      "login": "bodeguero1",
+      "email": "bodeguero1@mjbebikes.com",
+      "rol_id": 3,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:17:44.496Z",
+      "id": 16
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:20:26.266Z",
+      "id": 17
+    },
+    {
+      "user_id": 3,
+      "login": "bodeguero1",
+      "email": "bodeguero1@mjbebikes.com",
+      "rol_id": 3,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:20:55.119Z",
+      "id": 18
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-02T16:22:06.150Z",
+      "id": 19
     }
   ]
 }

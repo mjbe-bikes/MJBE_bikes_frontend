@@ -56,6 +56,16 @@ function NavAdmi() {
                 🏭 Proveedores
               </Link>
             </li>
+            <li className="nav-item mx-2">
+              <Link className="nav-link text-white" to="/ventas">
+                💰 Ventas
+              </Link>
+            </li>
+            <li className="nav-item mx-2">
+              <Link className="nav-link text-white" to="/compras">
+                🛒 Compras
+              </Link>
+            </li>
           </ul>
 
           <div className="d-flex align-items-center text-white">

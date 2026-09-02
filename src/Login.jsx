@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Navigate, useNavigate, Link } from "react-router-dom"
+import { useState } from "react"
+import { useNavigate, Link } from "react-router-dom"
 import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
 
@@ -16,17 +16,6 @@ function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const isLoggedIn = localStorage.getItem("mjbe_auth") === "true"
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/", { replace: true })
-    }
-  }, [isLoggedIn, navigate])
-
-  if (isLoggedIn) {
-    return <Navigate to="/" replace />
-  }
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -51,8 +40,9 @@ function Login() {
         return
       }
 
-      if (user.rol_id !== 1) {
-        setError("Solo administradores pueden acceder.")
+      const rolId = Number(user.rol_id)
+      if (rolId !== 1 && rolId !== 3) {
+        setError("Rol no autorizado para acceder.")
         return
       }
 
@@ -66,7 +56,7 @@ function Login() {
         user_id: user.id,
         login: user.login,
         email: user.email,
-        rol_id: user.rol_id,
+        rol_id: rolId,
         estado: user.estado,
         fecha_login: new Date().toISOString()
       }
@@ -83,9 +73,14 @@ function Login() {
       localStorage.setItem("mjbe_user_id", String(user.id))
       localStorage.setItem("mjbe_user_login", user.login)
       localStorage.setItem("mjbe_user_email", user.email)
-      localStorage.setItem("mjbe_rol_id", String(user.rol_id))
+      localStorage.setItem("mjbe_rol_id", String(rolId))
 
-      navigate("/", { replace: true })
+      if (rolId === 1) {
+        navigate("/", { replace: true })
+        return
+      }
+
+      navigate("/InicioBodega", { replace: true })
     } catch (err) {
       console.error(err)
       setError("Error de conexión con el backend.")
