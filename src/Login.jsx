@@ -41,7 +41,7 @@ function Login() {
       }
 
       const rolId = Number(user.rol_id)
-      if (rolId !== 1 && rolId !== 3) {
+      if (![1, 2, 3].includes(rolId)) {
         setError("Rol no autorizado para acceder.")
         return
       }
@@ -77,6 +77,11 @@ function Login() {
 
       if (rolId === 1) {
         navigate("/", { replace: true })
+        return
+      }
+
+      if (rolId === 2) {
+        navigate("/InformacionVenta", { replace: true })
         return
       }
 
