@@ -647,6 +647,24 @@
       "estado": "activo",
       "fecha_login": "2026-09-02T16:22:06.150Z",
       "id": 19
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-06T19:00:59.878Z",
+      "id": 20
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-06T19:03:43.712Z",
+      "id": 21
     }
   ]
 }

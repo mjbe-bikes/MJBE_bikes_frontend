@@ -76,7 +76,7 @@ function Login() {
       localStorage.setItem("mjbe_rol_id", String(rolId))
 
       if (rolId === 1) {
-        navigate("/", { replace: true })
+        navigate("/InicioAdmin", { replace: true })
         return
       }
 

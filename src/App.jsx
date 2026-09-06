@@ -1,7 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 
+// ------------ Apartado de Cliente e Inicio ----------------------------
+import Inicio from "./Inicio"
+import ProductoDetalle from "./vistaCliente/ProductoDetalle"
+
 // ------------ Apartado de inicio de administrador ---------------------
-import Inicio from "./vistaAdmi/Inicio"
+import InicioAdmin from "./vistaAdmi/InicioAdmin"
 import InicioBodega from "./vistaBodega/InicioBodega"
 import Login from "./Login"
 import Register from "./Register"
@@ -33,7 +37,20 @@ function App() {
         <Route
           path="/"
           element={
-            isLoggedIn && rolId === 1 ? <Inicio /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
+            <Inicio /> 
+          }
+        />
+
+        <Route
+          path="/producto/:id"
+          element={
+             <ProductoDetalle />
+          }
+        />
+        <Route
+          path="/InicioAdmin"
+          element={
+            isLoggedIn && rolId === 1 ? <InicioAdmin /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
           }
         />
 
