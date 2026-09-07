@@ -1,35 +1,35 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavarCliente from "./componentes/NavarCliente";
+import { useCart } from "./vistaCliente/Carrito";
 
-
-const productos = [
-  {
-    id: 1,
-    nombre: "Bicicleta MTB X1",
-    precio: 1500000,
-    categoria: "Montaña",
-    imagen:
-      "https://images.unsplash.com/photo-1541625602330-2277a4c46182",
-  },
-  {
-    id: 2,
-    nombre: "Bicicleta Urban Pro",
-    precio: 1200000,
-    categoria: "Urbana",
-    imagen:
-      "https://images.unsplash.com/photo-1502744688674-c619d1586c9e",
-  },
-  {
-    id: 3,
-    nombre: "Bicicleta Adventure",
-    precio: 1800000,
-    categoria: "Aventura",
-    imagen:
-      "https://images.unsplash.com/photo-1571068316344-75bc76f77890",
-  },
-];
+const API_URL = "http://localhost:3001/productos";
 
 function Inicio() {
+  const { agregarAlCarrito } = useCart();
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("No se pudieron cargar los productos");
+
+        const data = await response.json();
+        setProductos(data.filter((producto) => producto.estado?.toLowerCase() === "activo"));
+      } catch (err) {
+        console.error(err);
+        setError("No se pudieron cargar los productos desde la API.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarProductos();
+  }, []);
+
   return (
     <> <NavarCliente />
     <div className="container py-5">
@@ -46,6 +46,9 @@ function Inicio() {
 
       <h2 className="mb-4">Nuestros productos</h2>
 
+      {loading && <p>Cargando productos...</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
+
       <div className="row">
         {productos.map((producto) => (
           <div className="col-md-4 mb-4" key={producto.id}>
@@ -56,9 +59,9 @@ function Inicio() {
               <div className="card h-100 shadow-sm">
 
                 <img
-                  src={producto.imagen}
+                  src={producto.img_producto}
                   className="card-img-top"
-                  alt={producto.nombre}
+                  alt={producto.nombre_producto}
                   style={{
                     height: "250px",
                     objectFit: "cover",
@@ -67,20 +70,27 @@ function Inicio() {
 
                 <div className="card-body">
                   <small className="text-muted">
-                    {producto.categoria}
+                    {producto.marca_producto}
                   </small>
 
                   <h5 className="card-title mt-2">
-                    {producto.nombre}
+                    {producto.nombre_producto}
                   </h5>
 
                   <h5 className="fw-bold">
-                    ${producto.precio.toLocaleString("es-CO")}
+                    ${Number(producto.valor_unitario).toLocaleString("es-CO")}
                   </h5>
 
-                  <span className="btn btn-dark mt-2">
-                    Ver producto
-                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-dark mt-2"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      agregarAlCarrito(producto);
+                    }}
+                  >
+                    Agregar al carrito
+                  </button>
                 </div>
 
               </div>

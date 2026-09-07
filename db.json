@@ -39,6 +39,14 @@
       "rol_id": 1,
       "estado": "activo",
       "id": 5
+    },
+    {
+      "login": "Manuel",
+      "email": "manorpe@mail.co",
+      "password_harsh": "7ed6955c96a37f46ee96ff4581a0f882b37b173f0e382dbb7bb4509b82b69f91",
+      "rol_id": 4,
+      "estado": "activo",
+      "id": 6
     }
   ],
   "productos": [
@@ -665,6 +673,43 @@
       "estado": "activo",
       "fecha_login": "2026-09-06T19:03:43.712Z",
       "id": 21
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-07T04:43:15.181Z",
+      "id": 22
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-07T04:43:26.330Z",
+      "id": 23
+    },
+    {
+      "user_id": 5,
+      "login": "eduard",
+      "email": "edu@edu.com",
+      "rol_id": 1,
+      "estado": "activo",
+      "fecha_login": "2026-09-07T04:45:25.237Z",
+      "id": 24
+    },
+    {
+      "user_id": 6,
+      "login": "Manuel",
+      "email": "manorpe@mail.co",
+      "rol_id": 4,
+      "estado": "activo",
+      "fecha_login": "2026-09-07T04:52:08.618Z",
+      "id": 25
     }
-  ]
+  ],
+  "compras": []
 }

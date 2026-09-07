@@ -1,70 +1,45 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useCart } from "./Carrito";
 
-const productos = [
-  {
-    id: 1,
-    nombre: "Bicicleta MTB X1",
-    precio: 1500000,
-    categoria: "Montaña",
-    imagen: "https://images.unsplash.com/photo-1541625602330-2277a4c46182",
-    descripcion:
-      "Bicicleta de montaña diseñada para ofrecer estabilidad, comodidad y buen rendimiento tanto en ciudad como en terrenos difíciles.",
-    caracteristicas: [
-      "Marco de aluminio",
-      "21 velocidades",
-      "Frenos de disco",
-      "Suspensión delantera",
-      "Llantas todo terreno",
-    ],
-  },
-  {
-    id: 2,
-    nombre: "Bicicleta Urban Pro",
-    precio: 1200000,
-    categoria: "Urbana",
-    imagen: "https://images.unsplash.com/photo-1502744688674-c619d1586c9e",
-    descripcion:
-      "Una bicicleta cómoda y ligera pensada para desplazamientos urbanos y recorridos diarios.",
-    caracteristicas: [
-      "Marco liviano",
-      "7 velocidades",
-      "Frenos de disco",
-      "Diseño urbano",
-      "Asiento ergonómico",
-    ],
-  },
-  {
-    id: 3,
-    nombre: "Bicicleta Adventure",
-    precio: 1800000,
-    categoria: "Aventura",
-    imagen: "https://images.unsplash.com/photo-1571068316344-75bc76f77890",
-    descripcion:
-      "Bicicleta versátil para quienes buscan disfrutar de recorridos largos y diferentes tipos de terreno.",
-    caracteristicas: [
-      "Marco de aluminio reforzado",
-      "24 velocidades",
-      "Frenos hidráulicos",
-      "Suspensión delantera",
-      "Llantas de alto agarre",
-    ],
-  },
-];
+const API_URL = "http://localhost:3001/productos";
 
 function ProductoDetalle() {
   const { id } = useParams();
+  const { agregarAlCarrito } = useCart();
+  const [producto, setProducto] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const producto = productos.find(
-    (producto) => producto.id === Number(id)
-  );
+  useEffect(() => {
+    const cargarProducto = async () => {
+      try {
+        const response = await fetch(`${API_URL}/${id}`);
+        if (!response.ok) throw new Error("Producto no encontrado");
 
-  if (!producto) {
+        setProducto(await response.json());
+      } catch (err) {
+        console.error(err);
+        setError("No se pudo cargar el producto desde la API.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarProducto();
+  }, [id]);
+
+  if (loading) {
+    return <div className="container py-5 text-center">Cargando producto...</div>;
+  }
+
+  if (error || !producto) {
     return (
       <div className="container py-5 text-center">
         <h2>Producto no encontrado</h2>
-        <p>La bicicleta que buscas no existe.</p>
+        <p>{error || "El producto que buscas no existe."}</p>
 
-        <Link to="/Inicio" className="btn btn-dark">
+        <Link to="/" className="btn btn-dark">
           Volver al inicio
         </Link>
       </div>
@@ -76,8 +51,8 @@ function ProductoDetalle() {
 
       {/* BOTÓN VOLVER */}
       <div className="mb-4">
-        <Link to="/Inicio" className="text-decoration-none">
-          ← Volver al catálogo
+        <Link to="/" className="text-decoration-none">
+          ← Volver
         </Link>
       </div>
 
@@ -87,8 +62,8 @@ function ProductoDetalle() {
         <div className="col-md-6 mb-4">
           <div className="producto-imagen-detalle">
             <img
-              src={producto.imagen}
-              alt={producto.nombre}
+              src={producto.img_producto}
+              alt={producto.nombre_producto}
               className="img-fluid rounded"
             />
           </div>
@@ -98,15 +73,15 @@ function ProductoDetalle() {
         <div className="col-md-6">
 
           <span className="badge bg-secondary mb-3">
-            {producto.categoria}
+            {producto.marca_producto}
           </span>
 
           <h1 className="fw-bold">
-            {producto.nombre}
+            {producto.nombre_producto}
           </h1>
 
           <h2 className="text-primary fw-bold my-4">
-            ${producto.precio.toLocaleString("es-CO")}
+            ${Number(producto.valor_unitario).toLocaleString("es-CO")}
           </h2>
 
           <h5>Descripción</h5>
@@ -122,7 +97,7 @@ function ProductoDetalle() {
           </h5>
 
           <ul>
-            {producto.caracteristicas.map((caracteristica, index) => (
+            {[producto.color_producto, producto.modelo, producto.marca_producto, `Stock: ${producto.cant_producto}`].map((caracteristica, index) => (
               <li key={index} className="mb-2">
                 {caracteristica}
               </li>
@@ -135,7 +110,11 @@ function ProductoDetalle() {
               Comprar
             </button>
 
-            <button className="btn btn-outline-dark btn-lg">
+            <button
+              type="button"
+              className="btn btn-outline-dark btn-lg"
+              onClick={() => agregarAlCarrito(producto)}
+            >
               Agregar al carrito
             </button>
 

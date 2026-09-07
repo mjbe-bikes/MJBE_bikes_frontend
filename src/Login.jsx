@@ -41,7 +41,7 @@ function Login() {
       }
 
       const rolId = Number(user.rol_id)
-      if (rolId !== 1 && rolId !== 3) {
+      if (rolId !== 1 && rolId !== 3 && rolId !== 4) {
         setError("Rol no autorizado para acceder.")
         return
       }
@@ -77,6 +77,11 @@ function Login() {
 
       if (rolId === 1) {
         navigate("/InicioAdmin", { replace: true })
+        return
+      }
+
+      if (rolId === 4) {
+        navigate("/", { replace: true })
         return
       }
 

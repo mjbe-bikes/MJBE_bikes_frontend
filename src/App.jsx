@@ -1,11 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
 
 // ------------ Apartado de Cliente e Inicio ----------------------------
 import Inicio from "./Inicio"
 import ProductoDetalle from "./vistaCliente/ProductoDetalle"
+import ProductosCliente from "./vistaCliente/ProductosCliente"
+import CompraCliente from "./vistaCliente/CompraCliente"
+import MisCompras from "./vistaCliente/MisCompras"
+import { CartProvider } from "./vistaCliente/Carrito"
 
 // ------------ Apartado de inicio de administrador ---------------------
-import InicioAdmin from "./vistaAdmi/InicioAdmin"
+import InicioAdmin from "./vistaAdmi/Inicio"
 import InicioBodega from "./vistaBodega/InicioBodega"
 import Login from "./Login"
 import Register from "./Register"
@@ -26,6 +30,22 @@ import CrearProveedores from "./vistaAdmi/gestionDeProveedores/CrearProveedores"
 import ActualizarProveedores from "./vistaAdmi/gestionDeProveedores/ActualizarProveedores"
 import VerProveedores from "./vistaAdmi/gestionDeProveedores/VerProveedores"
 
+function CheckoutProtegido() {
+  useLocation()
+  const esCliente = localStorage.getItem("mjbe_auth") === "true"
+    && Number(localStorage.getItem("mjbe_rol_id")) === 4
+
+  return esCliente ? <CompraCliente /> : <Navigate to="/login" replace />
+}
+
+function ComprasProtegidas() {
+  useLocation()
+  const esCliente = localStorage.getItem("mjbe_auth") === "true"
+    && Number(localStorage.getItem("mjbe_rol_id")) === 4
+
+  return esCliente ? <MisCompras /> : <Navigate to="/login" replace />
+}
+
 function App() {
   const isLoggedIn = localStorage.getItem("mjbe_auth") === "true"
   const rolId = Number(localStorage.getItem("mjbe_rol_id") || 0)
@@ -33,7 +53,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+      <CartProvider>
+        <Routes>
         <Route
           path="/"
           element={
@@ -47,6 +68,12 @@ function App() {
              <ProductoDetalle />
           }
         />
+        <Route path="/productos" element={<ProductosCliente />} />
+        <Route
+          path="/checkout"
+          element={<CheckoutProtegido />}
+        />
+        <Route path="/mis-compras" element={<ComprasProtegidas />} />
         <Route
           path="/InicioAdmin"
           element={
@@ -131,7 +158,8 @@ function App() {
             <Navigate to={isLoggedIn ? homeRoute : "/login"} replace />
           }
         />
-      </Routes>
+        </Routes>
+      </CartProvider>
     </BrowserRouter>
   )
 }
