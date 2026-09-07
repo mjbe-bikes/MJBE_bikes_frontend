@@ -95,6 +95,14 @@
       "password_harsh": "4c17b5ae9fa8595ff9386f0d9cc30f9f8b756e81f4f6c7a6ae8da1fe2d16d64e",
       "rol_id": 4,
       "estado": "activo"
+    },
+    {
+      "login": "Manuel",
+      "email": "manorpe@mail.co",
+      "password_harsh": "7ed6955c96a37f46ee96ff4581a0f882b37b173f0e382dbb7bb4509b82b69f91",
+      "rol_id": 4,
+      "estado": "activo",
+      "id": 13
     }
   ],
   "productos": [
@@ -868,5 +876,6 @@
       "precio_unitario_momento": 110000,
       "id": 4
     }
-  ]
+  ],
+  "compras": []
 }

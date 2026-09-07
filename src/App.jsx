@@ -1,7 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
+
+// ------------ Apartado de Cliente e Inicio ----------------------------
+import Inicio from "./Inicio"
+import ProductoDetalle from "./vistaCliente/ProductoDetalle"
+import ProductosCliente from "./vistaCliente/ProductosCliente"
+import CompraCliente from "./vistaCliente/CompraCliente"
+import MisCompras from "./vistaCliente/MisCompras"
+import { CartProvider } from "./vistaCliente/Carrito"
 
 // ------------ Apartado de inicio de administrador ---------------------
-import Inicio from "./vistaAdmi/Inicio"
+import InicioAdmin from "./vistaAdmi/Inicio"
 import InicioBodega from "./vistaBodega/InicioBodega"
 import Login from "./Login"
 import Register from "./Register"
@@ -32,6 +40,21 @@ import Historialventas from "./vistaAdmi/gestionDeVentas/Historialventas"
 import InformacionVenta from "./vistaAdmi/gestionDeVentas/InformacionVenta"
 import CrearVenta from "./vistaAdmi/gestionDeVentas/CrearVenta"
 import InicioVentas from "./vistaAdmi/gestionDeVentas/InicioVentas"
+function CheckoutProtegido() {
+  useLocation()
+  const esCliente = localStorage.getItem("mjbe_auth") === "true"
+    && Number(localStorage.getItem("mjbe_rol_id")) === 4
+
+  return esCliente ? <CompraCliente /> : <Navigate to="/login" replace />
+}
+
+function ComprasProtegidas() {
+  useLocation()
+  const esCliente = localStorage.getItem("mjbe_auth") === "true"
+    && Number(localStorage.getItem("mjbe_rol_id")) === 4
+
+  return esCliente ? <MisCompras /> : <Navigate to="/login" replace />
+}
 
 function App() {
   const isLoggedIn = localStorage.getItem("mjbe_auth") === "true"
@@ -40,19 +63,31 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+      <CartProvider>
+        <Routes>
         <Route
           path="/"
           element={
-            isLoggedIn
-              ? rolId === 1
-                ? <Inicio />
-                : rolId === 2
-                  ? <InicioVentas />
-                  : rolId === 3
-                    ? <InicioBodega />
-                    : <Navigate to="/login" replace />
-              : <Navigate to="/login" replace />
+            <Inicio /> 
+          }
+        />
+
+        <Route
+          path="/producto/:id"
+          element={
+             <ProductoDetalle />
+          }
+        />
+        <Route path="/productos" element={<ProductosCliente />} />
+        <Route
+          path="/checkout"
+          element={<CheckoutProtegido />}
+        />
+        <Route path="/mis-compras" element={<ComprasProtegidas />} />
+        <Route
+          path="/InicioAdmin"
+          element={
+            isLoggedIn && rolId === 1 ? <InicioAdmin /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
           }
         />
 
@@ -187,7 +222,8 @@ function App() {
             <Navigate to={isLoggedIn ? homeRoute : "/login"} replace />
           }
         />
-      </Routes>
+        </Routes>
+      </CartProvider>
     </BrowserRouter>
   )
 }

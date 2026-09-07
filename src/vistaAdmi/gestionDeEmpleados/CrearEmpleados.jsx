@@ -146,6 +146,7 @@ const handleSubmit = async (e) => {
                       <option value="1">Administrador</option>
                       <option value="2">Empleado</option>
                       <option value="3">Bodeguero</option>
+                      <option value="4">Cliente</option>
                     </select>
                   </div>
 
@@ -163,7 +164,7 @@ const handleSubmit = async (e) => {
                     <div className="d-flex gap-2">
 
                       <Link
-                        to = "/"
+                        to = "/VerUsuarios"
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() =>
