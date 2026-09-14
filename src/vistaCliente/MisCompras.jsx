@@ -1,20 +1,46 @@
+// Historial de compras del cliente (usa las rutas de ventas)
+
 import { useEffect, useState } from "react";
 import NavarCliente from "../componentes/NavarCliente";
 
+const API_URL = "http://localhost:5000/api/ventas";
+const DETALLES_VENTA_URL = "http://localhost:5000/api/detalles_venta";
+
+const formatearMoneda = (valor) =>
+  `$${Number(valor || 0).toLocaleString("es-CO")}`;
+
 function MisCompras() {
-  const [compras, setCompras] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const userId = Number(localStorage.getItem("mjbe_user_id"));
+  const [compras, setCompras] = useState([]);
+  const [loading, setLoading] = useState(Boolean(userId));
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!userId) return;
+
     const cargarCompras = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/ventas?user_id=${userId}`);
-        if (!response.ok) throw new Error("No se pudieron cargar las commpras");
+        // Se usan las rutas de ventas, filtradas por el usuario logueado
+        const respuestaVentas = await fetch(`${API_URL}?comprador=${userId}`);
+        if (!respuestaVentas.ok) throw new Error("No se pudieron cargar las compras");
 
-        const data = await response.json();
-        setCompras(data.sort((compraA, compraB) => new Date(compraB.fecha) - new Date(compraA.fecha)));
+        const ventas = await respuestaVentas.json();
+
+        // Por cada venta se traen sus detalles (productos comprados)
+        const comprasConDetalle = await Promise.all(
+          ventas.map(async (venta) => {
+            const respuestaDetalle = await fetch(
+              `${DETALLES_VENTA_URL}?id_venta=${venta.id}`
+            );
+            const detalles = respuestaDetalle.ok ? await respuestaDetalle.json() : [];
+            return { ...venta, detalles };
+          })
+        );
+
+        comprasConDetalle.sort(
+          (compraA, compraB) => new Date(compraB.fecha) - new Date(compraA.fecha)
+        );
+        setCompras(comprasConDetalle);
       } catch (err) {
         console.error(err);
         setError("No se pudieron cargar tus compras.");
@@ -32,9 +58,14 @@ function MisCompras() {
       <main className="container py-5">
         <h1 className="mb-4">Mis compras</h1>
 
-        {loading && <p>Cargando tus compras...</p>}
+        {!userId && (
+          <div className="alert alert-warning">
+            Debes iniciar sesión para ver tus compras.
+          </div>
+        )}
+        {userId && loading && <p>Cargando tus compras...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
-        {!loading && !error && compras.length === 0 && (
+        {userId && !loading && !error && compras.length === 0 && (
           <div className="alert alert-info">Aún no tienes compras registradas.</div>
         )}
 
@@ -44,21 +75,41 @@ function MisCompras() {
               <article className="card shadow-sm">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <strong>Compra #{compra.id}</strong>
-                  <span className="badge bg-success">{compra.estado}</span>
+                  <span className={`badge ${compra.pago ? "bg-success" : "bg-secondary"}`}>
+                    {compra.pago ? "Pagada" : "Pendiente"}
+                  </span>
                 </div>
                 <div className="card-body">
                   <p className="text-muted mb-3">
-                    {new Date(compra.fecha).toLocaleString("es-CO")} · Pago: {compra.metodo_pago}
+                    {compra.fecha
+                      ? new Date(compra.fecha).toLocaleString("es-CO")
+                      : "Sin fecha"}
                   </p>
-                  {compra.productos.map((producto) => (
-                    <div className="d-flex justify-content-between border-bottom py-2" key={producto.id}>
-                      <span>{producto.nombre_producto} x {producto.cantidad}</span>
-                      <strong>${(Number(producto.valor_unitario) * producto.cantidad).toLocaleString("es-CO")}</strong>
-                    </div>
-                  ))}
+
+                  {compra.detalles.length === 0 ? (
+                    <p className="text-muted mb-0">Sin productos asociados.</p>
+                  ) : (
+                    compra.detalles.map((detalle) => (
+                      <div
+                        className="d-flex justify-content-between border-bottom py-2"
+                        key={detalle.id}
+                      >
+                        <span>
+                          {detalle.nombre_producto || `Producto #${detalle.id_producto}`} x{" "}
+                          {detalle.cantidad}
+                        </span>
+                        <strong>
+                          {formatearMoneda(
+                            Number(detalle.precio_unitario_momento) * Number(detalle.cantidad)
+                          )}
+                        </strong>
+                      </div>
+                    ))
+                  )}
+
                   <div className="d-flex justify-content-between fw-bold mt-3">
                     <span>Total</span>
-                    <span>${Number(compra.total).toLocaleString("es-CO")}</span>
+                    <span>{formatearMoneda(compra.total)}</span>
                   </div>
                 </div>
               </article>

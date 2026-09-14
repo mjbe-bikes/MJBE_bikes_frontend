@@ -1,7 +1,11 @@
+// Checkout del cliente
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import NavarCliente from "../componentes/NavarCliente";
 import { Carrito } from "./Carrito";
+
+const API_URL = "http://localhost:5000/api";
 
 function CompraCliente() {
   const navigate = useNavigate();
@@ -31,22 +35,73 @@ function CompraCliente() {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/compras", {
+      // 1. Buscar el cliente asociado al usuario; si no existe, se crea
+      const respuestaClientes = await fetch(`${API_URL}/clientes?usuario_id=${userId}`);
+      const clientes = respuestaClientes.ok ? await respuestaClientes.json() : [];
+
+      let idCliente;
+      if (clientes.length > 0) {
+        idCliente = clientes[0].id_cliente ?? clientes[0].id;
+      } else {
+        const [primerNombre, ...resto] = formulario.nombre.trim().split(" ");
+        const respuestaNuevoCliente = await fetch(`${API_URL}/clientes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuario_id: userId,
+            tipo_documento_id: 1,
+            numero_documento: `USR-${userId}`,
+            nombres: primerNombre || formulario.nombre,
+            apellidos: resto.join(" ") || "-",
+            direccion: formulario.direccion,
+            telefono_clnt: formulario.telefono,
+          }),
+        });
+        if (!respuestaNuevoCliente.ok) throw new Error("No se pudo registrar el cliente");
+        const nuevoCliente = await respuestaNuevoCliente.json();
+        idCliente = nuevoCliente.id_cliente ?? nuevoCliente.id;
+      }
+
+      // 2. Crear la venta (se marca pagada al final si todo sale bien)
+      const respuestaVenta = await fetch(`${API_URL}/ventas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: userId,
-          cliente: formulario.nombre,
-          productos: carrito,
+          id_vendedor: userId,
+          id_cliente: idCliente,
           total: precioTotal,
-          direccion: formulario.direccion,
-          metodo_pago: formulario.metodoPago,
-          estado: "Confirmada",
-          fecha: new Date().toISOString(),
+          pago: false,
         }),
       });
+      if (!respuestaVenta.ok) throw new Error("No se pudo registrar la compra");
+      const venta = await respuestaVenta.json();
 
-      if (!response.ok) throw new Error("No se pudo registrar la compra");
+      // 3. Registrar los productos comprados
+      const respuestasDetalles = await Promise.all(
+        carrito.map((producto) =>
+          fetch(`${API_URL}/detalles_venta`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id_venta: venta.id,
+              id_producto: producto.id,
+              cantidad: producto.cantidad,
+              precio_unitario_momento: Number(producto.valor_unitario),
+            }),
+          })
+        )
+      );
+      if (respuestasDetalles.some((respuesta) => !respuesta.ok)) {
+        throw new Error("No se pudieron registrar todos los productos de la compra");
+      }
+
+      // 4. Todo salió bien: marcar la venta como pagada (pago: false -> true)
+      const respuestaPago = await fetch(`${API_URL}/ventas/${venta.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pago: true }),
+      });
+      if (!respuestaPago.ok) throw new Error("No se pudo confirmar el pago de la compra");
 
       setError("");
       limpiarCarrito();
@@ -131,13 +186,9 @@ function CompraCliente() {
                   <input id="transferencia" name="metodoPago" value="transferencia" type="radio" className="form-check-input" checked={formulario.metodoPago === "transferencia"} onChange={actualizarCampo} />
                   <label htmlFor="transferencia" className="form-check-label">Transferencia bancaria</label>
                 </div>
-                <div className="form-check">
-                  <input id="contraentrega" name="metodoPago" value="contraentrega" type="radio" className="form-check-input" checked={formulario.metodoPago === "contraentrega"} onChange={actualizarCampo} />
-                  <label htmlFor="contraentrega" className="form-check-label">Pago contra entrega</label>
-                </div>
               </fieldset>
 
-              <button type="submit" className="btn btn-dark w-100">Confirmar compra simulada</button>
+              <button type="submit" className="btn btn-dark w-100">Confirmar compra</button>
             </form>
           </section>
 

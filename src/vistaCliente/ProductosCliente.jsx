@@ -1,9 +1,11 @@
+// Listado de productos del cliente
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavarCliente from "../componentes/NavarCliente";
 import { useCart } from "./Carrito";
 
-const API_URL = "http://localhost:3001/productos";
+const API_URL = "http://localhost:5000/api/productos";
 
 function ProductosCliente() {
   const { agregarAlCarrito } = useCart();

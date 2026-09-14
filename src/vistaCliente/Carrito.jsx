@@ -1,10 +1,14 @@
+// Estado global del carrito (React Context)
+
 import { createContext, useContext, useState } from "react";
 
 const CartContext = createContext(null);
 
+// Provider: mantiene el estado y expone las acciones a los hijos
 export function CartProvider({ children }) {
   const [carrito, setCarrito] = useState([]);
 
+  // Agregar producto al carrito
   const agregarAlCarrito = (producto) => {
     setCarrito((actual) => {
       const existente = actual.find((item) => item.id === producto.id);
@@ -38,6 +42,7 @@ export function CartProvider({ children }) {
     setCarrito([]);
   };
 
+  // Totales derivados (se recalculan en cada render)
   const cantidadTotal = carrito.reduce((total, item) => total + item.cantidad, 0);
   const precioTotal = carrito.reduce(
     (total, item) => total + Number(item.valor_unitario) * item.cantidad,
@@ -61,6 +66,7 @@ export function CartProvider({ children }) {
   );
 }
 
+// Hook para leer el contexto. Lanza error si se usa fuera del <CartProvider>.
 export function Carrito() {
   const context = useContext(CartContext);
 
@@ -71,6 +77,7 @@ export function Carrito() {
   return context;
 }
 
+// Alias con nombre más idiomático (misma función)
 export function useCart() {
   return Carrito();
 }

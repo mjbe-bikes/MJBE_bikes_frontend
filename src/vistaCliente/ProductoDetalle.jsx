@@ -1,11 +1,13 @@
+// Ficha de un producto
+
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "./Carrito";
 
-const API_URL = "http://localhost:3001/productos";
+const API_URL = "http://localhost:5000/api/productos";
 
 function ProductoDetalle() {
-  const { id } = useParams();
+  const { id } = useParams();   // :id de la ruta
   const { agregarAlCarrito } = useCart();
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
