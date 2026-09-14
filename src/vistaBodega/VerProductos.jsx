@@ -1,3 +1,5 @@
+// Inventario de bodega
+
 import { Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import { useEffect, useState } from "react";
@@ -5,7 +7,7 @@ import { useEffect, useState } from "react";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:3001/productos";
+const API_URL = "http://localhost:5000/api/productos";
 
 function VerProductos() {
   const [productos, setProductos] = useState([]);
