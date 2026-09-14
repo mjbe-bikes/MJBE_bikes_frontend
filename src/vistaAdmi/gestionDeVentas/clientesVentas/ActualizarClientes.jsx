@@ -1,10 +1,12 @@
+// Editar cliente
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import NavVentas from "../../../componentes/NavVentas";
 import FooterAdmi from "../../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:3001";
+const API_URL = "http://localhost:5000/api";
 
 const emptyForm = {
   usuario_id: "",

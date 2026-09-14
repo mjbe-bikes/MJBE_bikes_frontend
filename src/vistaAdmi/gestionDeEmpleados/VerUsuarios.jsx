@@ -1,9 +1,13 @@
+// Listado de usuarios (admin)
+
 import { Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import { useEffect, useState } from "react";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
+
+const API_URL = 'http://localhost:5000/api/usuarios';
 
 function VerUsuarios() {
 
@@ -37,7 +41,7 @@ function VerUsuarios() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3001/usuarios")
+    fetch(API_URL)
       .then(res => res.json())
       .then(data => {
         setUsuarios(data);
@@ -68,7 +72,7 @@ function VerUsuarios() {
 
   // DESACTIVAR (SOFT DELETE)
   const desactivarUsuario = () => {
-    fetch(`http://localhost:3001/usuarios/${usuarioSeleccionado.id}`, {
+    fetch(`${API_URL}/${usuarioSeleccionado.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -96,7 +100,7 @@ function VerUsuarios() {
 
   // ELIMINAR REAL
   const eliminarUsuarioFisico = () => {
-    fetch(`http://localhost:3001/usuarios/${usuarioSeleccionado.id}`, {
+    fetch(`${API_URL}/${usuarioSeleccionado.id}`, {
       method: "DELETE"
     })
       .then(res => {

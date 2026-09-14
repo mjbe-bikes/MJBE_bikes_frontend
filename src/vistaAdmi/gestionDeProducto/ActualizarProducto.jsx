@@ -1,10 +1,12 @@
+// Editar producto (admin)
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:3001/productos";
+const API_URL = 'http://localhost:5000/api/productos';
 
 function ActualizarProducto() {
 

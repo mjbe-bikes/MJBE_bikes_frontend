@@ -1,8 +1,12 @@
+// Alta de proveedor (admin)
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
+
+const API_URL = 'http://localhost:5000/api/proveedores';
 
 function CrearProveedor() {
 
@@ -37,7 +41,7 @@ function CrearProveedor() {
     };
 
     try {
-      const res = await fetch("http://localhost:3001/proveedores", {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

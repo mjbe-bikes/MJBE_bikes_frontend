@@ -1,3 +1,5 @@
+// Inventario del admin
+
 import { Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import { useEffect, useState } from "react";
@@ -5,7 +7,7 @@ import { useEffect, useState } from "react";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:3001/productos";
+const API_URL = 'http://localhost:5000/api/productos';
 
 function VerProductos() {
   const [productos, setProductos] = useState([]);

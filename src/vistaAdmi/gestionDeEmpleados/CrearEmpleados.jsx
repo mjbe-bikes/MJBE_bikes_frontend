@@ -1,8 +1,12 @@
+// Alta de empleado (admin)
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
+
+const API_URL = 'http://localhost:5000/api/usuarios';
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -35,7 +39,7 @@ const handleSubmit = async (e) => {
   try {
     const hashedPassword = await hashPassword(form.password_harsh);
 
-    const res = await fetch("http://localhost:3001/usuarios", {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

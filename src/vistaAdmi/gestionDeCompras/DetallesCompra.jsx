@@ -1,10 +1,12 @@
+// Detalle de una compra (admin)
+
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import NavVentas from "../../componentes/NavVentas";
+import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:3001";
+const API_URL = "http://localhost:5000/api";
 
 const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -12,11 +14,11 @@ const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0
 }).format(value);
 
-function InformacionVenta() {
-  const { id_venta } = useParams();
-  const [venta, setVenta] = useState(null);
+function DetallesCompra() {
+  const { id_compra } = useParams();
+  const [compra, setCompra] = useState(null);
   const [detalles, setDetalles] = useState([]);
-  const [cliente, setCliente] = useState(null);
+  const [proveedor, setProveedor] = useState(null);
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -25,52 +27,53 @@ function InformacionVenta() {
     const cargarDetalle = async () => {
       try {
         const respuestas = await Promise.all([
-          fetch(`${API_URL}/ventas/${encodeURIComponent(id_venta)}`),
-          fetch(`${API_URL}/detalles_venta?id_venta=${encodeURIComponent(id_venta)}`),
-          fetch(`${API_URL}/clientes`),
+          fetch(`${API_URL}/compras/${encodeURIComponent(id_compra)}`),
+          fetch(`${API_URL}/detalles_compra?id_compra=${encodeURIComponent(id_compra)}`),
+          fetch(`${API_URL}/proveedores`),
           fetch(`${API_URL}/productos`)
         ]);
         if (respuestas.some((respuesta) => !respuesta.ok)) throw new Error("No se pudo cargar el detalle");
 
-        const [ventaData, detallesData, clientesData, productosData] = await Promise.all(
+        const [compraData, detallesData, proveedoresData, productosData] = await Promise.all(
           respuestas.map((respuesta) => respuesta.json())
         );
-        setVenta(ventaData);
+        setCompra(compraData);
         setDetalles(detallesData);
-        setCliente(clientesData.find((item) => Number(item.id_cliente) === Number(ventaData.id_cliente)) ?? null);
+        setProveedor(proveedoresData.find((item) => Number(item.id) === Number(compraData.id_proveedor)) ?? null);
         setProductos(productosData);
       } catch (loadError) {
         console.error("Error cargando detalle:", loadError);
-        setError("No fue posible cargar el detalle de la venta.");
+        setError("No fue posible cargar el detalle de la compra.");
       } finally {
         setCargando(false);
       }
     };
 
     cargarDetalle();
-  }, [id_venta]);
+  }, [id_compra]);
 
   return (
     <div className="app">
-      <NavVentas />
+      <NavAdmi />
       <main className="container-fluid py-4 contenido">
         <div className="container">
           <div className="card shadow border-0 rounded-4">
             <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
-              <h3 className="mb-0">Detalle de venta #{id_venta}</h3>
-              <Link className="btn btn-light" to="/Historialventas">Volver</Link>
+              <h3 className="mb-0">Detalle de compra #{id_compra}</h3>
+              <Link className="btn btn-light" to="/compras">Volver</Link>
             </div>
             <div className="card-body p-4">
               {cargando && <p>Cargando detalle...</p>}
               {error && <div className="alert alert-danger">{error}</div>}
-              {!cargando && !error && venta && (
+              {!cargando && !error && compra && (
                 <>
                   <div className="row g-4 mb-4">
-                    <div className="col-md-4"><strong>Cliente</strong><p className="mb-0">{cliente ? `${cliente.nombres} ${cliente.apellidos}` : `Cliente #${venta.id_cliente}`}</p></div>
-                    <div className="col-md-4"><strong>Fecha</strong><p className="mb-0">{new Date(venta.fecha).toLocaleDateString("es-CO")}</p></div>
-                    <div className="col-md-4"><strong>Total</strong><p className="mb-0">{formatCurrency(venta.total)}</p></div>
+                    <div className="col-md-3"><strong>Proveedor</strong><p className="mb-0">{proveedor ? proveedor.nombre_proveedor : `Proveedor #${compra.id_proveedor}`}</p></div>
+                    <div className="col-md-3"><strong>Fecha</strong><p className="mb-0">{compra.fecha ? new Date(compra.fecha).toLocaleDateString("es-CO") : "Sin fecha"}</p></div>
+                    <div className="col-md-3"><strong>Total</strong><p className="mb-0">{formatCurrency(compra.total_compra)}</p></div>
+                    <div className="col-md-3"><strong>Estado</strong><p className="mb-0">{compra.pago ? "Pagada" : "Pendiente"}</p></div>
                   </div>
-                  <h5 className="mb-3">Productos de la venta</h5>
+                  <h5 className="mb-3">Productos de la compra</h5>
                   {detalles.length === 0 ? <p className="text-muted">No hay productos asociados.</p> : (
                     <div className="table-responsive">
                       <table className="table table-bordered table-hover align-middle">
@@ -78,7 +81,7 @@ function InformacionVenta() {
                         <tbody>{detalles.map((detalle) => {
                           const producto = productos.find((item) => Number(item.id) === Number(detalle.id_producto));
                           const subtotal = Number(detalle.cantidad) * Number(detalle.precio_unitario_momento);
-                          return <tr key={detalle.id}><td>{producto?.nombre_producto ?? `Producto #${detalle.id_producto}`}</td><td>{detalle.cantidad}</td><td>{formatCurrency(detalle.precio_unitario_momento)}</td><td>{formatCurrency(subtotal)}</td></tr>;
+                          return <tr key={detalle.id}><td>{producto?.nombre_producto ?? detalle.nombre_producto ?? `Producto #${detalle.id_producto}`}</td><td>{detalle.cantidad}</td><td>{formatCurrency(detalle.precio_unitario_momento)}</td><td>{formatCurrency(subtotal)}</td></tr>;
                         })}</tbody>
                       </table>
                     </div>
@@ -94,4 +97,4 @@ function InformacionVenta() {
   );
 }
 
-export default InformacionVenta;
+export default DetallesCompra;

@@ -1,17 +1,21 @@
+// Panel de inicio del admin
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import NavAdmi from "../componentes/NavAdmi";
 import FooterAdmi from "../componentes/FooterAdmi";
 
-function Inicio() {
+const API_URL = 'http://localhost:5000/api'; // base; abajo se usa `${API_URL}/reportes/dashboard`
+
+function InicioAdmin() {
   
 
     const [dashboard, setDashboard] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://localhost:3001/reportes/dashboard")
+        fetch(`${API_URL}/reportes/dashboard`)
             .then(res => res.json())
             .then(data => {
                 setDashboard(data);
@@ -223,4 +227,4 @@ function Inicio() {
     );
 }
 
-export default Inicio;
+export default InicioAdmin;

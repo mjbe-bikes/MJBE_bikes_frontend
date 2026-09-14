@@ -1,81 +1,59 @@
+// Todas las ventas (admin, rol 1)
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import NavVentas from "../../componentes/NavVentas";
+import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:3001";
+const API_URL = "http://localhost:5000/api";
 
-const getSaleId = (venta) => venta.id;
-const getSaleDate = (venta) => venta.fecha;
-const getSaleTotal = (venta) => Number(venta.total ?? 0);
-const getClientName = (venta, clientes) => {
-  const cliente = clientes.find(
-    (item) => Number(item.id_cliente) === Number(venta.id_cliente)
-  );
-
-  return cliente ? `${cliente.nombres} ${cliente.apellidos}` : `Cliente #${venta.id_cliente}`;
-};
+const nombreVendedor = (venta) => venta.vendedor || `Vendedor #${venta.id_vendedor}`;
+const nombreCliente = (venta) => venta.cliente || `Cliente #${venta.id_cliente}`;
 
 const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",
   maximumFractionDigits: 0
-}).format(value);
+}).format(Number(value ?? 0));
 
-function Historialventas() {
+function VentasAdmin() {
   const [ventas, setVentas] = useState([]);
-  const [clientes, setClientes] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-  const vendedorId = Number(localStorage.getItem("mjbe_user_id"));
 
   useEffect(() => {
     const cargarVentas = async () => {
       try {
-        const [ventasRespuesta, clientesRespuesta] = await Promise.all([
-          fetch(`${API_URL}/ventas`),
-          fetch(`${API_URL}/clientes`)
-        ]);
-        if (!ventasRespuesta.ok || !clientesRespuesta.ok) {
-          throw new Error("No se pudieron cargar las ventas y clientes");
-        }
-
-        const data = await ventasRespuesta.json();
-        setClientes(await clientesRespuesta.json());
-        const ventasDelVendedor = data.filter((venta) => {
-          const id = venta.id_vendedor;
-          return Number.isNaN(vendedorId) || Number(id) === vendedorId;
-        });
-        setVentas(ventasDelVendedor);
+        const respuesta = await fetch(`${API_URL}/ventas`);
+        if (!respuesta.ok) throw new Error("No se pudieron cargar las ventas");
+        setVentas(await respuesta.json());
       } catch (loadError) {
-        console.error("Error cargando historial:", loadError);
-        setError("No fue posible cargar el historial de ventas.");
+        console.error("Error cargando ventas:", loadError);
+        setError("No fue posible cargar las ventas.");
       } finally {
         setCargando(false);
       }
     };
 
     cargarVentas();
-  }, [vendedorId]);
+  }, []);
 
   const ventasFiltradas = ventas.filter((venta) => {
-    const texto = `${getSaleId(venta)} ${getClientName(venta, clientes)} ${venta.estado ?? ""}`.toLowerCase();
+    const texto = `${venta.id} ${nombreVendedor(venta)} ${nombreCliente(venta)} ${venta.pago ? "pagada" : "pendiente"}`.toLowerCase();
     return texto.includes(busqueda.toLowerCase());
   });
 
   return (
     <div className="app">
-      <NavVentas />
+      <NavAdmi />
       <main className="contenido">
         <div className="container mt-4 py-3">
           <div className="card shadow">
-            <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <div className="card-header bg-success text-white">
               <h4 className="mb-0">Ventas</h4>
-              <Link to="/CrearVenta" className="btn btn-light">
-                Crear venta
-              </Link>
+              <small>Todas las ventas registradas y su vendedor</small>
             </div>
 
             <div className="card-body">
@@ -86,7 +64,7 @@ function Historialventas() {
                     id="buscar-venta"
                     type="search"
                     className="form-control"
-                    placeholder="ID, cliente o estado"
+                    placeholder="ID, vendedor, cliente o estado"
                     value={busqueda}
                     onChange={(event) => setBusqueda(event.target.value)}
                   />
@@ -100,34 +78,42 @@ function Historialventas() {
 
               {error && <div className="alert alert-danger">{error}</div>}
               {!cargando && !error && ventas.length === 0 && (
-                <div className="alert alert-info">No hay ventas registradas para este vendedor.</div>
+                <div className="alert alert-info">No hay ventas registradas.</div>
               )}
 
               <div className="table-responsive">
                 <table className="table table-bordered table-hover align-middle">
                   <thead className="table-dark">
                     <tr>
-                      <th>ID de la venta</th>
+                      <th>ID</th>
+                      <th>Vendedor</th>
                       <th>Cliente</th>
                       <th>Fecha</th>
                       <th>Total</th>
+                      <th>Estado</th>
                       <th>Detalle</th>
                     </tr>
                   </thead>
                   <tbody>
                     {cargando ? (
-                      <tr><td colSpan="5" className="text-center">Cargando ventas...</td></tr>
+                      <tr><td colSpan="7" className="text-center">Cargando ventas...</td></tr>
                     ) : ventasFiltradas.length === 0 ? (
-                      <tr><td colSpan="5" className="text-center">No se encontraron ventas</td></tr>
+                      <tr><td colSpan="7" className="text-center">No se encontraron ventas</td></tr>
                     ) : (
                       ventasFiltradas.map((venta) => (
-                        <tr key={getSaleId(venta)}>
-                          <td>{getSaleId(venta)}</td>
-                          <td>{getClientName(venta, clientes)}</td>
-                          <td>{getSaleDate(venta) ? new Date(getSaleDate(venta)).toLocaleDateString("es-CO") : "Sin fecha"}</td>
-                          <td>{formatCurrency(getSaleTotal(venta))}</td>
+                        <tr key={venta.id}>
+                          <td>{venta.id}</td>
+                          <td>{nombreVendedor(venta)}</td>
+                          <td>{nombreCliente(venta)}</td>
+                          <td>{venta.fecha ? new Date(venta.fecha).toLocaleDateString("es-CO") : "Sin fecha"}</td>
+                          <td>{formatCurrency(venta.total)}</td>
                           <td>
-                            <Link className="btn btn-primary btn-sm" to={`/InformacionVenta/${getSaleId(venta)}`}>
+                            <span className={`badge ${venta.pago ? "bg-success" : "bg-secondary"}`}>
+                              {venta.pago ? "Pagada" : "Pendiente"}
+                            </span>
+                          </td>
+                          <td>
+                            <Link className="btn btn-primary btn-sm" to={`/DetallesVenta/${venta.id}`}>
                               Ver detalle
                             </Link>
                           </td>
@@ -146,4 +132,4 @@ function Historialventas() {
   );
 }
 
-export default Historialventas;
+export default VentasAdmin;

@@ -1,10 +1,12 @@
+// Listado de clientes
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import NavVentas from "../../../componentes/NavVentas";
 import FooterAdmi from "../../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:3001";
+const API_URL = "http://localhost:5000/api";
 
 function VerClientes() {
   const [clientes, setClientes] = useState([]);

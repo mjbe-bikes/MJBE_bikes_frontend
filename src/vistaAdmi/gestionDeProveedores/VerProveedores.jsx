@@ -1,9 +1,13 @@
+// Listado de proveedores (admin)
+
 import { Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import { useEffect, useState } from "react";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
+
+const API_URL = 'http://localhost:5000/api/proveedores';
 
 function VerProveedores() {
 
@@ -18,7 +22,7 @@ function VerProveedores() {
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3001/proveedores")
+    fetch(API_URL)
       .then(res => res.json())
       .then(data => {
         setProveedores(data);
@@ -49,7 +53,7 @@ function VerProveedores() {
 
   // DESACTIVAR (SOFT DELETE)
   const desactivarProveedor = () => {
-    fetch(`http://localhost:3001/proveedores/${proveedorSeleccionado.id}`, {
+    fetch(`${API_URL}/${proveedorSeleccionado.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -77,7 +81,7 @@ function VerProveedores() {
 
   // ELIMINAR REAL
   const eliminarProveedorFisico = () => {
-    fetch(`http://localhost:3001/proveedores/${proveedorSeleccionado.id}`, {
+    fetch(`${API_URL}/${proveedorSeleccionado.id}`, {
       method: "DELETE"
     })
       .then(res => {

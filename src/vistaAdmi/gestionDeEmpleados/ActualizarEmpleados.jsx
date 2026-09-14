@@ -1,8 +1,12 @@
+// Editar empleado (admin)
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
+
+const API_URL = 'http://localhost:5000/api/usuarios';
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -33,11 +37,11 @@ function ActualizarEmpleados() {
     });
   };
 
-  // 🔥 TRAER USUARIO POR ID
+  // TRAER USUARIO POR ID
   useEffect(() => {
     const fetchUsuario = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/usuarios/${id}`);
+        const res = await fetch(`${API_URL}/${id}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -64,7 +68,7 @@ function ActualizarEmpleados() {
     fetchUsuario();
   }, [id]);
 
-  // 🔥 ACTUALIZAR USUARIO
+  // ACTUALIZAR USUARIO
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -80,7 +84,7 @@ function ActualizarEmpleados() {
         body.password_harsh = await hashPassword(form.password_harsh);
       }
 
-      const res = await fetch(`http://localhost:3001/usuarios/${id}`, {
+      const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT", // o PATCH si tu backend lo usa
         headers: {
           "Content-Type": "application/json"

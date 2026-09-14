@@ -1,8 +1,12 @@
+// Editar proveedor (admin)
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
+
+const API_URL = 'http://localhost:5000/api/proveedores';
 
 function ActualizarProveedor() {
 
@@ -32,7 +36,7 @@ function ActualizarProveedor() {
   useEffect(() => {
     const fetchProveedor = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/proveedores/${id}`);
+        const res = await fetch(`${API_URL}/${id}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -74,7 +78,7 @@ function ActualizarProveedor() {
     };
 
     try {
-      const res = await fetch(`http://localhost:3001/proveedores/${id}`, {
+      const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
