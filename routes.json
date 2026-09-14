@@ -1,5 +1,0 @@
-{
-  "/reportes/dashboard": "/dashboard",
-  "/usuarios/:id/validate": "/usuarios/:id",
-  "/sessions": "/sessions"
-}

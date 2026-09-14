@@ -1,3 +1,4 @@
+// Pie de página para las vistas de bodega
 function FooterBodega() {
     const userName = typeof window !== "undefined"
         ? localStorage.getItem("mjbe_user_login") || "Empleado"

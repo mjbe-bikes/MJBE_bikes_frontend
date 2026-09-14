@@ -1,14 +1,14 @@
+// Barra superior del vendedor (rol 2)
+
 import { Link, useNavigate  } from "react-router-dom";
+import { clearSession } from "../auth";
 
 function NavVentas() {
   const navigate = useNavigate();
   const userName = localStorage.getItem("mjbe_user_login") || "Usuario";
 
   function handleLogout() {
-    localStorage.removeItem("mjbe_auth")
-    localStorage.removeItem("mjbe_user_login")
-    localStorage.removeItem("mjbe_user_email")
-    localStorage.removeItem("mjbe_rol_id")
+    clearSession()
     navigate("/login", { replace: true })
   }
 
@@ -50,7 +50,7 @@ function NavVentas() {
             </li>
 
             <li className="nav-item mx-2">
-              <Link className="nav-link text-white" to="/Historialventas">
+              <Link className="nav-link text-white" to="/Ventas">
                 💰 Ventas
               </Link>
             </li>

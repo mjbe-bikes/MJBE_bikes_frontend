@@ -1,15 +1,14 @@
+// Barra superior de bodega (rol 3)
+
 import { Link, useNavigate } from "react-router-dom";
+import { clearSession } from "../auth";
 
 function NavBodega() {
   const navigate = useNavigate();
   const userName = localStorage.getItem("mjbe_user_login") || "Usuario";
 
   const handleLogout = () => {
-    localStorage.removeItem("mjbe_auth");
-    localStorage.removeItem("mjbe_user_id");
-    localStorage.removeItem("mjbe_user_login");
-    localStorage.removeItem("mjbe_user_email");
-    localStorage.removeItem("mjbe_rol_id");
+    clearSession();
     navigate("/login", { replace: true });
   };
 

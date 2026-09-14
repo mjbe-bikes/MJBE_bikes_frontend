@@ -1,17 +1,18 @@
+// Barra superior del admin (rol 1)
+
 import { Link, useNavigate } from "react-router-dom";
+import { clearSession } from "../auth";
 
 function NavAdmi() {
   const navigate = useNavigate();
+  // Nombre a mostrar
   const userName =
     localStorage.getItem("mjbe_user_login") ||
     localStorage.getItem("mjbe_user") ||
     "Administrador"
 
   function handleLogout() {
-    localStorage.removeItem("mjbe_auth")
-    localStorage.removeItem("mjbe_user_login")
-    localStorage.removeItem("mjbe_user_email")
-    localStorage.removeItem("mjbe_rol_id")
+    clearSession()
     navigate("/login", { replace: true })
   }
 
@@ -37,7 +38,7 @@ function NavAdmi() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto ms-4">
             <li className="nav-item mx-2">
-              <Link className="nav-link text-white" to="/">
+              <Link className="nav-link text-white" to="/InicioAdmin">
                 📊 Reportes
               </Link>
             </li>
@@ -57,7 +58,7 @@ function NavAdmi() {
               </Link>
             </li>
             <li className="nav-item mx-2">
-              <Link className="nav-link text-white" to="/ventas">
+              <Link className="nav-link text-white" to="/VentasAdmin">
                 💰 Ventas
               </Link>
             </li>

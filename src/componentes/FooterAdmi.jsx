@@ -1,9 +1,13 @@
+// Pie de página con el nombre y el cargo del usuario logueado
+
 function FooterAdmi() {
+  // Nombre a mostrar
   const userName =
     localStorage.getItem("mjbe_user_login") ||
     localStorage.getItem("mjbe_user") ||
     "Nombre Empleado"
 
+  // Etiquetas de rol
   const roleLabels = {
     1: "Administrador",
     2: "Empleado",

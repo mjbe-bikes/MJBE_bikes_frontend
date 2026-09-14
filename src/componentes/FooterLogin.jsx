@@ -1,3 +1,4 @@
+// Pie de página de las pantallas de acceso
 function FooterLogin() {
   return (
     <footer className="footer bg-dark text-white py-4">

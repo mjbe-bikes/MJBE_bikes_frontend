@@ -1,3 +1,5 @@
+// Barra superior de las pantallas de acceso (solo estética)
+
 import { Link } from "react-router-dom";
 
 function NavLogin() {

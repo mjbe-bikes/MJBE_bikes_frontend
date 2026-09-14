@@ -1,20 +1,21 @@
+// Barra superior del catálogo (cliente / público), con carrito desplegable
+
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Carrito } from "../vistaCliente/Carrito";
+import { clearSession } from "../auth";
 
 function NavarCliente() {
   const navigate = useNavigate();
+  // Estados para el carrito
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const { carrito, cantidadTotal, precioTotal, cambiarCantidad, quitarDelCarrito } = Carrito();
   const usuarioAutenticado = localStorage.getItem("mjbe_auth") === "true";
   const userName = localStorage.getItem("mjbe_user_login") || "Cliente";
 
+  // Cerrar sesión
   const handleLogout = () => {
-    localStorage.removeItem("mjbe_auth");
-    localStorage.removeItem("mjbe_user_id");
-    localStorage.removeItem("mjbe_user_login");
-    localStorage.removeItem("mjbe_user_email");
-    localStorage.removeItem("mjbe_rol_id");
+    clearSession();
     navigate("/login", { replace: true });
   };
 
