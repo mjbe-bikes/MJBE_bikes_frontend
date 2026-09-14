@@ -1,8 +1,13 @@
+// Registro de un cliente nuevo
+
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
 
+const API_URL = "http://localhost:5000/api/usuarios"
+
+// Calcula el hash SHA-256 de la contraseña
 async function hashPassword(password) {
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
@@ -44,8 +49,8 @@ function Register() {
 
     try {
       const [loginRes, emailRes] = await Promise.all([
-        fetch(`http://localhost:3001/usuarios?login=${encodeURIComponent(form.login)}`),
-        fetch(`http://localhost:3001/usuarios?email=${encodeURIComponent(form.email)}`)
+        fetch(`${API_URL}?login=${encodeURIComponent(form.login)}`),
+        fetch(`${API_URL}?email=${encodeURIComponent(form.email)}`)
       ])
 
       const [loginUsers, emailUsers] = await Promise.all([
@@ -65,7 +70,7 @@ function Register() {
 
     try {
       const hashedPassword = await hashPassword(form.password)
-      const response = await fetch("http://localhost:3001/usuarios", {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

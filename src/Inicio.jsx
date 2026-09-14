@@ -1,14 +1,16 @@
+// Portada / catálogo público
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavarCliente from "./componentes/NavarCliente";
 import { useCart } from "./vistaCliente/Carrito";
 
-const API_URL = "http://localhost:3001/productos";
+const API_URL = "http://localhost:5000/api/productos";
 
 function Inicio() {
   const { agregarAlCarrito } = useCart();
   const [productos, setProductos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);   // mientras carga el fetch
   const [error, setError] = useState("");
 
   useEffect(() => {

@@ -1,4 +1,9 @@
+// Enrutador central: define qué componente se muestra en cada URL y quién
+// puede entrar (guards por rol: 1=Admin, 2=Vendedor, 3=Bodega, 4=Cliente)
+
+import { useSyncExternalStore } from "react"
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
+import { subscribeAuth, getAuthSnapshot } from "./auth"
 
 // ------------ Apartado de Cliente e Inicio ----------------------------
 import Inicio from "./Inicio"
@@ -9,7 +14,7 @@ import MisCompras from "./vistaCliente/MisCompras"
 import { CartProvider } from "./vistaCliente/Carrito"
 
 // ------------ Apartado de inicio de administrador ---------------------
-import InicioAdmin from "./vistaAdmi/Inicio"
+import InicioAdmin from "./vistaAdmi/InicioAdmin"
 import InicioBodega from "./vistaBodega/InicioBodega"
 import Login from "./Login"
 import Register from "./Register"
@@ -36,10 +41,17 @@ import CrearClientes from "./vistaAdmi/gestionDeVentas/clientesVentas/CrearClien
 import ActualizarClientes from "./vistaAdmi/gestionDeVentas/clientesVentas/ActualizarClientes"
 
 // ------------ Apartado de gestion de Ventas ---------------------
-import Historialventas from "./vistaAdmi/gestionDeVentas/Historialventas"
-import InformacionVenta from "./vistaAdmi/gestionDeVentas/InformacionVenta"
+import VerVenta from "./vistaAdmi/gestionDeVentas/VerVenta"
+import VentasAdmin from "./vistaAdmi/gestionDeVentas/VentasAdmin"
+import DetallesVenta from "./vistaAdmi/gestionDeVentas/DetallesVenta"
 import CrearVenta from "./vistaAdmi/gestionDeVentas/CrearVenta"
 import InicioVentas from "./vistaAdmi/gestionDeVentas/InicioVentas"
+
+// ------------ Apartado de gestion de Compras ---------------------
+import VerCompra from "./vistaAdmi/gestionDeCompras/VerCompra"
+import DetallesCompra from "./vistaAdmi/gestionDeCompras/DetallesCompra"
+import CrearCompra from "./vistaAdmi/gestionDeCompras/CrearCompra"
+// Guard para el checkout del cliente (rol 4)
 function CheckoutProtegido() {
   useLocation()
   const esCliente = localStorage.getItem("mjbe_auth") === "true"
@@ -57,18 +69,20 @@ function ComprasProtegidas() {
 }
 
 function App() {
-  const isLoggedIn = localStorage.getItem("mjbe_auth") === "true"
-  const rolId = Number(localStorage.getItem("mjbe_rol_id") || 0)
-  const homeRoute = rolId === 1 ? "/" : rolId === 2 ? "/InicioVentas" : rolId === 3 ? "/InicioBodega" : "/login"
+  // Estado de sesión reactivo
+  const { isLoggedIn, rolId } = useSyncExternalStore(subscribeAuth, getAuthSnapshot)
+  // Inicio de cada rol
+  const homeRoute = rolId === 1 ? "/InicioAdmin" : rolId === 2 ? "/InicioVentas" : rolId === 3 ? "/InicioBodega" : rolId === 4 ? "/" : "/login"
 
   return (
     <BrowserRouter>
       <CartProvider>
         <Routes>
+        {/* Zona pública / cliente */}
         <Route
           path="/"
           element={
-            <Inicio /> 
+            <Inicio />
           }
         />
 
@@ -179,9 +193,15 @@ function App() {
           }
         />
         <Route
-          path="/Historialventas"
+          path="/Ventas"
           element={
-            isLoggedIn && rolId === 2 ? <Historialventas /> : <Navigate to={isLoggedIn && rolId === 1 ? "/" : isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
+            isLoggedIn && rolId === 2 ? <VerVenta /> : <Navigate to={isLoggedIn && rolId === 1 ? "/" : isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
+          }
+        />
+        <Route
+          path="/VentasAdmin"
+          element={
+            isLoggedIn && rolId === 1 ? <VentasAdmin /> : <Navigate to={isLoggedIn && rolId === 2 ? "/Ventas" : isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
           }
         />
         <Route
@@ -203,9 +223,27 @@ function App() {
           }
         />
         <Route
-          path="/InformacionVenta/:id_venta"
+          path="/DetallesVenta/:id_venta"
           element={
-            isLoggedIn && rolId === 2 ? <InformacionVenta /> : <Navigate to={isLoggedIn && rolId === 1 ? "/" : "/login"} replace />
+            isLoggedIn && (rolId === 1 || rolId === 2) ? <DetallesVenta /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
+          }
+        />
+        <Route
+          path="/compras"
+          element={
+            isLoggedIn && rolId === 1 ? <VerCompra /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
+          }
+        />
+        <Route
+          path="/CrearCompra"
+          element={
+            isLoggedIn && rolId === 1 ? <CrearCompra /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
+          }
+        />
+        <Route
+          path="/DetallesCompra/:id_compra"
+          element={
+            isLoggedIn && rolId === 1 ? <DetallesCompra /> : <Navigate to={isLoggedIn && rolId === 3 ? "/InicioBodega" : "/login"} replace />
           }
         />
         <Route
@@ -216,6 +254,8 @@ function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Cualquier URL no reconocida -> a tu inicio según rol (o al login) */}
         <Route
           path="*"
           element={

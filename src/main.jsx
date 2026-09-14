@@ -1,17 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-// ------------ componentes ------------------------
+// Componente raíz
 import App from './App.jsx'
 
-// ------------ bootstrap ------------------------
+// Estilos de Bootstrap
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.js'
 
-// ------------ css ------------------------
+// Estilos propios
 import './styles/index.css'
 
+// Montar la app en el <div id="root">
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

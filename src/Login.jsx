@@ -1,8 +1,15 @@
+// Pantalla de inicio de sesión
+
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
+import { saveSession } from "./auth"
 
+const API_URL = "http://localhost:5000/api/usuarios"
+const SESSIONS_URL = "http://localhost:5000/api/sessions"
+
+// Calcula el hash SHA-256 de la contraseña
 async function hashPassword(password) {
   const encoder = new TextEncoder()
   const data = encoder.encode(password)
@@ -27,7 +34,7 @@ function Login() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/usuarios?email=${encodeURIComponent(email.trim().toLowerCase())}`)
+      const response = await fetch(`${API_URL}?email=${encodeURIComponent(email.trim().toLowerCase())}`)
       const users = await response.json()
       if (!users || users.length === 0) {
         setError("Usuario no encontrado.")
@@ -35,13 +42,15 @@ function Login() {
       }
 
       const user = users[0]
-      if (user.estado !== "activo") {
-        setError("Usuario no está activo.")
+      // Se normaliza para tolerar mayúsculas/espacios ("Activo", " activo ", etc.)
+      const estado = String(user.estado ?? "").trim().toLowerCase()
+      if (estado !== "activo") {
+        setError(`Tu usuario no está activo (estado actual: "${user.estado ?? "sin estado"}").`)
         return
       }
 
       const rolId = Number(user.rol_id)
-      if (rolId !== 1 && rolId !== 3 && rolId !== 4) {
+      if (rolId !== 1 && rolId !== 2 && rolId !== 3 && rolId !== 4) {
         setError("Rol no autorizado para acceder.")
         return
       }
@@ -61,7 +70,7 @@ function Login() {
         fecha_login: new Date().toISOString()
       }
 
-      await fetch("http://localhost:3001/sessions", {
+      await fetch(SESSIONS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -69,12 +78,10 @@ function Login() {
         body: JSON.stringify(sessionPayload)
       })
 
-      localStorage.setItem("mjbe_auth", "true")
-      localStorage.setItem("mjbe_user_id", String(user.id))
-      localStorage.setItem("mjbe_user_login", user.login)
-      localStorage.setItem("mjbe_user_email", user.email)
-      localStorage.setItem("mjbe_rol_id", String(rolId))
+      // Guardar sesión
+      saveSession({ id: user.id, login: user.login, email: user.email, rolId })
 
+      // Redirección al inicio de cada rol
       if (rolId === 1) {
         navigate("/InicioAdmin", { replace: true })
         return
