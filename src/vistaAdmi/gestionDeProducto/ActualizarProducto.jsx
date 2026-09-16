@@ -6,7 +6,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/productos';
+// URL base de la API Laravel
+const API_URL = "http://127.0.0.1:8000/api";
 
 function ActualizarProducto() {
 
@@ -54,13 +55,29 @@ function ActualizarProducto() {
     });
   };
 
+  // Cargar el producto desde Laravel
   useEffect(() => {
     const cargarProducto = async () => {
       try {
-        const response = await fetch(`${API_URL}/${id}`);
-        if (!response.ok) throw new Error("Producto no encontrado");
+        const response = await fetch(`${API_URL}/productos/${id}`, {
+          headers: {
+            "Accept": "application/json"
+          }
+        });
 
-        const productoEncontrado = await response.json();
+        const datos = await response.json();
+
+        if (!response.ok) {
+          console.error("Error de Laravel:", datos);
+          throw new Error(
+            datos.mensaje ||
+            datos.message ||
+            "Producto no encontrado"
+          );
+        }
+
+        const productoEncontrado = datos;
+
         setForm({
           img_producto: productoEncontrado.img_producto || "",
           nombre_producto: productoEncontrado.nombre_producto || "",
@@ -75,6 +92,7 @@ function ActualizarProducto() {
           valor_unitario: productoEncontrado.valor_unitario || "",
           estado: productoEncontrado.estado || "activo"
         });
+
       } catch (err) {
         console.error(err);
         setError("No se pudo cargar el producto desde la API.");
@@ -86,17 +104,23 @@ function ActualizarProducto() {
     cargarProducto();
   }, [id]);
 
+  // Actualizar producto
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
+      const response = await fetch(`${API_URL}/productos/${id}`, {
         method: "PUT",
+
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
+
         body: JSON.stringify({
           ...form,
+
+          // Convertir campos numéricos antes de enviarlos
           cant_producto: Number(form.cant_producto),
           id_medida: Number(form.id_medida),
           id_proveedor: Number(form.id_proveedor),
@@ -105,9 +129,30 @@ function ActualizarProducto() {
         })
       });
 
-      if (!response.ok) throw new Error("No se pudo actualizar el producto");
+      const datos = await response.json();
+
+      if (!response.ok) {
+        console.error("Error de Laravel:", datos);
+
+        if (datos.errors) {
+          console.error("Errores de validación:", datos.errors);
+        }
+
+        if (datos.errores) {
+          console.error("Errores de validación:", datos.errores);
+        }
+
+        throw new Error(
+          datos.mensaje ||
+          datos.message ||
+          "No se pudo actualizar el producto"
+        );
+      }
+
+      console.log("Producto actualizado correctamente:", datos);
 
       navigate("/VerProductos");
+
     } catch (err) {
       console.error(err);
       setError("No se pudo actualizar el producto.");
@@ -137,6 +182,12 @@ function ActualizarProducto() {
               </div>
 
               <div className="card-body p-4">
+
+                {error && (
+                  <div className="alert alert-danger">
+                    {error}
+                  </div>
+                )}
 
                 <form className="row g-4" onSubmit={handleSubmit}>
 
@@ -245,8 +296,11 @@ function ActualizarProducto() {
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
+
                       {medidas.map(m => (
-                        <option key={m.id} value={m.id}>{m.nombre}</option>
+                        <option key={m.id} value={m.id}>
+                          {m.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -260,8 +314,11 @@ function ActualizarProducto() {
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
+
                       {proveedores.map(p => (
-                        <option key={p.id} value={p.id}>{p.nombre}</option>
+                        <option key={p.id} value={p.id}>
+                          {p.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -275,8 +332,11 @@ function ActualizarProducto() {
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
+
                       {locales.map(l => (
-                        <option key={l.id} value={l.id}>{l.nombre}</option>
+                        <option key={l.id} value={l.id}>
+                          {l.nombre}
+                        </option>
                       ))}
                     </select>
                   </div>

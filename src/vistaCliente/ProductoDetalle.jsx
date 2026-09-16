@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "./Carrito";
 
-const API_URL = "http://localhost:5000/api/productos";
+const API_URL = "http://127.0.0.1:8000/api";
 
 function ProductoDetalle() {
   const { id } = useParams();   // :id de la ruta
@@ -16,7 +16,7 @@ function ProductoDetalle() {
   useEffect(() => {
     const cargarProducto = async () => {
       try {
-        const response = await fetch(`${API_URL}/${id}`);
+        const response = await fetch(`${API_URL}/productos/${id}`);
         if (!response.ok) throw new Error("Producto no encontrado");
 
         setProducto(await response.json());

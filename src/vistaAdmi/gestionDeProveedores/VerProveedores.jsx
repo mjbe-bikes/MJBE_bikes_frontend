@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/proveedores';
+// URL base de nuestra API Laravel
+const API_URL = "http://127.0.0.1:8000/api";
 
 function VerProveedores() {
-
   const [proveedores, setProveedores] = useState([]);
   const [proveedoresFiltrados, setProveedoresFiltrados] = useState([]);
 
@@ -21,20 +21,40 @@ function VerProveedores() {
   const [showModal, setShowModal] = useState(false);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
 
+  // =========================================================
+  // CARGAR PROVEEDORES
+  // =========================================================
   useEffect(() => {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        setProveedores(data);
-        setProveedoresFiltrados(data);
-      })
-      .catch(err => console.log(err));
+    const cargarProveedores = async () => {
+      try {
+        const respuesta = await fetch(`${API_URL}/proveedores`);
+
+        if (!respuesta.ok) {
+          throw new Error("No se pudieron cargar los proveedores");
+        }
+
+        const datos = await respuesta.json();
+
+        setProveedores(datos);
+        setProveedoresFiltrados(datos);
+      } catch (error) {
+        console.error("Error cargando proveedores:", error);
+      }
+    };
+
+    cargarProveedores();
   }, []);
 
+  // =========================================================
+  // FILTRAR PROVEEDORES
+  // =========================================================
   const aplicarFiltro = () => {
-    const filtrados = proveedores.filter((p) => {
-      const valor = p[filtroPor];
-      if (!valor) return false;
+    const filtrados = proveedores.filter((proveedor) => {
+      const valor = proveedor[filtroPor];
+
+      if (!valor) {
+        return false;
+      }
 
       return valor
         .toString()
@@ -45,61 +65,115 @@ function VerProveedores() {
     setProveedoresFiltrados(filtrados);
   };
 
+  // =========================================================
   // ABRIR MODAL
+  // =========================================================
   const abrirModal = (proveedor) => {
     setProveedorSeleccionado(proveedor);
     setShowModal(true);
   };
 
-  // DESACTIVAR (SOFT DELETE)
-  const desactivarProveedor = () => {
-    fetch(`${API_URL}/${proveedorSeleccionado.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        ...proveedorSeleccionado,
-        estado: "inactivo"
-      })
-    })
-      .then(() => {
-        const nuevos = proveedoresFiltrados.map(p =>
-          p.id === proveedorSeleccionado.id
-            ? { ...p, estado: "inactivo" }
-            : p
-        );
+  // =========================================================
+  // DESACTIVAR PROVEEDOR
+  // =========================================================
+  const desactivarProveedor = async () => {
+    if (!proveedorSeleccionado) {
+      return;
+    }
 
-        setProveedoresFiltrados(nuevos);
-        setProveedores(nuevos);
+    try {
+      const respuesta = await fetch(
+        `${API_URL}/proveedores/${proveedorSeleccionado.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            ...proveedorSeleccionado,
+            estado: "inactivo",
+          }),
+        }
+      );
 
-        setShowModal(false);
-        setProveedorSeleccionado(null);
-      })
-      .catch(err => console.log(err));
+      if (!respuesta.ok) {
+        throw new Error("No se pudo desactivar el proveedor");
+      }
+
+      // Actualizar ambas listas sin volver a consultar la API
+      const nuevosProveedores = proveedores.map((proveedor) =>
+        proveedor.id === proveedorSeleccionado.id
+          ? { ...proveedor, estado: "inactivo" }
+          : proveedor
+      );
+
+      const nuevosFiltrados = proveedoresFiltrados.map((proveedor) =>
+        proveedor.id === proveedorSeleccionado.id
+          ? { ...proveedor, estado: "inactivo" }
+          : proveedor
+      );
+
+      setProveedores(nuevosProveedores);
+      setProveedoresFiltrados(nuevosFiltrados);
+
+      setShowModal(false);
+      setProveedorSeleccionado(null);
+    } catch (error) {
+      console.error("Error desactivando proveedor:", error);
+
+      alert("No se pudo desactivar el proveedor");
+    }
   };
 
-  // ELIMINAR REAL
-  const eliminarProveedorFisico = () => {
-    fetch(`${API_URL}/${proveedorSeleccionado.id}`, {
-      method: "DELETE"
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Error al eliminar");
+  // =========================================================
+  // ELIMINAR PROVEEDOR
+  // =========================================================
+  const eliminarProveedorFisico = async () => {
+    if (!proveedorSeleccionado) {
+      return;
+    }
 
-        const nuevos = proveedoresFiltrados.filter(
-          p => p.id !== proveedorSeleccionado.id
-        );
+    try {
+      const respuesta = await fetch(
+        `${API_URL}/proveedores/${proveedorSeleccionado.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
 
-        setProveedoresFiltrados(nuevos);
-        setProveedores(nuevos);
+      if (!respuesta.ok) {
+        throw new Error("No se pudo eliminar el proveedor");
+      }
 
-        setShowModal(false);
-        setProveedorSeleccionado(null);
-      })
-      .catch(err => console.log(err));
+      // Eliminar de la lista principal
+      const nuevosProveedores = proveedores.filter(
+        (proveedor) => proveedor.id !== proveedorSeleccionado.id
+      );
+
+      // Eliminar de la lista filtrada
+      const nuevosFiltrados = proveedoresFiltrados.filter(
+        (proveedor) => proveedor.id !== proveedorSeleccionado.id
+      );
+
+      setProveedores(nuevosProveedores);
+      setProveedoresFiltrados(nuevosFiltrados);
+
+      setShowModal(false);
+      setProveedorSeleccionado(null);
+    } catch (error) {
+      console.error("Error eliminando proveedor:", error);
+
+      alert("No se pudo eliminar el proveedor");
+    }
   };
 
+  // =========================================================
+  // VISTA
+  // =========================================================
   return (
     <>
       <div className="app print-area">
@@ -115,28 +189,54 @@ function VerProveedores() {
                 <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
 
                   <div>
-                    <h4 className="mb-0">🚚 Proveedores</h4>
-                    <small>Listado de proveedores registrados</small>
+                    <h4 className="mb-0">
+                      🚚 Proveedores
+                    </h4>
+
+                    <small>
+                      Listado de proveedores registrados
+                    </small>
                   </div>
 
+                  {/* FILTROS */}
                   <Dropdown className="no-print">
+
                     <Dropdown.Toggle variant="light">
                       Filtrar
                     </Dropdown.Toggle>
 
-                    <Dropdown.Menu className="p-3" style={{ minWidth: "250px" }}>
+                    <Dropdown.Menu
+                      className="p-3"
+                      style={{ minWidth: "250px" }}
+                    >
 
-                      <label className="form-label">Filtrar por</label>
+                      <label className="form-label">
+                        Filtrar por
+                      </label>
 
                       <select
                         className="form-select mb-3"
                         value={filtroPor}
-                        onChange={(e) => setFiltroPor(e.target.value)}
+                        onChange={(e) =>
+                          setFiltroPor(e.target.value)
+                        }
                       >
-                        <option value="nombre_proveedor">Nombre</option>
-                        <option value="numero_identidad">N° Identidad</option>
-                        <option value="telefono">Teléfono</option>
-                        <option value="estado">Estado</option>
+                        <option value="nombre_proveedor">
+                          Nombre
+                        </option>
+
+                        <option value="numero_identidad">
+                          N° Identidad
+                        </option>
+
+                        {/* Campo real de la BD */}
+                        <option value="telefono_prv">
+                          Teléfono
+                        </option>
+
+                        <option value="estado">
+                          Estado
+                        </option>
                       </select>
 
                       <input
@@ -144,7 +244,9 @@ function VerProveedores() {
                         className="form-control mb-3"
                         placeholder="Ingrese el valor"
                         value={valorFiltro}
-                        onChange={(e) => setValorFiltro(e.target.value)}
+                        onChange={(e) =>
+                          setValorFiltro(e.target.value)
+                        }
                       />
 
                       <button
@@ -175,49 +277,84 @@ function VerProveedores() {
                           <th>Dirección</th>
                           <th>Teléfono</th>
                           <th>Estado</th>
-                          <th className="no-print">Acciones</th>
+                          <th className="no-print">
+                            Acciones
+                          </th>
                         </tr>
                       </thead>
 
                       <tbody>
                         {proveedoresFiltrados.length === 0 ? (
                           <tr>
-                            <td colSpan="8" className="text-center">
+                            <td
+                              colSpan="8"
+                              className="text-center"
+                            >
                               No hay proveedores disponibles
                             </td>
                           </tr>
                         ) : (
-                          proveedoresFiltrados.map((p) => (
-                            <tr key={p.id} className="text-center">
-                              <td>{p.id}</td>
-                              <td>{p.nombre_proveedor}</td>
-
-                              {/* 🔥 FIX SIN ROMPER TU SISTEMA */}
+                          proveedoresFiltrados.map((proveedor) => (
+                            <tr
+                              key={proveedor.id}
+                              className="text-center"
+                            >
+                              {/* ID */}
                               <td>
-                                {p.tipo_documento
-                                  ? p.tipo_documento
-                                  : p.tipo_documento_id}
+                                {proveedor.id}
                               </td>
 
-                              <td>{p.numero_identidad}</td>
-                              <td>{p.direccion}</td>
-                              <td>{p.telefono}</td>
-                              <td>{p.estado}</td>
+                              {/* Nombre */}
+                              <td>
+                                {proveedor.nombre_proveedor}
+                              </td>
 
+                              {/* Tipo de documento */}
+                              <td>
+                                {proveedor.tipo_documento
+                                  ? proveedor.tipo_documento
+                                  : proveedor.tipo_documento_id}
+                              </td>
+
+                              {/* Número de identidad */}
+                              <td>
+                                {proveedor.numero_identidad}
+                              </td>
+
+                              {/* Dirección */}
+                              <td>
+                                {proveedor.direccion}
+                              </td>
+
+                              {/* Campo real de la BD */}
+                              <td>
+                                {proveedor.telefono_prv}
+                              </td>
+
+                              {/* Estado */}
+                              <td>
+                                {proveedor.estado}
+                              </td>
+
+                              {/* Acciones */}
                               <td className="no-print">
+
                                 <button
                                   className="btn btn-danger btn-sm me-2"
-                                  onClick={() => abrirModal(p)}
+                                  onClick={() =>
+                                    abrirModal(proveedor)
+                                  }
                                 >
                                   Acción
                                 </button>
 
                                 <Link
                                   className="btn btn-warning btn-sm"
-                                  to={`/ActualizarProveedores/${p.id}`}
+                                  to={`/ActualizarProveedores/${proveedor.id}`}
                                 >
                                   Actualizar
                                 </Link>
+
                               </td>
                             </tr>
                           ))
@@ -228,22 +365,29 @@ function VerProveedores() {
 
                     {/* IMPRIMIR */}
                     <div className="btn no-print mx-auto d-block">
+
                       <button
                         className="btn bg-success text-white ms-2 col-2"
                         onClick={() => window.print()}
                       >
                         🖨️ Imprimir
                       </button>
+
                     </div>
 
                   </div>
 
-                  {/* CREAR */}
+                  {/* CREAR PROVEEDOR */}
                   <div className="d-flex justify-content-end mt-3 no-print">
-                    <Link className="btn btn-success" to="/CrearProveedores">
+
+                    <Link
+                      className="btn btn-success"
+                      to="/CrearProveedores"
+                    >
                       <i className="bi bi-plus-circle me-2"></i>
                       Crear Proveedor
                     </Link>
+
                   </div>
 
                 </div>
@@ -254,39 +398,67 @@ function VerProveedores() {
 
         <FooterAdmi />
 
-        {/* MODAL */}
+        {/* =====================================================
+            MODAL DE GESTIÓN
+        ====================================================== */}
         {showModal && proveedorSeleccionado && (
-          <div className="modal show d-block" tabIndex="-1">
+
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+          >
             <div className="modal-dialog">
+
               <div className="modal-content">
 
+                {/* HEADER DEL MODAL */}
                 <div className="modal-header bg-danger text-white">
-                  <h5 className="modal-title">Gestión de proveedor</h5>
+
+                  <h5 className="modal-title">
+                    Gestión de proveedor
+                  </h5>
+
                   <button
                     className="btn-close"
                     onClick={() => setShowModal(false)}
                   ></button>
+
                 </div>
 
+                {/* INFORMACIÓN */}
                 <div className="modal-body">
-                  <p>Selecciona una acción para este proveedor:</p>
+
+                  <p>
+                    Selecciona una acción para este proveedor:
+                  </p>
 
                   <ul className="list-group">
+
                     <li className="list-group-item">
-                      <b>ID:</b> {proveedorSeleccionado.id}
+                      <b>ID:</b>{" "}
+                      {proveedorSeleccionado.id}
                     </li>
+
                     <li className="list-group-item">
-                      <b>Nombre:</b> {proveedorSeleccionado.nombre_proveedor}
+                      <b>Nombre:</b>{" "}
+                      {proveedorSeleccionado.nombre_proveedor}
                     </li>
+
                     <li className="list-group-item">
-                      <b>Documento:</b> {proveedorSeleccionado.numero_identidad}
+                      <b>Documento:</b>{" "}
+                      {proveedorSeleccionado.numero_identidad}
                     </li>
+
                     <li className="list-group-item">
-                      <b>Estado:</b> {proveedorSeleccionado.estado}
+                      <b>Estado:</b>{" "}
+                      {proveedorSeleccionado.estado}
                     </li>
+
                   </ul>
+
                 </div>
 
+                {/* ACCIONES DEL MODAL */}
                 <div className="modal-footer d-flex justify-content-between">
 
                   <button
@@ -297,6 +469,7 @@ function VerProveedores() {
                   </button>
 
                   <div>
+
                     <button
                       className="btn btn-warning me-2"
                       onClick={desactivarProveedor}
@@ -310,6 +483,7 @@ function VerProveedores() {
                     >
                       Eliminar
                     </button>
+
                   </div>
 
                 </div>
@@ -325,3 +499,5 @@ function VerProveedores() {
 }
 
 export default VerProveedores;
+
+

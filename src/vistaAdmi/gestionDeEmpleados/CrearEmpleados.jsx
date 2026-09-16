@@ -6,100 +6,162 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/usuarios';
+// URL base de la API Laravel
+const API_URL = "http://127.0.0.1:8000/api";
 
+// Convertir la contraseña a SHA-256
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
-  const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+
+  const hashBuffer = await window.crypto.subtle.digest(
+    "SHA-256",
+    data
+  );
+
+  const hashArray = Array.from(
+    new Uint8Array(hashBuffer)
+  );
+
+  return hashArray
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function CrearEmpleados() {
 
- const [form, setForm] = useState({
-  login: "",
-  email: "",
-  password_harsh: "",
-  rol_id: "",
-  estado: "activo"
-});
-
-const handleChange = (e) => {
-  setForm({
-    ...form,
-    [e.target.name]: e.target.value
+  const [form, setForm] = useState({
+    login: "",
+    email: "",
+    password_harsh: "",
+    rol_id: "",
+    estado: "activo"
   });
-};
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const hashedPassword = await hashPassword(form.password_harsh);
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        login: form.login,
-        email: form.email,
-        password_harsh: hashedPassword,
-        rol_id: Number(form.rol_id),
-        estado: form.estado
-      }),
-    });
-
-    const data = await res.json();
-
-    console.log("RESPUESTA BACKEND:", data);
-
-    if (!res.ok) {
-      alert(data?.mensaje || "Error al crear empleado");
-      return;
-    }
-
-    alert("Empleado creado correctamente");
-
+  const handleChange = (e) => {
     setForm({
-      login: "",
-      email: "",
-      password_harsh: "",
-      rol_id: "",
-      estado: "activo"
+      ...form,
+      [e.target.name]: e.target.value
     });
+  };
 
-  } catch (error) {
-    console.log("Error creando empleado:", error);
-    alert("Error de servidor");
-  }
-};
+  // Crear empleado
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Encriptar la contraseña antes de enviarla
+      const hashedPassword = await hashPassword(
+        form.password_harsh
+      );
+
+      const response = await fetch(`${API_URL}/usuarios`, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+
+        body: JSON.stringify({
+          login: form.login,
+          email: form.email,
+          password_harsh: hashedPassword,
+          rol_id: Number(form.rol_id),
+          estado: form.estado
+        })
+      });
+
+      const data = await response.json();
+
+      console.log("RESPUESTA BACKEND:", data);
+
+      // Mostrar los errores de validación de Laravel en consola
+      if (!response.ok) {
+        console.error("Error de Laravel:", data);
+
+        if (data.errors) {
+          console.error(
+            "Errores de validación:",
+            data.errors
+          );
+        }
+
+        if (data.errores) {
+          console.error(
+            "Errores:",
+            data.errores
+          );
+        }
+
+        throw new Error(
+          data?.mensaje ||
+          data?.message ||
+          "Error al crear empleado"
+        );
+      }
+
+      alert("Empleado creado correctamente");
+
+      // Limpiar formulario después de crear el empleado
+      setForm({
+        login: "",
+        email: "",
+        password_harsh: "",
+        rol_id: "",
+        estado: "activo"
+      });
+
+    } catch (error) {
+      console.error(
+        "Error creando empleado:",
+        error
+      );
+
+      alert(error.message);
+    }
+  };
+
   return (
     <div className="app">
+
       <NavAdmi />
 
       <main className="container-fluid py-4 contenido">
+
         <div className="row justify-content-center">
+
           <div className="col-xl-8 col-lg-9 col-md-12">
 
             <div className="card shadow border-0 rounded-4">
 
               {/* HEADER */}
               <div className="card-header bg-success text-white py-3">
-                <h3 className="mb-1">👤 Registrar Empleado</h3>
-                <small>Complete la información del usuario</small>
+
+                <h3 className="mb-1">
+                  👤 Registrar Empleado
+                </h3>
+
+                <small>
+                  Complete la información del usuario
+                </small>
+
               </div>
 
               <div className="card-body p-4">
 
-                <form className="row g-4" onSubmit={handleSubmit}>
+                <form
+                  className="row g-4"
+                  onSubmit={handleSubmit}
+                >
 
                   {/* LOGIN */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Usuario</label>
+
+                    <label className="form-label fw-semibold">
+                      Usuario
+                    </label>
+
                     <input
                       type="text"
                       name="login"
@@ -108,11 +170,16 @@ const handleSubmit = async (e) => {
                       onChange={handleChange}
                       required
                     />
+
                   </div>
 
                   {/* EMAIL */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Correo</label>
+
+                    <label className="form-label fw-semibold">
+                      Correo
+                    </label>
+
                     <input
                       type="email"
                       name="email"
@@ -121,11 +188,16 @@ const handleSubmit = async (e) => {
                       onChange={handleChange}
                       required
                     />
+
                   </div>
 
                   {/* PASSWORD */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Contraseña</label>
+
+                    <label className="form-label fw-semibold">
+                      Contraseña
+                    </label>
+
                     <input
                       type="password"
                       name="password_harsh"
@@ -134,11 +206,16 @@ const handleSubmit = async (e) => {
                       onChange={handleChange}
                       required
                     />
+
                   </div>
 
                   {/* ROL */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Rol</label>
+
+                    <label className="form-label fw-semibold">
+                      Rol
+                    </label>
+
                     <select
                       name="rol_id"
                       className="form-select"
@@ -146,14 +223,30 @@ const handleSubmit = async (e) => {
                       onChange={handleChange}
                       required
                     >
-                      <option value="">Seleccione rol</option>
-                      <option value="1">Administrador</option>
-                      <option value="2">Empleado</option>
-                      <option value="3">Bodeguero</option>
-                      <option value="4">Cliente</option>
-                    </select>
-                  </div>
 
+                      <option value="">
+                        Seleccione rol
+                      </option>
+
+                      <option value="1">
+                        Administrador
+                      </option>
+
+                      <option value="2">
+                        Empleado
+                      </option>
+
+                      <option value="3">
+                        Bodeguero
+                      </option>
+
+                      <option value="4">
+                        Cliente
+                      </option>
+
+                    </select>
+
+                  </div>
 
                   {/* BOTONES */}
                   <div className="col-12 mt-4 d-flex justify-content-between">
@@ -168,8 +261,7 @@ const handleSubmit = async (e) => {
                     <div className="d-flex gap-2">
 
                       <Link
-                        to = "/VerUsuarios"
-                        type="button"
+                        to="/VerUsuarios"
                         className="btn btn-outline-secondary"
                         onClick={() =>
                           setForm({
@@ -177,6 +269,7 @@ const handleSubmit = async (e) => {
                             email: "",
                             password_harsh: "",
                             rol_id: "",
+                            estado: "activo"
                           })
                         }
                       >
@@ -201,10 +294,13 @@ const handleSubmit = async (e) => {
             </div>
 
           </div>
+
         </div>
+
       </main>
 
       <FooterAdmi />
+
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:5000/api/productos";
+// API Laravel/PHP conectada a MySQL
+const API_URL = "http://127.0.0.1:8000/api";
 
 function InicioBodega() {
     const [dashboard, setDashboard] = useState({
@@ -24,39 +25,89 @@ function InicioBodega() {
     useEffect(() => {
         const cargarDashboard = async () => {
             try {
-                const response = await fetch(API_URL);
+                // Obtener productos desde Laravel
+                const response = await fetch(`${API_URL}/productos`);
+
+                if (!response.ok) {
+                    throw new Error("No se pudieron cargar los productos");
+                }
+
                 const productos = await response.json();
 
-                const activos = productos.filter((p) => p.estado === "activo");
-                const stockBajo = productos.filter((p) => Number(p.cant_producto) > 0 && Number(p.cant_producto) <= 5);
-                const sinStock = productos.filter((p) => Number(p.cant_producto) === 0);
+                // Productos que están activos
+                const activos = productos.filter(
+                    (p) => p.estado === "activo"
+                );
+
+                // Productos con stock entre 1 y 5 unidades
+                const stockBajo = productos.filter(
+                    (p) =>
+                        Number(p.cant_producto) > 0 &&
+                        Number(p.cant_producto) <= 5
+                );
+
+                // Productos sin unidades disponibles
+                const sinStock = productos.filter(
+                    (p) => Number(p.cant_producto) === 0
+                );
+
+                // Crear alertas con los primeros productos
+                // que tienen stock bajo
                 const alertas = stockBajo.slice(0, 3).map((p) => ({
                     id: p.id,
                     producto: p.nombre_producto,
                     stock: Number(p.cant_producto)
                 }));
-                const movimientos = productos.slice(0, 4).map((p, index) => ({
-                    id: p.id,
-                    producto: p.nombre_producto,
-                    tipo: index % 2 === 0 ? "Entrada" : "Salida",
-                    cantidad: Number(p.cant_producto),
-                    fecha: new Date().toLocaleDateString("es-ES")
-                }));
 
+                // Generar movimientos de ejemplo a partir
+                // de los productos existentes.
+                //
+                // IMPORTANTE:
+                // Actualmente la tabla productos no guarda
+                // movimientos de entrada/salida ni fechas.
+                // Por eso estos movimientos son simulados.
+                const movimientos = productos
+                    .slice(0, 4)
+                    .map((p, index) => ({
+                        id: p.id,
+                        producto: p.nombre_producto,
+                        tipo: index % 2 === 0
+                            ? "Entrada"
+                            : "Salida",
+                        cantidad: Number(p.cant_producto),
+                        fecha: new Date().toLocaleDateString("es-ES")
+                    }));
+
+                // Actualizar información del dashboard
                 setDashboard({
                     resumen: {
                         totalProductos: productos.length,
+
                         productosActivos: activos.length,
+
                         stockBajo: stockBajo.length,
+
                         sinStock: sinStock.length,
-                        entradasHoy: movimientos.filter((m) => m.tipo === "Entrada").length,
-                        salidasHoy: movimientos.filter((m) => m.tipo === "Salida").length
+
+                        entradasHoy: movimientos.filter(
+                            (m) => m.tipo === "Entrada"
+                        ).length,
+
+                        salidasHoy: movimientos.filter(
+                            (m) => m.tipo === "Salida"
+                        ).length
                     },
+
                     movimientos,
+
                     alertas
                 });
+
             } catch (error) {
-                console.error(error);
+                console.error(
+                    "Error al cargar dashboard de bodega:",
+                    error
+                );
             }
         };
 
@@ -65,130 +116,296 @@ function InicioBodega() {
 
     return (
         <div className="app">
+
             <NavBodega />
 
             <div className="container py-4 contenido">
+
+                {/* =====================================================
+                    RESUMEN DE BODEGA
+                ====================================================== */}
                 <div className="card shadow mb-4">
+
                     <div className="card-header bg-primary text-white">
-                        <h3 className="mb-0">📦 Resumen de Bodega</h3>
+                        <h3 className="mb-0">
+                            📦 Resumen de Bodega
+                        </h3>
                     </div>
 
                     <div className="card-body">
+
                         <div className="row g-4">
+
+                            {/* Total de productos */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-primary shadow-sm h-100">
+
                                     <div className="card-body text-center">
+
                                         <h1>📦</h1>
-                                        <h6>Total Productos</h6>
-                                        <h2>{dashboard?.resumen?.totalProductos}</h2>
+
+                                        <h6>
+                                            Total Productos
+                                        </h6>
+
+                                        <h2>
+                                            {
+                                                dashboard?.resumen
+                                                    ?.totalProductos
+                                            }
+                                        </h2>
+
                                     </div>
+
                                 </div>
                             </div>
 
+                            {/* Productos activos */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-success shadow-sm h-100">
+
                                     <div className="card-body text-center">
+
                                         <h1>✅</h1>
-                                        <h6>Productos Activos</h6>
-                                        <h2>{dashboard.resumen.productosActivos}</h2>
+
+                                        <h6>
+                                            Productos Activos
+                                        </h6>
+
+                                        <h2>
+                                            {
+                                                dashboard.resumen
+                                                    .productosActivos
+                                            }
+                                        </h2>
+
                                     </div>
+
                                 </div>
                             </div>
 
+                            {/* Stock bajo */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-warning shadow-sm h-100">
+
                                     <div className="card-body text-center">
+
                                         <h1>⚠️</h1>
-                                        <h6>Stock Bajo</h6>
-                                        <h2>{dashboard.resumen.stockBajo}</h2>
+
+                                        <h6>
+                                            Stock Bajo
+                                        </h6>
+
+                                        <h2>
+                                            {
+                                                dashboard.resumen
+                                                    .stockBajo
+                                            }
+                                        </h2>
+
                                     </div>
+
                                 </div>
                             </div>
 
+                            {/* Productos sin stock */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-danger shadow-sm h-100">
+
                                     <div className="card-body text-center">
+
                                         <h1>❌</h1>
-                                        <h6>Sin Stock</h6>
-                                        <h2>{dashboard.resumen.sinStock}</h2>
+
+                                        <h6>
+                                            Sin Stock
+                                        </h6>
+
+                                        <h2>
+                                            {
+                                                dashboard.resumen
+                                                    .sinStock
+                                            }
+                                        </h2>
+
                                     </div>
+
                                 </div>
                             </div>
 
+                            {/* Entradas */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-info shadow-sm h-100">
+
                                     <div className="card-body text-center">
+
                                         <h1>⬆️</h1>
-                                        <h6>Entradas Hoy</h6>
-                                        <h2>{dashboard.resumen.entradasHoy}</h2>
+
+                                        <h6>
+                                            Entradas Hoy
+                                        </h6>
+
+                                        <h2>
+                                            {
+                                                dashboard.resumen
+                                                    .entradasHoy
+                                            }
+                                        </h2>
+
                                     </div>
+
                                 </div>
                             </div>
 
+                            {/* Salidas */}
                             <div className="col-lg-4 col-md-6">
                                 <div className="card border-dark shadow-sm h-100">
+
                                     <div className="card-body text-center">
+
                                         <h1>⬇️</h1>
-                                        <h6>Salidas Hoy</h6>
-                                        <h2>{dashboard.resumen.salidasHoy}</h2>
+
+                                        <h6>
+                                            Salidas Hoy
+                                        </h6>
+
+                                        <h2>
+                                            {
+                                                dashboard.resumen
+                                                    .salidasHoy
+                                            }
+                                        </h2>
+
                                     </div>
+
                                 </div>
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
 
+                {/* =====================================================
+                    MOVIMIENTOS RECIENTES
+                ====================================================== */}
                 <div className="card shadow mb-4">
+
                     <div className="card-header bg-success text-white">
-                        <h4 className="mb-0">📋 Movimientos Recientes</h4>
+
+                        <h4 className="mb-0">
+                            📋 Movimientos Recientes
+                        </h4>
+
                     </div>
 
                     <div className="card-body">
-                        <div className="list-group">
-                            {dashboard.movimientos.map((movimiento) => (
-                                <div
-                                    key={movimiento.id}
-                                    className="list-group-item d-flex justify-content-between align-items-center"
-                                >
-                                    <div>
-                                        <h6 className="mb-1">{movimiento.producto}</h6>
-                                        <small>{movimiento.tipo} - Cantidad: {movimiento.cantidad}</small>
-                                    </div>
 
-                                    <span className="badge bg-primary">{movimiento.fecha}</span>
-                                </div>
-                            ))}
+                        <div className="list-group">
+
+                            {dashboard.movimientos.map(
+                                (movimiento) => (
+                                    <div
+                                        key={movimiento.id}
+                                        className="list-group-item d-flex justify-content-between align-items-center"
+                                    >
+
+                                        <div>
+
+                                            <h6 className="mb-1">
+                                                {
+                                                    movimiento.producto
+                                                }
+                                            </h6>
+
+                                            <small>
+                                                {
+                                                    movimiento.tipo
+                                                }
+
+                                                {" - Cantidad: "}
+
+                                                {
+                                                    movimiento.cantidad
+                                                }
+                                            </small>
+
+                                        </div>
+
+                                        <span className="badge bg-primary">
+                                            {
+                                                movimiento.fecha
+                                            }
+                                        </span>
+
+                                    </div>
+                                )
+                            )}
+
                         </div>
+
                     </div>
+
                 </div>
 
+                {/* =====================================================
+                    ALERTAS DE INVENTARIO
+                ====================================================== */}
                 <div className="card shadow">
+
                     <div className="card-header bg-warning">
-                        <h4 className="mb-0">⚠️ Alertas de Inventario</h4>
+
+                        <h4 className="mb-0">
+                            ⚠️ Alertas de Inventario
+                        </h4>
+
                     </div>
 
                     <div className="card-body">
-                        <div className="list-group">
-                            {dashboard.alertas.map((alerta) => (
-                                <div
-                                    key={alerta.id}
-                                    className="list-group-item d-flex justify-content-between align-items-center"
-                                >
-                                    <div>
-                                        <h6>{alerta.producto}</h6>
-                                    </div>
 
-                                    <span className="badge bg-danger">Stock: {alerta.stock}</span>
-                                </div>
-                            ))}
+                        <div className="list-group">
+
+                            {dashboard.alertas.map(
+                                (alerta) => (
+                                    <div
+                                        key={alerta.id}
+                                        className="list-group-item d-flex justify-content-between align-items-center"
+                                    >
+
+                                        <div>
+
+                                            <h6>
+                                                {
+                                                    alerta.producto
+                                                }
+                                            </h6>
+
+                                        </div>
+
+                                        <span className="badge bg-danger">
+                                            Stock:{" "}
+                                            {
+                                                alerta.stock
+                                            }
+                                        </span>
+
+                                    </div>
+                                )
+                            )}
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
 
             <FooterBodega />
+
         </div>
     );
 }
 
 export default InicioBodega;
+

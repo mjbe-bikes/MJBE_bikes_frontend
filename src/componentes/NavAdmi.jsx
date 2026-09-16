@@ -37,11 +37,7 @@ function NavAdmi() {
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto ms-4">
-            <li className="nav-item mx-2">
-              <Link className="nav-link text-white" to="/InicioAdmin">
-                📊 Reportes
-              </Link>
-            </li>
+            
             <li className="nav-item mx-2">
               <Link className="nav-link text-white" to="/VerProductos">
                 📦 Productos

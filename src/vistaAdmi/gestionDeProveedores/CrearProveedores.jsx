@@ -1,25 +1,27 @@
 // Alta de proveedor (admin)
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/proveedores';
+// URL base de la API Laravel
+const API_URL = "http://127.0.0.1:8000/api";
 
 function CrearProveedor() {
 
-   const [form, setForm] = useState({
+  // Estado del formulario
+  const [form, setForm] = useState({
     nombre_proveedor: "",
     tipo_documento_id: "",
     numero_identidad: "",
     direccion: "",
-    telefono: "",
+    telefono_prv: "",
     estado: "activo"
   });
 
-  // 🔥 GUARDA AUTOMÁTICAMENTE EL VALUE DEL SELECT
+  // Guardar automáticamente los valores del formulario
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -27,48 +29,66 @@ function CrearProveedor() {
     });
   };
 
-  // 🔥 ENVIAR DATOS
+  // Enviar datos a la API
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Preparar los datos para Laravel
     const payload = {
       nombre_proveedor: form.nombre_proveedor,
       tipo_documento_id: Number(form.tipo_documento_id),
       numero_identidad: form.numero_identidad,
       direccion: form.direccion,
-      telefono: form.telefono,
+      telefono_prv: form.telefono_prv,
       estado: form.estado
     };
 
     try {
-      const res = await fetch(API_URL, {
+      // Crear proveedor mediante la API Laravel
+      const res = await fetch(`${API_URL}/proveedores`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
+      // Verificar errores de Laravel
       if (!res.ok) {
-        alert(data?.mensaje || "Error al crear proveedor");
+        console.log("Error de API:", data);
+
+        // Mostrar errores de validación si existen
+        if (data?.errores) {
+          const errores = Object.values(data.errores)
+            .flat()
+            .join("\n");
+
+          alert(errores);
+        } else {
+          alert(data?.mensaje || "Error al crear proveedor");
+        }
+
         return;
       }
 
+      // Confirmar creación
       alert("Proveedor creado correctamente");
 
+      // Limpiar formulario
       setForm({
         nombre_proveedor: "",
         tipo_documento_id: "",
         numero_identidad: "",
         direccion: "",
-        telefono: "",
+        telefono_prv: "",
         estado: "activo"
       });
 
     } catch (error) {
-      console.log(error);
+      console.error("Error al conectar con la API:", error);
       alert("Error de servidor");
     }
   };
@@ -100,7 +120,10 @@ function CrearProveedor() {
 
                   {/* NOMBRE */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Nombre Proveedor</label>
+                    <label className="form-label fw-semibold">
+                      Nombre Proveedor
+                    </label>
+
                     <input
                       type="text"
                       name="nombre_proveedor"
@@ -113,7 +136,9 @@ function CrearProveedor() {
 
                   {/* TIPO DOCUMENTO */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Tipo Documento</label>
+                    <label className="form-label fw-semibold">
+                      Tipo Documento
+                    </label>
 
                     <select
                       name="tipo_documento_id"
@@ -122,19 +147,23 @@ function CrearProveedor() {
                       onChange={handleChange}
                       required
                     >
-                      <option value="">Seleccione tipo de documento</option>
+                      <option value="">
+                        Seleccione tipo de documento
+                      </option>
 
                       <option value="1">Cédula Ciudadanía</option>
                       <option value="2">Tarjeta Identidad</option>
                       <option value="3">Registro Civil</option>
                       <option value="4">NIT</option>
-
                     </select>
                   </div>
 
                   {/* IDENTIDAD */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Número de Identidad</label>
+                    <label className="form-label fw-semibold">
+                      Número de Identidad
+                    </label>
+
                     <input
                       type="text"
                       name="numero_identidad"
@@ -147,12 +176,15 @@ function CrearProveedor() {
 
                   {/* TELEFONO */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Teléfono</label>
+                    <label className="form-label fw-semibold">
+                      Teléfono
+                    </label>
+
                     <input
                       type="text"
-                      name="telefono"
+                      name="telefono_prv"
                       className="form-control"
-                      value={form.telefono}
+                      value={form.telefono_prv}
                       onChange={handleChange}
                       required
                     />
@@ -160,7 +192,10 @@ function CrearProveedor() {
 
                   {/* DIRECCION */}
                   <div className="col-md-12">
-                    <label className="form-label fw-semibold">Dirección</label>
+                    <label className="form-label fw-semibold">
+                      Dirección
+                    </label>
+
                     <input
                       type="text"
                       name="direccion"
@@ -173,7 +208,10 @@ function CrearProveedor() {
 
                   {/* ESTADO */}
                   <div className="col-md-6">
-                    <label className="form-label fw-semibold">Estado</label>
+                    <label className="form-label fw-semibold">
+                      Estado
+                    </label>
+
                     <select
                       name="estado"
                       className="form-select"
@@ -215,8 +253,10 @@ function CrearProveedor() {
       </main>
 
       <FooterAdmi />
+
     </div>
   );
 }
 
 export default CrearProveedor;
+
