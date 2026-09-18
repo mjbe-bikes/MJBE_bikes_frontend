@@ -9,17 +9,79 @@ import FooterAdmi from "../../componentes/FooterAdmi";
 // URL base de la API Laravel
 const API_URL = "http://127.0.0.1:8000/api";
 
-// Obtiene el nombre del vendedor.
-// Si la API no envía el nombre, muestra su ID.
-const nombreVendedor = (venta) =>
-  venta.vendedor || `Vendedor #${venta.id_vendedor}`;
+// =========================================================
+// OBTENER NOMBRE DEL VENDEDOR
+// =========================================================
+// La API puede devolver:
+// 1. vendedor como texto
+// 2. vendedor como objeto Usuario
+//
+// Cuando llega como objeto, tomamos únicamente el campo
+// "login" para evitar que React intente renderizar todo
+// el objeto directamente.
+const nombreVendedor = (venta) => {
+  // Si vendedor es un objeto, obtenemos su login.
+  if (
+    venta.vendedor &&
+    typeof venta.vendedor === "object"
+  ) {
+    return (
+      venta.vendedor.login ||
+      `Vendedor #${venta.id_vendedor}`
+    );
+  }
 
-// Obtiene el nombre del cliente.
-// Si la API no envía el nombre, muestra su ID.
-const nombreCliente = (venta) =>
-  venta.cliente || `Cliente #${venta.id_cliente}`;
+  // Si vendedor ya viene como texto, lo mostramos.
+  if (venta.vendedor) {
+    return venta.vendedor;
+  }
 
-// Formatea los valores monetarios en pesos colombianos.
+  // Si no existe el vendedor, mostramos su ID.
+  return `Vendedor #${venta.id_vendedor}`;
+};
+
+
+// =========================================================
+// OBTENER NOMBRE DEL CLIENTE
+// =========================================================
+// La API puede devolver:
+// 1. cliente como texto
+// 2. cliente como objeto Cliente
+//
+// Cuando llega como objeto, construimos el nombre completo
+// usando "nombres" y "apellidos".
+const nombreCliente = (venta) => {
+  // Si cliente es un objeto, obtenemos nombres y apellidos.
+  if (
+    venta.cliente &&
+    typeof venta.cliente === "object"
+  ) {
+    const nombres = venta.cliente.nombres || "";
+    const apellidos = venta.cliente.apellidos || "";
+
+    // Unimos los dos campos para mostrar el nombre completo.
+    const nombreCompleto = `${nombres} ${apellidos}`.trim();
+
+    return (
+      nombreCompleto ||
+      `Cliente #${venta.id_cliente}`
+    );
+  }
+
+  // Si cliente ya viene como texto, lo mostramos directamente.
+  if (venta.cliente) {
+    return venta.cliente;
+  }
+
+  // Si no existe información del cliente, mostramos su ID.
+  return `Cliente #${venta.id_cliente}`;
+};
+
+
+// =========================================================
+// FORMATEAR VALORES MONETARIOS
+// =========================================================
+// Convierte el valor recibido de la API a pesos colombianos.
 const formatCurrency = (value) =>
   new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -27,35 +89,55 @@ const formatCurrency = (value) =>
     maximumFractionDigits: 0,
   }).format(Number(value ?? 0));
 
+
 function VentasAdmin() {
+  // Guarda todas las ventas obtenidas desde Laravel.
   const [ventas, setVentas] = useState([]);
+
+  // Guarda el texto introducido en el buscador.
   const [busqueda, setBusqueda] = useState("");
+
+  // Controla el estado de carga de la petición.
   const [cargando, setCargando] = useState(true);
+
+  // Guarda posibles mensajes de error.
   const [error, setError] = useState("");
 
-  // Carga todas las ventas desde Laravel.
+
+  // =========================================================
+  // CARGAR VENTAS
+  // =========================================================
   useEffect(() => {
     const cargarVentas = async () => {
       try {
+        // Solicitud GET al endpoint de ventas de Laravel.
         const respuesta = await fetch(`${API_URL}/ventas`, {
           headers: {
             Accept: "application/json",
           },
         });
 
+        // Si Laravel devuelve un código diferente a 2xx,
+        // consideramos que la petición falló.
         if (!respuesta.ok) {
           throw new Error("No se pudieron cargar las ventas");
         }
 
+        // Convertimos la respuesta de Laravel a JSON.
         const datos = await respuesta.json();
 
-        // La API normalmente devuelve un arreglo.
-        // Se deja esta comprobación para evitar errores si la respuesta cambia.
+        // La API normalmente devuelve un arreglo de ventas.
+        // Esta validación evita guardar un objeto inesperado
+        // dentro del estado.
         setVentas(Array.isArray(datos) ? datos : []);
       } catch (loadError) {
+        // Mostramos el error en consola para depuración.
         console.error("Error cargando ventas:", loadError);
+
+        // Mostramos un mensaje amigable en la interfaz.
         setError("No fue posible cargar las ventas.");
       } finally {
+        // La carga termina tanto si hay éxito como si hay error.
         setCargando(false);
       }
     };
@@ -63,7 +145,12 @@ function VentasAdmin() {
     cargarVentas();
   }, []);
 
-  // Filtra las ventas según lo escrito en el buscador.
+
+  // =========================================================
+  // FILTRAR VENTAS
+  // =========================================================
+  // El filtro utiliza texto, por lo que primero obtenemos
+  // vendedor y cliente mediante las funciones anteriores.
   const ventasFiltradas = ventas.filter((venta) => {
     const texto = `
       ${venta.id}
@@ -75,6 +162,7 @@ function VentasAdmin() {
     return texto.includes(busqueda.toLowerCase());
   });
 
+
   return (
     <div className="app">
       <NavAdmi />
@@ -82,7 +170,10 @@ function VentasAdmin() {
       <main className="contenido">
         <div className="container mt-4 py-3">
           <div className="card shadow">
-            {/* Encabezado de la vista */}
+
+            {/* =================================================
+                ENCABEZADO DE LA VISTA
+            ================================================= */}
             <div className="card-header bg-success text-white">
               <h4 className="mb-0">Ventas</h4>
 
@@ -91,9 +182,14 @@ function VentasAdmin() {
               </small>
             </div>
 
+
             <div className="card-body">
-              {/* Buscador */}
+
+              {/* =================================================
+                  BUSCADOR
+              ================================================= */}
               <div className="row mb-4 g-2">
+
                 <div className="col-md-8">
                   <label
                     className="form-label"
@@ -114,25 +210,35 @@ function VentasAdmin() {
                   />
                 </div>
 
+
                 <div className="col-md-4 d-flex align-items-end">
-                  {/* El filtro ya se actualiza mientras se escribe */}
+
+                  {/* El filtro se ejecuta automáticamente
+                      mientras el usuario escribe. */}
                   <button
                     className="btn btn-primary w-100"
                     type="button"
                   >
                     Buscar
                   </button>
+
                 </div>
               </div>
 
-              {/* Mensaje de error */}
+
+              {/* =================================================
+                  MENSAJE DE ERROR
+              ================================================= */}
               {error && (
                 <div className="alert alert-danger">
                   {error}
                 </div>
               )}
 
-              {/* Mensaje cuando no existen ventas */}
+
+              {/* =================================================
+                  MENSAJE CUANDO NO EXISTEN VENTAS
+              ================================================= */}
               {!cargando &&
                 !error &&
                 ventas.length === 0 && (
@@ -141,9 +247,14 @@ function VentasAdmin() {
                   </div>
                 )}
 
-              {/* Tabla de ventas */}
+
+              {/* =================================================
+                  TABLA DE VENTAS
+              ================================================= */}
               <div className="table-responsive">
+
                 <table className="table table-bordered table-hover align-middle">
+
                   <thead className="table-dark">
                     <tr>
                       <th>ID</th>
@@ -156,8 +267,14 @@ function VentasAdmin() {
                     </tr>
                   </thead>
 
+
                   <tbody>
+
+                    {/* =================================================
+                        ESTADO DE CARGA
+                    ================================================= */}
                     {cargando ? (
+
                       <tr>
                         <td
                           colSpan="7"
@@ -166,7 +283,12 @@ function VentasAdmin() {
                           Cargando ventas...
                         </td>
                       </tr>
+
                     ) : ventasFiltradas.length === 0 ? (
+
+                      /* =================================================
+                         CUANDO EL FILTRO NO ENCUENTRA RESULTADOS
+                      ================================================= */
                       <tr>
                         <td
                           colSpan="7"
@@ -175,19 +297,43 @@ function VentasAdmin() {
                           No se encontraron ventas
                         </td>
                       </tr>
+
                     ) : (
+
+                      /* =================================================
+                         MOSTRAR LAS VENTAS
+                      ================================================= */
                       ventasFiltradas.map((venta) => (
+
                         <tr key={venta.id}>
-                          {/* ID de la venta */}
-                          <td>{venta.id}</td>
 
-                          {/* Vendedor */}
-                          <td>{nombreVendedor(venta)}</td>
+                          {/* ID DE LA VENTA */}
+                          <td>
+                            {venta.id}
+                          </td>
 
-                          {/* Cliente */}
-                          <td>{nombreCliente(venta)}</td>
 
-                          {/* Fecha */}
+                          {/* =================================================
+                              VENDEDOR
+                              Aquí ya no mostramos el objeto directamente.
+                              nombreVendedor() extrae su login.
+                          ================================================= */}
+                          <td>
+                            {nombreVendedor(venta)}
+                          </td>
+
+
+                          {/* =================================================
+                              CLIENTE
+                              Aquí ya no mostramos el objeto directamente.
+                              nombreCliente() construye nombres + apellidos.
+                          ================================================= */}
+                          <td>
+                            {nombreCliente(venta)}
+                          </td>
+
+
+                          {/* FECHA */}
                           <td>
                             {venta.fecha
                               ? new Date(
@@ -196,12 +342,17 @@ function VentasAdmin() {
                               : "Sin fecha"}
                           </td>
 
-                          {/* Total */}
+
+                          {/* TOTAL */}
                           <td>
                             {formatCurrency(venta.total)}
                           </td>
 
-                          {/* Estado según el campo pago de la BD */}
+
+                          {/* =================================================
+                              ESTADO DE LA VENTA
+                              Se toma el campo "pago" de la BD.
+                          ================================================= */}
                           <td>
                             <span
                               className={`badge ${
@@ -216,7 +367,12 @@ function VentasAdmin() {
                             </span>
                           </td>
 
-                          {/* Ir al detalle de la venta */}
+
+                          {/* =================================================
+                              DETALLE DE LA VENTA
+                              Envía el ID de la venta a la vista
+                              de detalles.
+                          ================================================= */}
                           <td>
                             <Link
                               className="btn btn-primary btn-sm"
@@ -225,12 +381,16 @@ function VentasAdmin() {
                               Ver detalle
                             </Link>
                           </td>
+
                         </tr>
+
                       ))
                     )}
+
                   </tbody>
                 </table>
               </div>
+
             </div>
           </div>
         </div>

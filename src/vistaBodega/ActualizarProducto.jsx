@@ -208,10 +208,10 @@ function ActualizarProducto() {
             productoEncontrado.estado || "activo",
         });
       } catch (err) {
-        console.error(
-          "Error al cargar producto:",
-          err
-        );
+       console.error(
+  "ERRORES DE VALIDACIÓN DE LARAVEL:",
+  JSON.stringify(datosError, null, 2)
+);
 
         setError(
           "No se pudo cargar el producto desde la API."
@@ -264,17 +264,37 @@ function ActualizarProducto() {
       );
 
       if (!response.ok) {
-        const datosError =
-          await response.json().catch(() => null);
+  const datosError =
+    await response.json().catch(() => null);
 
-        console.error(
-          "Error de Laravel:",
-          datosError
-        );
+  // Mostrar en consola el error completo de Laravel.
+  console.error(
+    "ERRORES DE VALIDACIÓN DE LARAVEL:",
+    JSON.stringify(datosError, null, 2)
+  );
 
-        throw new Error(
-          "No se pudo actualizar el producto"
-        );
+  // Mostrar el detalle del error también en la página.
+  const erroresLaravel = datosError?.errores;
+
+  if (erroresLaravel) {
+    const mensajes = Object.entries(erroresLaravel)
+      .map(([campo, errores]) => {
+        return `${campo}: ${errores.join(", ")}`;
+      })
+      .join("\n");
+
+    setError(mensajes);
+  } else {
+    setError(
+      datosError?.mensaje ||
+      "No se pudo actualizar el producto."
+    );
+  }
+
+  throw new Error(
+    "No se pudo actualizar el producto"
+  );
+
       }
 
       // Volver al inventario después de actualizar.

@@ -56,7 +56,7 @@ function Login() {
         throw new Error("No se pudo consultar el usuario.")
       }
 
-      const users = await response.json(SESSIONS_URL)
+      const users = await response.json()
 
       if (!users || users.length === 0) {
         setError("Usuario no encontrado.")

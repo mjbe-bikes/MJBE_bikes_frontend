@@ -75,16 +75,21 @@ function CrearClientes() {
       // Intentar obtener la respuesta de Laravel
       const datos = await respuesta.json().catch(() => null);
 
-      // Si Laravel devuelve un error
       if (!respuesta.ok) {
-        console.error("Error de Laravel:", datos);
+  console.error("Error de Laravel:", datos);
 
-        throw new Error(
-          datos?.mensaje ||
-          datos?.message ||
-          "No se pudo crear el cliente"
-        );
-      }
+  // Laravel devuelve los errores de validación dentro de "errores".
+  const erroresValidacion = datos?.errores
+    ? Object.values(datos.errores).flat().join("\n")
+    : null;
+
+  throw new Error(
+    erroresValidacion ||
+    datos?.mensaje ||
+    datos?.message ||
+    "No se pudo crear el cliente"
+  );
+}
 
       // Mostrar en consola la respuesta del servidor
       console.log("Cliente creado:", datos);

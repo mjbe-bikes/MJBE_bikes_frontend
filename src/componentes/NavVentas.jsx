@@ -56,12 +56,12 @@ function NavVentas() {
             </li>
 
 
-            {/* Cliente */}
+            {/* Cliente 
             <li className="nav-item mx-2">
              <Link className="nav-link text-white" to="/Cliente">
              🙍‍♂️ cliente
              </Link>
-            </li>
+            </li>*/}
 
           </ul>
         </div>

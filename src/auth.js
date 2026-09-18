@@ -1,8 +1,23 @@
-// Estado de sesión compartido y reactivo (localStorage + suscriptores)
+// ==========================================================
+// ESTADO DE SESIÓN COMPARTIDO Y REACTIVO
+// ==========================================================
+// Este archivo controla:
+// - Si el usuario está autenticado.
+// - Qué rol tiene.
+// - La actualización reactiva de App.jsx.
+// - El cierre de sesión.
+//
+// IMPORTANTE:
+// La sesión NO se borra durante una navegación interna de React.
+// Solo se limpia cuando realmente se carga nuevamente la aplicación.
+// ==========================================================
 
 const listeners = new Set()
 
-// Claves que forman la sesión
+// ==========================================================
+// CLAVES DE LA SESIÓN
+// ==========================================================
+
 const CLAVES_SESION = [
   "mjbe_auth",
   "mjbe_user_id",
@@ -13,59 +28,142 @@ const CLAVES_SESION = [
   "mjbe_user",
 ]
 
-// Al arrancar la app (recarga completa de la página) NO se restaura la sesión
-// anterior: siempre se empieza en el login. Este módulo se evalúa una sola vez
-// por carga de página; las ediciones con HMR de componentes no lo re-ejecutan.
-CLAVES_SESION.forEach((clave) => localStorage.removeItem(clave))
-
-let snapshot = readSnapshot()
+// ==========================================================
+// LEER EL ESTADO ACTUAL
+// ==========================================================
 
 function readSnapshot() {
   return {
     isLoggedIn: localStorage.getItem("mjbe_auth") === "true",
-    rolId: Number(localStorage.getItem("mjbe_rol_id") || 0),
+
+    rolId: Number(
+      localStorage.getItem("mjbe_rol_id") || 0
+    ),
   }
 }
 
-// Recalcula el snapshot y, si CAMBIÓ, avisa a los suscriptores.
+// ==========================================================
+// SNAPSHOT INICIAL
+// ==========================================================
+//
+// IMPORTANTE:
+// Ya NO borramos localStorage aquí.
+//
+// Hacer:
+// CLAVES_SESION.forEach(...removeItem)
+//
+// directamente al cargar este módulo puede provocar que la
+// sesión desaparezca inesperadamente durante el desarrollo
+// con Vite/HMR.
+//
+// La sesión solamente se elimina mediante clearSession().
+// ==========================================================
+
+let snapshot = readSnapshot()
+
+// ==========================================================
+// NOTIFICAR CAMBIOS
+// ==========================================================
+//
+// useSyncExternalStore necesita que el snapshot conserve la
+// misma referencia cuando no hubo ningún cambio.
+// ==========================================================
+
 function notify() {
   const next = readSnapshot()
-  // useSyncExternalStore exige devolver la MISMA referencia si nada cambió,
-  // si no, entra en bucle de renders.
-  if (next.isLoggedIn === snapshot.isLoggedIn && next.rolId === snapshot.rolId) {
+
+  if (
+    next.isLoggedIn === snapshot.isLoggedIn &&
+    next.rolId === snapshot.rolId
+  ) {
     return
   }
+
   snapshot = next
-  listeners.forEach((listener) => listener())   // -> App.jsx se re-renderiza
+
+  listeners.forEach((listener) => {
+    listener()
+  })
 }
 
-// Devuelve el objeto de estado actual (App.jsx lo pasa a useSyncExternalStore)
+// ==========================================================
+// OBTENER SNAPSHOT
+// ==========================================================
+
 export function getAuthSnapshot() {
   return snapshot
 }
 
-// Registra un listener y devuelve la función para des-suscribirse
+// ==========================================================
+// SUSCRIBIR APP.JSX A LOS CAMBIOS
+// ==========================================================
+
 export function subscribeAuth(listener) {
   listeners.add(listener)
-  // "storage" salta cuando OTRA pestaña cambia localStorage -> sincroniza pestañas
-  window.addEventListener("storage", notify)
+
+  // Escucha cambios realizados desde otra pestaña.
+  const handleStorage = () => {
+    notify()
+  }
+
+  window.addEventListener("storage", handleStorage)
+
   return () => {
     listeners.delete(listener)
-    window.removeEventListener("storage", notify)
+    window.removeEventListener("storage", handleStorage)
   }
 }
 
-// Guarda la sesión tras un login correcto. `user` viene de Login.jsx.
+// ==========================================================
+// GUARDAR SESIÓN
+// ==========================================================
+
 export function saveSession(user) {
+  // Guardamos explícitamente todos los datos importantes.
+
   localStorage.setItem("mjbe_auth", "true")
-  localStorage.setItem("mjbe_user_id", String(user.id))
-  localStorage.setItem("mjbe_user_login", user.login)
-  localStorage.setItem("mjbe_user_email", user.email)
-  localStorage.setItem("mjbe_rol_id", String(user.rolId))
+
+  localStorage.setItem(
+    "mjbe_user_id",
+    String(user.id)
+  )
+
+  localStorage.setItem(
+    "mjbe_user_login",
+    String(user.login ?? "")
+  )
+
+  localStorage.setItem(
+    "mjbe_user_email",
+    String(user.email ?? "")
+  )
+
+  localStorage.setItem(
+    "mjbe_rol_id",
+    String(user.rolId)
+  )
+
+  // También guardamos el rol como texto si posteriormente
+  // algún componente necesita utilizarlo.
+  localStorage.setItem(
+    "mjbe_role",
+    String(user.rolId)
+  )
+
+  // Actualizamos inmediatamente el estado de React.
   notify()
 }
 
+// ==========================================================
+// CERRAR SESIÓN
+// ==========================================================
+
 export function clearSession() {
-  CLAVES_SESION.forEach((clave) => localStorage.removeItem(clave))
+  CLAVES_SESION.forEach((clave) => {
+    localStorage.removeItem(clave)
+  })
+
+  // Actualizamos App.jsx inmediatamente.
   notify()
 }
+

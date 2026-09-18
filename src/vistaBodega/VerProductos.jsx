@@ -473,7 +473,7 @@ function VerProductos() {
                     </div>
                   </div>
 
-                  {/* CREAR PRODUCTO */}
+                  {/* CREAR PRODUCTO 
                   <div className="d-flex justify-content-end mt-3 no-print">
                     <Link
                       className="btn btn-success"
@@ -481,7 +481,7 @@ function VerProductos() {
                     >
                       ➕ Crear Producto
                     </Link>
-                  </div>
+                  </div>*/}
                 </div>
               </div>
             </div>
