@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom"
 import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
 
-const API_URL = "http://localhost:5000/api/usuarios"
+const API_URL = "http://localhost:8000/api/register"
 
 // Calcula el hash SHA-256 de la contraseña
 async function hashPassword(password) {
@@ -48,27 +48,6 @@ function Register() {
     }
 
     try {
-      const [loginRes, emailRes] = await Promise.all([
-        fetch(`${API_URL}?login=${encodeURIComponent(form.login)}`),
-        fetch(`${API_URL}?email=${encodeURIComponent(form.email)}`)
-      ])
-
-      const [loginUsers, emailUsers] = await Promise.all([
-        loginRes.json(),
-        emailRes.json()
-      ])
-
-      if (loginUsers.length > 0 || emailUsers.length > 0) {
-        setError("El usuario o el correo ya están registrados.")
-        return
-      }
-    } catch (error) {
-      console.error(error)
-      setError("No se pudo validar si el usuario ya existe.")
-      return
-    }
-
-    try {
       const hashedPassword = await hashPassword(form.password)
       const response = await fetch(API_URL, {
         method: "POST",
@@ -78,15 +57,16 @@ function Register() {
         body: JSON.stringify({
           login: form.login,
           email: form.email,
-          password_harsh: hashedPassword,
-          rol_id: 4,
-          estado: "activo"
+          password_harsh: hashedPassword
         })
       })
 
       if (!response.ok) {
         const data = await response.json()
-        setError(data?.mensaje || "Error al registrar el cliente.")
+        // El rol y el email/login no llegan como campo: Laravel
+        // responde con el mensaje genérico de validación (message/errors).
+        const primerError = data?.errors && Object.values(data.errors)[0]?.[0]
+        setError(primerError || data?.mensaje || data?.message || "Error al registrar el cliente.")
         return
       }
 

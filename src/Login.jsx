@@ -6,8 +6,7 @@ import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
 import { saveSession } from "./auth"
 
-const API_URL = "http://localhost:5000/api/usuarios"
-const SESSIONS_URL = "http://localhost:5000/api/sessions"
+const API_URL = "http://localhost:8000/api/login"
 
 // Calcula el hash SHA-256 de la contraseña
 async function hashPassword(password) {
@@ -34,49 +33,33 @@ function Login() {
     }
 
     try {
-      const response = await fetch(`${API_URL}?email=${encodeURIComponent(email.trim().toLowerCase())}`)
-      const users = await response.json()
-      if (!users || users.length === 0) {
-        setError("Usuario no encontrado.")
+      const hashedPassword = await hashPassword(password)
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password_harsh: hashedPassword
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data?.mensaje || "Credenciales incorrectas.")
         return
       }
 
-      const user = users[0]
-      // Se normaliza para tolerar mayúsculas/espacios ("Activo", " activo ", etc.)
-      const estado = String(user.estado ?? "").trim().toLowerCase()
-      if (estado !== "activo") {
-        setError(`Tu usuario no está activo (estado actual: "${user.estado ?? "sin estado"}").`)
-        return
-      }
-
+      const user = data.usuario
       const rolId = Number(user.rol_id)
       if (rolId !== 1 && rolId !== 2 && rolId !== 3 && rolId !== 4) {
         setError("Rol no autorizado para acceder.")
         return
       }
-
-      const hashedPassword = await hashPassword(password)
-      if (hashedPassword !== user.password_harsh) {
-        setError("Credenciales incorrectas.")
-        return
-      }
-
-      const sessionPayload = {
-        user_id: user.id,
-        login: user.login,
-        email: user.email,
-        rol_id: rolId,
-        estado: user.estado,
-        fecha_login: new Date().toISOString()
-      }
-
-      await fetch(SESSIONS_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(sessionPayload)
-      })
 
       // Guardar sesión
       saveSession({ id: user.id, login: user.login, email: user.email, rolId })
