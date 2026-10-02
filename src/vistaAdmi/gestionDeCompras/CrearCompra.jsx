@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
 const initialForm = {
   id_proveedor: "",
@@ -27,8 +27,8 @@ function CrearCompra() {
     const cargarDatos = async () => {
       try {
         const [proveedoresRespuesta, productosRespuesta] = await Promise.all([
-          fetch(`${API_URL}/proveedores`),
-          fetch(`${API_URL}/productos`)
+          fetch(`${API_URL}/proveedores`, { credentials: "include" }),
+          fetch(`${API_URL}/productos`, { credentials: "include" })
         ]);
         if (!proveedoresRespuesta.ok || !productosRespuesta.ok) {
           throw new Error("No se pudieron cargar los datos");
@@ -92,6 +92,7 @@ function CrearCompra() {
 
       const respuesta = await fetch(`${API_URL}/compras`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(compra)
       });
@@ -101,6 +102,7 @@ function CrearCompra() {
       const respuestasDetalles = await Promise.all(detalles.map((detalle) => (
         fetch(`${API_URL}/detalles_compra`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id_compra: compraCreada.id,

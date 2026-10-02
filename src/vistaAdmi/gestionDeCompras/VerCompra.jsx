@@ -6,13 +6,14 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
 const getPurchaseId = (compra) => compra.id;
 const getPurchaseDate = (compra) => compra.fecha;
 const getPurchaseTotal = (compra) => Number(compra.total_compra ?? 0);
 const getProviderName = (compra, proveedores) => {
-  if (compra.proveedor) return compra.proveedor;
+  // La API embebe el objeto completo del proveedor, no un texto.
+  if (compra.proveedor) return compra.proveedor.nombre_proveedor;
 
   const proveedor = proveedores.find(
     (item) => Number(item.id) === Number(compra.id_proveedor)
@@ -38,8 +39,8 @@ function VerCompra() {
     const cargarCompras = async () => {
       try {
         const [comprasRespuesta, proveedoresRespuesta] = await Promise.all([
-          fetch(`${API_URL}/compras`),
-          fetch(`${API_URL}/proveedores`)
+          fetch(`${API_URL}/compras`, { credentials: "include" }),
+          fetch(`${API_URL}/proveedores`, { credentials: "include" })
         ]);
         if (!comprasRespuesta.ok || !proveedoresRespuesta.ok) {
           throw new Error("No se pudieron cargar las compras y proveedores");

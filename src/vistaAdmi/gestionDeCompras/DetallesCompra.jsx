@@ -6,7 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
 const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -27,10 +27,10 @@ function DetallesCompra() {
     const cargarDetalle = async () => {
       try {
         const respuestas = await Promise.all([
-          fetch(`${API_URL}/compras/${encodeURIComponent(id_compra)}`),
-          fetch(`${API_URL}/detalles_compra?id_compra=${encodeURIComponent(id_compra)}`),
-          fetch(`${API_URL}/proveedores`),
-          fetch(`${API_URL}/productos`)
+          fetch(`${API_URL}/compras/${encodeURIComponent(id_compra)}`, { credentials: "include" }),
+          fetch(`${API_URL}/detalles_compra?id_compra=${encodeURIComponent(id_compra)}`, { credentials: "include" }),
+          fetch(`${API_URL}/proveedores`, { credentials: "include" }),
+          fetch(`${API_URL}/productos`, { credentials: "include" })
         ]);
         if (respuestas.some((respuesta) => !respuesta.ok)) throw new Error("No se pudo cargar el detalle");
 
