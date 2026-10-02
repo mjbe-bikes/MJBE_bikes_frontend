@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import NavarCliente from "../componentes/NavarCliente";
 import { useCart } from "./Carrito";
 
-const API_URL = "http://localhost:5000/api/productos";
+const API_URL = "http://localhost:8000/api/productos";
 
 function ProductosCliente() {
   const { agregarAlCarrito } = useCart();

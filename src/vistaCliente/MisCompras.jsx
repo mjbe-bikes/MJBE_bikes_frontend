@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import NavarCliente from "../componentes/NavarCliente";
 
-const API_URL = "http://localhost:5000/api/ventas";
-const DETALLES_VENTA_URL = "http://localhost:5000/api/detalles_venta";
+const API_URL = "http://localhost:8000/api/ventas";
 
 const formatearMoneda = (valor) =>
   `$${Number(valor || 0).toLocaleString("es-CO")}`;
@@ -20,27 +19,17 @@ function MisCompras() {
 
     const cargarCompras = async () => {
       try {
-        // Se usan las rutas de ventas, filtradas por el usuario logueado
-        const respuestaVentas = await fetch(`${API_URL}?comprador=${userId}`);
+        // Se usan las rutas de ventas, filtradas por el usuario logueado.
+        // La API ya incluye "productos" (detalle formateado) en cada venta.
+        const respuestaVentas = await fetch(`${API_URL}?user_id=${userId}`, { credentials: "include" });
         if (!respuestaVentas.ok) throw new Error("No se pudieron cargar las compras");
 
         const ventas = await respuestaVentas.json();
 
-        // Por cada venta se traen sus detalles (productos comprados)
-        const comprasConDetalle = await Promise.all(
-          ventas.map(async (venta) => {
-            const respuestaDetalle = await fetch(
-              `${DETALLES_VENTA_URL}?id_venta=${venta.id}`
-            );
-            const detalles = respuestaDetalle.ok ? await respuestaDetalle.json() : [];
-            return { ...venta, detalles };
-          })
-        );
-
-        comprasConDetalle.sort(
+        ventas.sort(
           (compraA, compraB) => new Date(compraB.fecha) - new Date(compraA.fecha)
         );
-        setCompras(comprasConDetalle);
+        setCompras(ventas);
       } catch (err) {
         console.error(err);
         setError("No se pudieron cargar tus compras.");
@@ -86,22 +75,20 @@ function MisCompras() {
                       : "Sin fecha"}
                   </p>
 
-                  {compra.detalles.length === 0 ? (
+                  {compra.productos.length === 0 ? (
                     <p className="text-muted mb-0">Sin productos asociados.</p>
                   ) : (
-                    compra.detalles.map((detalle) => (
+                    compra.productos.map((detalle) => (
                       <div
                         className="d-flex justify-content-between border-bottom py-2"
-                        key={detalle.id}
+                        key={detalle.id_producto}
                       >
                         <span>
                           {detalle.nombre_producto || `Producto #${detalle.id_producto}`} x{" "}
                           {detalle.cantidad}
                         </span>
                         <strong>
-                          {formatearMoneda(
-                            Number(detalle.precio_unitario_momento) * Number(detalle.cantidad)
-                          )}
+                          {formatearMoneda(detalle.subtotal)}
                         </strong>
                       </div>
                     ))

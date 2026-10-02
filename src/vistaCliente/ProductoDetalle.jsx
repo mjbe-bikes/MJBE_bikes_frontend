@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "./Carrito";
 
-const API_URL = "http://localhost:5000/api/productos";
+const API_URL = "http://localhost:8000/api/productos";
 
 function ProductoDetalle() {
   const { id } = useParams();   // :id de la ruta

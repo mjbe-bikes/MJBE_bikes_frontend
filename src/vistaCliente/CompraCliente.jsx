@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NavarCliente from "../componentes/NavarCliente";
 import { Carrito } from "./Carrito";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
 function CompraCliente() {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ function CompraCliente() {
 
     try {
       // 1. Buscar el cliente asociado al usuario; si no existe, se crea
-      const respuestaClientes = await fetch(`${API_URL}/clientes?usuario_id=${userId}`);
+      const respuestaClientes = await fetch(`${API_URL}/clientes?usuario_id=${userId}`, { credentials: "include" });
       const clientes = respuestaClientes.ok ? await respuestaClientes.json() : [];
 
       let idCliente;
@@ -46,6 +46,7 @@ function CompraCliente() {
         const [primerNombre, ...resto] = formulario.nombre.trim().split(" ");
         const respuestaNuevoCliente = await fetch(`${API_URL}/clientes`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             usuario_id: userId,
@@ -62,46 +63,28 @@ function CompraCliente() {
         idCliente = nuevoCliente.id_cliente ?? nuevoCliente.id;
       }
 
-      // 2. Crear la venta (se marca pagada al final si todo sale bien)
+      // 2. Crear la venta junto con sus productos: la API hace todo
+      // esto en una sola transacción (ver VentaController::store).
       const respuestaVenta = await fetch(`${API_URL}/ventas`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id_vendedor: userId,
-          id_cliente: idCliente,
+          user_id: userId,
+          cliente: idCliente,
+          productos: carrito.map((producto) => ({
+            id: producto.id,
+            cantidad: producto.cantidad,
+            valor_unitario: Number(producto.valor_unitario),
+          })),
           total: precioTotal,
-          pago: false,
+          direccion: formulario.direccion,
+          metodo_pago: formulario.metodoPago,
+          estado: "completada",
+          fecha: new Date().toISOString().slice(0, 10),
         }),
       });
       if (!respuestaVenta.ok) throw new Error("No se pudo registrar la compra");
-      const venta = await respuestaVenta.json();
-
-      // 3. Registrar los productos comprados
-      const respuestasDetalles = await Promise.all(
-        carrito.map((producto) =>
-          fetch(`${API_URL}/detalles_venta`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id_venta: venta.id,
-              id_producto: producto.id,
-              cantidad: producto.cantidad,
-              precio_unitario_momento: Number(producto.valor_unitario),
-            }),
-          })
-        )
-      );
-      if (respuestasDetalles.some((respuesta) => !respuesta.ok)) {
-        throw new Error("No se pudieron registrar todos los productos de la compra");
-      }
-
-      // 4. Todo salió bien: marcar la venta como pagada (pago: false -> true)
-      const respuestaPago = await fetch(`${API_URL}/ventas/${venta.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pago: true }),
-      });
-      if (!respuestaPago.ok) throw new Error("No se pudo confirmar el pago de la compra");
 
       setError("");
       limpiarCarrito();
