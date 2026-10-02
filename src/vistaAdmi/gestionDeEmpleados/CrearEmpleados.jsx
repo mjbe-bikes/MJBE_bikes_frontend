@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/usuarios';
+const API_URL = 'http://localhost:8000/api/usuarios';
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -41,6 +41,7 @@ const handleSubmit = async (e) => {
 
     const res = await fetch(API_URL, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -58,7 +59,8 @@ const handleSubmit = async (e) => {
     console.log("RESPUESTA BACKEND:", data);
 
     if (!res.ok) {
-      alert(data?.mensaje || "Error al crear empleado");
+      const primerError = data?.errores && Object.values(data.errores)[0]?.[0]
+      alert(primerError || data?.mensaje || "Error al crear empleado");
       return;
     }
 

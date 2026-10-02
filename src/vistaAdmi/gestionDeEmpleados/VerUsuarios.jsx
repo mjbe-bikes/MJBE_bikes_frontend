@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/usuarios';
+const API_URL = 'http://localhost:8000/api/usuarios';
 
 function VerUsuarios() {
 
@@ -41,7 +41,7 @@ function VerUsuarios() {
   };
 
   useEffect(() => {
-    fetch(API_URL)
+    fetch(API_URL, { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setUsuarios(data);
@@ -74,6 +74,7 @@ function VerUsuarios() {
   const desactivarUsuario = () => {
     fetch(`${API_URL}/${usuarioSeleccionado.id}`, {
       method: "PUT",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json"
       },
@@ -101,7 +102,8 @@ function VerUsuarios() {
   // ELIMINAR REAL
   const eliminarUsuarioFisico = () => {
     fetch(`${API_URL}/${usuarioSeleccionado.id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      credentials: "include"
     })
       .then(res => {
         if (!res.ok) throw new Error("Error al eliminar");
