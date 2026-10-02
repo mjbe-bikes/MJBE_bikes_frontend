@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import NavVentas from "../../componentes/NavVentas";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:8000/api';
 
 const getSaleTotal = (venta) => Number(venta.total ?? 0);
 const getSaleDate = (venta) => venta.fecha;
@@ -32,8 +32,8 @@ function InicioVentas() {
     const cargarDashboard = async () => {
       try {
         const [ventasRespuesta, clientesRespuesta] = await Promise.all([
-          fetch(`${API_URL}/ventas`),
-          fetch(`${API_URL}/clientes`)
+          fetch(`${API_URL}/ventas`, { credentials: "include" }),
+          fetch(`${API_URL}/clientes`, { credentials: "include" })
         ]);
         if (!ventasRespuesta.ok || !clientesRespuesta.ok) throw new Error("No se pudieron cargar las ventas");
 

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavVentas from "../../../componentes/NavVentas";
 import FooterAdmi from "../../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
 function VerClientes() {
   const [clientes, setClientes] = useState([]);
@@ -14,7 +14,7 @@ function VerClientes() {
   useEffect(() => {
     const cargarClientes = async () => {
       try {
-        const respuesta = await fetch(`${API_URL}/clientes`);
+        const respuesta = await fetch(`${API_URL}/clientes`, { credentials: "include" });
         if (!respuesta.ok) throw new Error("No se pudieron cargar los clientes");
         setClientes(await respuesta.json());
       } catch (error) {
@@ -29,7 +29,7 @@ function VerClientes() {
     if (!window.confirm("¿Deseas eliminar este cliente?")) return;
 
     try {
-      const respuesta = await fetch(`${API_URL}/clientes/${id}`, { method: "DELETE" });
+      const respuesta = await fetch(`${API_URL}/clientes/${id}`, { method: "DELETE", credentials: "include" });
       if (!respuesta.ok) throw new Error("No se pudo eliminar el cliente");
       setClientes((actuales) => actuales.filter((cliente) => cliente.id_cliente !== id));
     } catch (error) {

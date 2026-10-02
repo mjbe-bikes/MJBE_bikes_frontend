@@ -7,7 +7,7 @@ import NavVentas from "../../componentes/NavVentas";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:8000/api';
 
 const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -29,10 +29,10 @@ function InformacionVenta() {
     const cargarDetalle = async () => {
       try {
         const respuestas = await Promise.all([
-          fetch(`${API_URL}/ventas/${encodeURIComponent(id_venta)}`),
-          fetch(`${API_URL}/detalles_venta?id_venta=${encodeURIComponent(id_venta)}`),
-          fetch(`${API_URL}/clientes`),
-          fetch(`${API_URL}/productos`)
+          fetch(`${API_URL}/ventas/${encodeURIComponent(id_venta)}`, { credentials: "include" }),
+          fetch(`${API_URL}/detalles_venta?id_venta=${encodeURIComponent(id_venta)}`, { credentials: "include" }),
+          fetch(`${API_URL}/clientes`, { credentials: "include" }),
+          fetch(`${API_URL}/productos`, { credentials: "include" })
         ]);
         if (respuestas.some((respuesta) => !respuesta.ok)) throw new Error("No se pudo cargar el detalle");
 

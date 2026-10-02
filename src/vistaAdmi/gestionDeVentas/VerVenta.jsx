@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavVentas from "../../componentes/NavVentas";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:8000/api';
 
 const getSaleId = (venta) => venta.id;
 const getSaleDate = (venta) => venta.fecha;
@@ -37,8 +37,8 @@ function VerVenta() {
     const cargarVentas = async () => {
       try {
         const [ventasRespuesta, clientesRespuesta] = await Promise.all([
-          fetch(`${API_URL}/ventas`),
-          fetch(`${API_URL}/clientes`)
+          fetch(`${API_URL}/ventas`, { credentials: "include" }),
+          fetch(`${API_URL}/clientes`, { credentials: "include" })
         ]);
         if (!ventasRespuesta.ok || !clientesRespuesta.ok) {
           throw new Error("No se pudieron cargar las ventas y clientes");

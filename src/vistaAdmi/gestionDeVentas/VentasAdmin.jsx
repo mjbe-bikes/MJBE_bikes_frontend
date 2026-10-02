@@ -6,10 +6,11 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
-const nombreVendedor = (venta) => venta.vendedor || `Vendedor #${venta.id_vendedor}`;
-const nombreCliente = (venta) => venta.cliente || `Cliente #${venta.id_cliente}`;
+// La API embebe el objeto completo de vendedor/cliente, no un texto.
+const nombreVendedor = (venta) => venta.vendedor?.login || `Vendedor #${venta.id_vendedor}`;
+const nombreCliente = (venta) => (venta.cliente ? `${venta.cliente.nombres} ${venta.cliente.apellidos}` : `Cliente #${venta.id_cliente}`);
 
 const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -26,7 +27,7 @@ function VentasAdmin() {
   useEffect(() => {
     const cargarVentas = async () => {
       try {
-        const respuesta = await fetch(`${API_URL}/ventas`);
+        const respuesta = await fetch(`${API_URL}/ventas`, { credentials: "include" });
         if (!respuesta.ok) throw new Error("No se pudieron cargar las ventas");
         setVentas(await respuesta.json());
       } catch (loadError) {

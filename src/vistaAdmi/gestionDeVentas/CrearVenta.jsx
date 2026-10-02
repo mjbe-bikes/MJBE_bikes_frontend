@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NavVentas from "../../componentes/NavVentas";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:8000/api';
 
 const initialForm = {
   id_cliente: "",
@@ -26,8 +26,8 @@ function CrearVenta() {
     const cargarDatos = async () => {
       try {
         const [clientesRespuesta, productosRespuesta] = await Promise.all([
-          fetch(`${API_URL}/clientes`),
-          fetch(`${API_URL}/productos`)
+          fetch(`${API_URL}/clientes`, { credentials: "include" }),
+          fetch(`${API_URL}/productos`, { credentials: "include" })
         ]);
         if (!clientesRespuesta.ok || !productosRespuesta.ok) {
           throw new Error("No se pudieron cargar los datos");
@@ -76,37 +76,34 @@ function CrearVenta() {
     setGuardando(true);
 
     try {
+      // La API crea la venta y todos sus detalles en una sola
+      // transacción (ver VentaController::store en Laravel).
       const venta = {
-        id_vendedor: Number(localStorage.getItem("mjbe_user_id")),
-        id_cliente: Number(form.id_cliente),
-        fecha: form.fecha,
-        total
+        user_id: Number(localStorage.getItem("mjbe_user_id")),
+        cliente: Number(form.id_cliente),
+        productos: detalles.map((detalle) => {
+          const producto = productos.find((item) => String(item.id) === String(detalle.id_producto));
+          return {
+            id: Number(detalle.id_producto),
+            cantidad: Number(detalle.cantidad),
+            valor_unitario: Number(producto?.valor_unitario || 0)
+          };
+        }),
+        total,
+        direccion: "Venta en tienda",
+        metodo_pago: "efectivo",
+        estado: "completada",
+        fecha: form.fecha
       };
 
       const respuesta = await fetch(`${API_URL}/ventas`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(venta)
       });
       if (!respuesta.ok) throw new Error("No se pudo crear la venta");
-      const ventaCreada = await respuesta.json();
 
-      const respuestasDetalles = await Promise.all(detalles.map((detalle) => {
-        const producto = productos.find((item) => String(item.id) === String(detalle.id_producto));
-        return fetch(`${API_URL}/detalles_venta`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_venta: ventaCreada.id,
-            id_producto: Number(detalle.id_producto),
-            cantidad: Number(detalle.cantidad),
-            precio_unitario_momento: Number(producto.valor_unitario)
-          })
-        });
-      }));
-      if (respuestasDetalles.some((respuesta) => !respuesta.ok)) {
-        throw new Error("No se pudieron crear todos los detalles de la venta");
-      }
       navigate("/Historialventas");
     } catch (error) {
       console.error("Error creando venta:", error);

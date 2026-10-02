@@ -1,12 +1,12 @@
 // Alta de cliente
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import NavVentas from "../../../componentes/NavVentas";
 import FooterAdmi from "../../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:8000/api";
 
 const initialForm = {
   usuario_id: "",
@@ -20,8 +20,26 @@ const initialForm = {
 
 function CrearClientes() {
   const [form, setForm] = useState(initialForm);
+  const [usuarios, setUsuarios] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const navigate = useNavigate();
+
+  // Un cliente debe estar asociado a un usuario (rol Cliente) ya existente.
+  useEffect(() => {
+    const cargarUsuarios = async () => {
+      try {
+        const respuesta = await fetch(`${API_URL}/usuarios`, { credentials: "include" });
+        if (!respuesta.ok) throw new Error("No se pudieron cargar los usuarios");
+
+        const datos = await respuesta.json();
+        setUsuarios(datos.filter((usuario) => Number(usuario.rol_id) === 4));
+      } catch (error) {
+        console.error("Error cargando usuarios:", error);
+      }
+    };
+
+    cargarUsuarios();
+  }, []);
 
   const handleChange = (event) => {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -29,24 +47,21 @@ function CrearClientes() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!form.usuario_id) {
+      alert("Selecciona el usuario asociado al cliente");
+      return;
+    }
+
     setGuardando(true);
 
     try {
-      const clientesRespuesta = await fetch(`${API_URL}/clientes`);
-      if (!clientesRespuesta.ok) throw new Error("No se pudieron consultar los clientes");
-
-      const clientes = await clientesRespuesta.json();
-      const idCliente = clientes.reduce(
-        (mayorId, cliente) => Math.max(mayorId, Number(cliente.id_cliente) || 0),
-        0
-      ) + 1;
-
       const respuesta = await fetch(`${API_URL}/clientes`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id_cliente: idCliente,
-          usuario_id: form.usuario_id ? Number(form.usuario_id) : null,
+          usuario_id: Number(form.usuario_id),
           tipo_documento_id: Number(form.tipo_documento_id),
           numero_documento: form.numero_documento.trim(),
           nombres: form.nombres.trim(),
@@ -79,6 +94,17 @@ function CrearClientes() {
               </div>
               <div className="card-body p-4">
                 <form className="row g-4" onSubmit={handleSubmit}>
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold" htmlFor="usuario_id">Usuario asociado</label>
+                    <select id="usuario_id" name="usuario_id" className="form-select" value={form.usuario_id} onChange={handleChange} required>
+                      <option value="">Seleccione un usuario</option>
+                      {usuarios.map((usuario) => (
+                        <option key={usuario.id} value={usuario.id}>
+                          {usuario.login} ({usuario.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="col-md-6">
                     <label className="form-label fw-semibold" htmlFor="tipo_documento_id">Tipo de documento</label>
                     <select id="tipo_documento_id" name="tipo_documento_id" className="form-select" value={form.tipo_documento_id} onChange={handleChange} required>
