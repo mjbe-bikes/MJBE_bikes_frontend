@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:5000/api/proveedores';
+const API_URL = 'http://localhost:8000/api/proveedores';
 
 function CrearProveedor() {
 
@@ -15,7 +15,7 @@ function CrearProveedor() {
     tipo_documento_id: "",
     numero_identidad: "",
     direccion: "",
-    telefono: "",
+    telefono_prv: "",
     estado: "activo"
   });
 
@@ -36,13 +36,14 @@ function CrearProveedor() {
       tipo_documento_id: Number(form.tipo_documento_id),
       numero_identidad: form.numero_identidad,
       direccion: form.direccion,
-      telefono: form.telefono,
+      telefono_prv: form.telefono_prv,
       estado: form.estado
     };
 
     try {
       const res = await fetch(API_URL, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -52,7 +53,8 @@ function CrearProveedor() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.mensaje || "Error al crear proveedor");
+        const primerError = data?.errores && Object.values(data.errores)[0]?.[0]
+        alert(primerError || data?.mensaje || "Error al crear proveedor");
         return;
       }
 
@@ -63,7 +65,7 @@ function CrearProveedor() {
         tipo_documento_id: "",
         numero_identidad: "",
         direccion: "",
-        telefono: "",
+        telefono_prv: "",
         estado: "activo"
       });
 
@@ -150,9 +152,9 @@ function CrearProveedor() {
                     <label className="form-label fw-semibold">Teléfono</label>
                     <input
                       type="text"
-                      name="telefono"
+                      name="telefono_prv"
                       className="form-control"
-                      value={form.telefono}
+                      value={form.telefono_prv}
                       onChange={handleChange}
                       required
                     />
