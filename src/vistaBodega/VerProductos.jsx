@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:5000/api/productos";
+const API_URL = "http://localhost:8000/api/productos";
 
 function VerProductos() {
   const [productos, setProductos] = useState([]);
@@ -23,7 +23,7 @@ function VerProductos() {
   useEffect(() => {
     const cargarProductos = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, { credentials: "include" });
         if (!response.ok) throw new Error("No se pudo cargar el inventario");
 
         const data = await response.json();
@@ -68,16 +68,17 @@ function VerProductos() {
 
     try {
       const response = await fetch(`${API_URL}/${productoSeleccionado.id}`, {
-        method: "PATCH",
+        method: "PUT",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ estado: "inactivo" })
+        body: JSON.stringify({ ...productoSeleccionado, estado: "inactivo" })
       });
 
       if (!response.ok) throw new Error("No se pudo desactivar el producto");
 
-      const actualizado = await response.json();
+      const { producto: actualizado } = await response.json();
       setProductos((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)));
       setShowModal(false);
       setProductoSeleccionado(null);
@@ -92,7 +93,8 @@ function VerProductos() {
 
     try {
       const response = await fetch(`${API_URL}/${productoSeleccionado.id}`, {
-        method: "DELETE"
+        method: "DELETE",
+        credentials: "include"
       });
 
       if (!response.ok) throw new Error("No se pudo eliminar el producto");

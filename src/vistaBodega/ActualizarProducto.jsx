@@ -6,7 +6,10 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:5000/api/productos";
+const API_URL = "http://localhost:8000/api/productos";
+const TALLAS_URL = "http://localhost:8000/api/tallas";
+const PROVEEDORES_URL = "http://localhost:8000/api/proveedores";
+const LOCALES_URL = "http://localhost:8000/api/locales";
 
 function ActualizarProducto() {
   const { id } = useParams();
@@ -23,28 +26,37 @@ function ActualizarProducto() {
     marca_producto: "",
     cant_producto: "",
     modelo: "",
-    id_medida: "",
+    id_talla: "",
     id_proveedor: "",
     id_local: "",
     valor_unitario: "",
     estado: "activo",
   });
 
-  const medidas = [
-    { id: 1, nombre: "Unidad" },
-    { id: 2, nombre: "Caja" },
-    { id: 3, nombre: "Kilogramo" },
-  ];
+  const [tallas, setTallas] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
+  const [locales, setLocales] = useState([]);
 
-  const proveedores = [
-    { id: 1, nombre: "Shimano Import" },
-    { id: 2, nombre: "GW Distribuciones" },
-  ];
+  // Catálogos reales: talla (con su medida), proveedor y local.
+  useEffect(() => {
+    const cargarCatalogos = async () => {
+      try {
+        const [tallasRes, proveedoresRes, localesRes] = await Promise.all([
+          fetch(TALLAS_URL, { credentials: "include" }),
+          fetch(PROVEEDORES_URL, { credentials: "include" }),
+          fetch(LOCALES_URL, { credentials: "include" })
+        ]);
 
-  const locales = [
-    { id: 1, nombre: "Local Centro" },
-    { id: 2, nombre: "Local Norte" },
-  ];
+        setTallas(await tallasRes.json());
+        setProveedores(await proveedoresRes.json());
+        setLocales(await localesRes.json());
+      } catch (error) {
+        console.error("Error cargando catálogos:", error);
+      }
+    };
+
+    cargarCatalogos();
+  }, []);
 
   const handleChange = (e) => {
     setForm({
@@ -56,7 +68,7 @@ function ActualizarProducto() {
   useEffect(() => {
     const cargarProducto = async () => {
       try {
-        const response = await fetch(`${API_URL}/${id}`);
+        const response = await fetch(`${API_URL}/${id}`, { credentials: "include" });
         if (!response.ok) throw new Error("Producto no encontrado");
 
         const productoEncontrado = await response.json();
@@ -68,11 +80,11 @@ function ActualizarProducto() {
           marca_producto: productoEncontrado.marca_producto || "",
           cant_producto: productoEncontrado.cant_producto || "",
           modelo: productoEncontrado.modelo || "",
-          id_medida: productoEncontrado.id_medida || "",
+          id_talla: productoEncontrado.id_talla || "",
           id_proveedor: productoEncontrado.id_proveedor || "",
           id_local: productoEncontrado.id_local || "",
           valor_unitario: productoEncontrado.valor_unitario || "",
-          estado: productoEncontrado.estado || "activo",
+          estado: String(productoEncontrado.estado || "activo").toLowerCase(),
         });
       } catch (err) {
         console.error(err);
@@ -91,13 +103,14 @@ function ActualizarProducto() {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...form,
           cant_producto: Number(form.cant_producto),
-          id_medida: Number(form.id_medida),
+          id_talla: Number(form.id_talla),
           id_proveedor: Number(form.id_proveedor),
           id_local: Number(form.id_local),
           valor_unitario: Number(form.valor_unitario),
@@ -229,17 +242,17 @@ function ActualizarProducto() {
                   </div>
 
                   <div className="col-md-4">
-                    <label>Medida</label>
+                    <label>Talla</label>
                     <select
-                      name="id_medida"
+                      name="id_talla"
                       className="form-select"
-                      value={form.id_medida}
+                      value={form.id_talla}
                       onChange={handleChange}
                     >
                       <option value="">Seleccione</option>
-                      {medidas.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.nombre}
+                      {tallas.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.talla} ({t.medida?.tipo_medida})
                         </option>
                       ))}
                     </select>
@@ -256,7 +269,7 @@ function ActualizarProducto() {
                       <option value="">Seleccione</option>
                       {proveedores.map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.nombre}
+                          {p.nombre_proveedor}
                         </option>
                       ))}
                     </select>
@@ -273,7 +286,7 @@ function ActualizarProducto() {
                       <option value="">Seleccione</option>
                       {locales.map((l) => (
                         <option key={l.id} value={l.id}>
-                          {l.nombre}
+                          {l.nombre_local}
                         </option>
                       ))}
                     </select>

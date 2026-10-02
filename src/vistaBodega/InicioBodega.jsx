@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:5000/api/productos";
+const API_URL = "http://localhost:8000/api/productos";
 
 function InicioBodega() {
     const [dashboard, setDashboard] = useState({
@@ -24,7 +24,7 @@ function InicioBodega() {
     useEffect(() => {
         const cargarDashboard = async () => {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL, { credentials: "include" });
                 const productos = await response.json();
 
                 const activos = productos.filter((p) => p.estado === "activo");
