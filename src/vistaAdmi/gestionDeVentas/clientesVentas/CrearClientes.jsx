@@ -39,6 +39,16 @@ function CrearClientes() {
     setGuardando(true);
 
     try {
+      // Obtener el token JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificar que exista una sesión válida
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Preparar los datos que se enviarán a Laravel
       const datosCliente = {
         // Si existe un usuario asociado, convertirlo a número.
@@ -66,7 +76,12 @@ function CrearClientes() {
         method: "POST",
 
         headers: {
+          // JWT necesario para las rutas protegidas de Laravel
+          Authorization: `Bearer ${token}`,
+
           "Content-Type": "application/json",
+
+          Accept: "application/json",
         },
 
         body: JSON.stringify(datosCliente),
@@ -76,20 +91,20 @@ function CrearClientes() {
       const datos = await respuesta.json().catch(() => null);
 
       if (!respuesta.ok) {
-  console.error("Error de Laravel:", datos);
+        console.error("Error de Laravel:", datos);
 
-  // Laravel devuelve los errores de validación dentro de "errores".
-  const erroresValidacion = datos?.errores
-    ? Object.values(datos.errores).flat().join("\n")
-    : null;
+        // Laravel devuelve los errores de validación dentro de "errores".
+        const erroresValidacion = datos?.errores
+          ? Object.values(datos.errores).flat().join("\n")
+          : null;
 
-  throw new Error(
-    erroresValidacion ||
-    datos?.mensaje ||
-    datos?.message ||
-    "No se pudo crear el cliente"
-  );
-}
+        throw new Error(
+          erroresValidacion ||
+          datos?.mensaje ||
+          datos?.message ||
+          "No se pudo crear el cliente"
+        );
+      }
 
       // Mostrar en consola la respuesta del servidor
       console.log("Cliente creado:", datos);
@@ -328,4 +343,3 @@ function CrearClientes() {
 }
 
 export default CrearClientes;
-

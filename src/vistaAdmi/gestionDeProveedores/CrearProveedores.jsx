@@ -44,10 +44,21 @@ function CrearProveedor() {
     };
 
     try {
+      // Obtener el token JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificar que exista el token antes de enviar la petición
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Crear proveedor mediante la API Laravel
       const res = await fetch(`${API_URL}/proveedores`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
@@ -89,7 +100,10 @@ function CrearProveedor() {
 
     } catch (error) {
       console.error("Error al conectar con la API:", error);
-      alert("Error de servidor");
+      alert(
+        error.message ||
+        "Error de servidor"
+      );
     }
   };
 
@@ -259,4 +273,3 @@ function CrearProveedor() {
 }
 
 export default CrearProveedor;
-

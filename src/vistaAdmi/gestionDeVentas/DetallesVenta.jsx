@@ -63,9 +63,22 @@ function DetallesVenta() {
         setCargando(true);
         setError("");
 
+        // Recuperamos el JWT guardado después del login.
+        const token = localStorage.getItem("mjbe_token");
+
+        // Header utilizado por las peticiones protegidas de Laravel.
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+
         const [ventasRespuesta, clientesRespuesta] = await Promise.all([
-          fetch(`${API_URL}/ventas`),
-          fetch(`${API_URL}/clientes`),
+          fetch(`${API_URL}/ventas`, {
+            headers,
+          }),
+          fetch(`${API_URL}/clientes`, {
+            headers,
+          }),
         ]);
 
         if (!ventasRespuesta.ok || !clientesRespuesta.ok) {
@@ -105,9 +118,17 @@ function DetallesVenta() {
       setErrorDetalle("");
       setVentaSeleccionada(null);
 
+      // Recuperamos el JWT guardado después del login.
+      const token = localStorage.getItem("mjbe_token");
+
       // El endpoint /ventas/{id} ya devuelve:
       // cliente, vendedor, productos y detalles.
-      const respuesta = await fetch(`${API_URL}/ventas/${idVenta}`);
+      const respuesta = await fetch(`${API_URL}/ventas/${idVenta}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!respuesta.ok) {
         throw new Error("No se encontró la venta");

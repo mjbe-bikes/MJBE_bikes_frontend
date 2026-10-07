@@ -25,8 +25,24 @@ function InicioBodega() {
     useEffect(() => {
         const cargarDashboard = async () => {
             try {
+                // Obtener el token JWT guardado al iniciar sesión
+                const token = localStorage.getItem("mjbe_token");
+
+                // Verificar que exista una sesión válida
+                if (!token) {
+                    throw new Error(
+                        "No se encontró el token de sesión. Inicie sesión nuevamente."
+                    );
+                }
+
                 // Obtener productos desde Laravel
-                const response = await fetch(`${API_URL}/productos`);
+                const response = await fetch(`${API_URL}/productos`, {
+                    headers: {
+                        // JWT necesario para acceder a la ruta protegida
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                });
 
                 if (!response.ok) {
                     throw new Error("No se pudieron cargar los productos");
@@ -408,4 +424,3 @@ function InicioBodega() {
 }
 
 export default InicioBodega;
-

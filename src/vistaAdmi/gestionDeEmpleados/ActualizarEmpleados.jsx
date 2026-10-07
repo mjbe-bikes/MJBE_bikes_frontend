@@ -53,10 +53,22 @@ function ActualizarEmpleados() {
   useEffect(() => {
     const fetchUsuario = async () => {
       try {
+
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         const response = await fetch(
           `${API_URL}/usuarios/${id}`,
           {
             headers: {
+              // Enviar el JWT para autenticar la petición
+              "Authorization": `Bearer ${token}`,
               "Accept": "application/json"
             }
           }
@@ -104,6 +116,16 @@ function ActualizarEmpleados() {
     e.preventDefault();
 
     try {
+
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const body = {
         login: form.login,
         email: form.email,
@@ -124,6 +146,8 @@ function ActualizarEmpleados() {
           method: "PUT",
 
           headers: {
+            // Enviar el JWT para autenticar la petición
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
             "Accept": "application/json"
           },

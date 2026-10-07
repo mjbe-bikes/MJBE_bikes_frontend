@@ -50,10 +50,23 @@ function InicioVentas() {
   useEffect(() => {
     const cargarDashboard = async () => {
       try {
+        // Recuperamos el JWT guardado después del login.
+        const token = localStorage.getItem("mjbe_token");
+
+        // Enviamos el JWT en las peticiones protegidas de Laravel.
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+
         // Cargamos ventas y clientes desde Laravel
         const [ventasRespuesta, clientesRespuesta] = await Promise.all([
-          fetch(`${API_URL}/ventas`),
-          fetch(`${API_URL}/clientes`),
+          fetch(`${API_URL}/ventas`, {
+            headers,
+          }),
+          fetch(`${API_URL}/clientes`, {
+            headers,
+          }),
         ]);
 
         if (!ventasRespuesta.ok || !clientesRespuesta.ok) {

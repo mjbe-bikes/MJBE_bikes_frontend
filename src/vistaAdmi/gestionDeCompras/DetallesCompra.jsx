@@ -30,12 +30,23 @@ function DetallesCompra() {
   useEffect(() => {
     const cargarDetalle = async () => {
       try {
+        // Obtenemos el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Si no existe el token, no intentamos acceder a las rutas protegidas
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         // Cargamos la compra, sus detalles, proveedores y productos
         const respuestas = await Promise.all([
           fetch(
             `${API_URL}/compras/${encodeURIComponent(id_compra)}`,
             {
               headers: {
+                Authorization: `Bearer ${token}`,
                 Accept: "application/json"
               }
             }
@@ -47,6 +58,7 @@ function DetallesCompra() {
             )}`,
             {
               headers: {
+                Authorization: `Bearer ${token}`,
                 Accept: "application/json"
               }
             }
@@ -54,12 +66,14 @@ function DetallesCompra() {
 
           fetch(`${API_URL}/proveedores`, {
             headers: {
+              Authorization: `Bearer ${token}`,
               Accept: "application/json"
             }
           }),
 
           fetch(`${API_URL}/productos`, {
             headers: {
+              Authorization: `Bearer ${token}`,
               Accept: "application/json"
             }
           })
@@ -343,4 +357,3 @@ function DetallesCompra() {
 }
 
 export default DetallesCompra;
-

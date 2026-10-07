@@ -57,8 +57,11 @@ function CompraCliente() {
       localStorage.getItem("mjbe_user_id")
     );
 
-    // Si no hay sesión, enviar al login
-    if (!userId) {
+    // Obtener el token JWT guardado al iniciar sesión
+    const token = localStorage.getItem("mjbe_token");
+
+    // Si no hay sesión o token, enviar al login
+    if (!userId || !token) {
       navigate("/login", {
         replace: true,
       });
@@ -84,7 +87,14 @@ function CompraCliente() {
        * relacionado con el usuario que inició sesión.
        */
       const respuestaClientes = await fetch(
-        `${API_URL}/clientes?usuario_id=${userId}`
+        `${API_URL}/clientes?usuario_id=${userId}`,
+        {
+          headers: {
+            // JWT necesario para acceder a la ruta protegida
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
       );
 
       const clientes = respuestaClientes.ok
@@ -128,7 +138,10 @@ function CompraCliente() {
             method: "POST",
 
             headers: {
+              // JWT para autenticar la petición
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
+              Accept: "application/json",
             },
 
             body: JSON.stringify({
@@ -190,7 +203,10 @@ function CompraCliente() {
           method: "POST",
 
           headers: {
+            // JWT para autenticar la creación de la venta
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
 
           body: JSON.stringify({
@@ -258,8 +274,11 @@ function CompraCliente() {
                 method: "POST",
 
                 headers: {
+                  // JWT para registrar cada detalle
+                  Authorization: `Bearer ${token}`,
                   "Content-Type":
                     "application/json",
+                  Accept: "application/json",
                 },
 
                 body: JSON.stringify({
@@ -616,7 +635,6 @@ function CompraCliente() {
           {/* =================================================
               RESUMEN DEL PEDIDO
           ================================================= */}
-
           <aside className="col-lg-5">
 
             <div className="card shadow-sm p-4">
@@ -689,4 +707,3 @@ function CompraCliente() {
 }
 
 export default CompraCliente;
-

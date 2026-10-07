@@ -15,11 +15,20 @@ function InicioAdmin() {
     useEffect(() => {
         const cargarDashboard = async () => {
             try {
-                // Consultamos los datos directamente desde Laravel
+
+                // Obtenemos el JWT guardado después del inicio de sesión
+                const token = localStorage.getItem("mjbe_token");
+
+                // Enviamos el token en las peticiones protegidas de Laravel
+                const headers = {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                };
+
                 const [productosRes, clientesRes, ventasRes] = await Promise.all([
-                    fetch(`${API_URL}/productos`),
-                    fetch(`${API_URL}/clientes`),
-                    fetch(`${API_URL}/ventas`),
+                 fetch(`${API_URL}/productos`, { headers }),
+                 fetch(`${API_URL}/clientes`, { headers }),
+                 fetch(`${API_URL}/ventas`, { headers }),
                 ]);
 
                 // Verificamos que las respuestas sean correctas

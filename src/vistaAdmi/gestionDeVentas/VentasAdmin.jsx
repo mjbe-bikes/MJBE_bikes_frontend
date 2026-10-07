@@ -110,9 +110,24 @@ function VentasAdmin() {
   useEffect(() => {
     const cargarVentas = async () => {
       try {
+        // Obtener el JWT guardado durante el inicio de sesión.
+        const token = localStorage.getItem("mjbe_token");
+
+        // Si no existe el token, no podemos acceder
+        // a la ruta protegida de ventas.
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         // Solicitud GET al endpoint de ventas de Laravel.
         const respuesta = await fetch(`${API_URL}/ventas`, {
           headers: {
+            // JWT necesario para Authenticate:api
+            Authorization: `Bearer ${token}`,
+
+            // Indica que esperamos una respuesta JSON.
             Accept: "application/json",
           },
         });
@@ -120,7 +135,9 @@ function VentasAdmin() {
         // Si Laravel devuelve un código diferente a 2xx,
         // consideramos que la petición falló.
         if (!respuesta.ok) {
-          throw new Error("No se pudieron cargar las ventas");
+          throw new Error(
+            "No se pudieron cargar las ventas"
+          );
         }
 
         // Convertimos la respuesta de Laravel a JSON.
@@ -129,13 +146,24 @@ function VentasAdmin() {
         // La API normalmente devuelve un arreglo de ventas.
         // Esta validación evita guardar un objeto inesperado
         // dentro del estado.
-        setVentas(Array.isArray(datos) ? datos : []);
+        setVentas(
+          Array.isArray(datos)
+            ? datos
+            : []
+        );
+
       } catch (loadError) {
         // Mostramos el error en consola para depuración.
-        console.error("Error cargando ventas:", loadError);
+        console.error(
+          "Error cargando ventas:",
+          loadError
+        );
 
         // Mostramos un mensaje amigable en la interfaz.
-        setError("No fue posible cargar las ventas.");
+        setError(
+          "No fue posible cargar las ventas."
+        );
+
       } finally {
         // La carga termina tanto si hay éxito como si hay error.
         setCargando(false);
@@ -159,7 +187,9 @@ function VentasAdmin() {
       ${venta.pago ? "pagada" : "pendiente"}
     `.toLowerCase();
 
-    return texto.includes(busqueda.toLowerCase());
+    return texto.includes(
+      busqueda.toLowerCase()
+    );
   });
 
 
@@ -175,7 +205,9 @@ function VentasAdmin() {
                 ENCABEZADO DE LA VISTA
             ================================================= */}
             <div className="card-header bg-success text-white">
-              <h4 className="mb-0">Ventas</h4>
+              <h4 className="mb-0">
+                Ventas
+              </h4>
 
               <small>
                 Todas las ventas registradas y su vendedor
@@ -205,7 +237,9 @@ function VentasAdmin() {
                     placeholder="ID, vendedor, cliente o estado"
                     value={busqueda}
                     onChange={(event) =>
-                      setBusqueda(event.target.value)
+                      setBusqueda(
+                        event.target.value
+                      )
                     }
                   />
                 </div>
@@ -338,14 +372,18 @@ function VentasAdmin() {
                             {venta.fecha
                               ? new Date(
                                   venta.fecha
-                                ).toLocaleDateString("es-CO")
+                                ).toLocaleDateString(
+                                  "es-CO"
+                                )
                               : "Sin fecha"}
                           </td>
 
 
                           {/* TOTAL */}
                           <td>
-                            {formatCurrency(venta.total)}
+                            {formatCurrency(
+                              venta.total
+                            )}
                           </td>
 
 
@@ -402,4 +440,3 @@ function VentasAdmin() {
 }
 
 export default VentasAdmin;
-

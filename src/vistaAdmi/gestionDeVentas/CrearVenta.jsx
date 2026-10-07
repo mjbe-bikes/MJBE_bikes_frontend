@@ -34,17 +34,22 @@ function CrearVenta() {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Headers que se enviarán a las rutas protegidas
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json"
+        };
+
         const [clientesRespuesta, productosRespuesta] =
           await Promise.all([
             fetch(`${API_URL}/clientes`, {
-              headers: {
-                Accept: "application/json"
-              }
+              headers
             }),
             fetch(`${API_URL}/productos`, {
-              headers: {
-                Accept: "application/json"
-              }
+              headers
             })
           ]);
 
@@ -159,6 +164,18 @@ function CrearVenta() {
     setGuardando(true);
 
     try {
+      // =====================================================
+      // Obtener el token JWT de la sesión
+      // =====================================================
+
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // ID del usuario vendedor que inició sesión
       const vendedorId = Number(
         localStorage.getItem("mjbe_user_id")
@@ -208,9 +225,11 @@ function CrearVenta() {
         pago: true
       };
 
+      // Enviar la venta a Laravel incluyendo el JWT
       const respuesta = await fetch(`${API_URL}/ventas`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
           Accept: "application/json"
         },
@@ -266,6 +285,8 @@ function CrearVenta() {
           return fetch(`${API_URL}/detalles_venta`, {
             method: "POST",
             headers: {
+              // El JWT también es necesario para esta ruta
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
               Accept: "application/json"
             },

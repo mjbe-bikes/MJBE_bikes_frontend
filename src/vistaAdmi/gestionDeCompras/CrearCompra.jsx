@@ -36,16 +36,28 @@ function CrearCompra() {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
+        // Obtenemos el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Verificamos que exista el token antes de consultar la API
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         const [proveedoresRespuesta, productosRespuesta] =
           await Promise.all([
             fetch(`${API_URL}/proveedores`, {
               headers: {
+                Authorization: `Bearer ${token}`,
                 Accept: "application/json"
               }
             }),
 
             fetch(`${API_URL}/productos`, {
               headers: {
+                Authorization: `Bearer ${token}`,
                 Accept: "application/json"
               }
             })
@@ -192,6 +204,16 @@ function CrearCompra() {
     setGuardando(true);
 
     try {
+      // Obtenemos el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificamos que exista antes de enviar datos protegidos
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Datos principales de la compra
       const compra = {
         id_proveedor: Number(
@@ -210,7 +232,8 @@ function CrearCompra() {
 
           headers: {
             "Content-Type": "application/json",
-            Accept: "application/json"
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`
           },
 
           body: JSON.stringify(compra)
@@ -253,7 +276,8 @@ function CrearCompra() {
                     "Content-Type":
                       "application/json",
                     Accept:
-                      "application/json"
+                      "application/json",
+                    Authorization: `Bearer ${token}`
                   },
 
                   body: JSON.stringify({
@@ -659,4 +683,3 @@ function CrearCompra() {
 }
 
 export default CrearCompra;
-

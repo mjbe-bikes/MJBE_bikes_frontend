@@ -25,24 +25,34 @@ function VerProveedores() {
   // CARGAR PROVEEDORES
   // =========================================================
   useEffect(() => {
-    const cargarProveedores = async () => {
-      try {
-        const respuesta = await fetch(`${API_URL}/proveedores`);
+const cargarProveedores = async () => {
+  try {
+    // Recuperamos el JWT guardado al iniciar sesión.
+    const token = localStorage.getItem("mjbe_token");
 
-        if (!respuesta.ok) {
-          throw new Error("No se pudieron cargar los proveedores");
-        }
+    // Enviamos el token para que Laravel pueda autenticar la petición.
+    const respuesta = await fetch(`${API_URL}/proveedores`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-        const datos = await respuesta.json();
+    if (!respuesta.ok) {
+      throw new Error("No se pudieron cargar los proveedores");
+    }
 
-        setProveedores(datos);
-        setProveedoresFiltrados(datos);
-      } catch (error) {
-        console.error("Error cargando proveedores:", error);
-      }
-    };
+    const datos = await respuesta.json();
 
-    cargarProveedores();
+    setProveedores(datos);
+    setProveedoresFiltrados(datos);
+  } catch (error) {
+    console.error("Error cargando proveedores:", error);
+  }
+};
+
+cargarProveedores();
+
   }, []);
 
   // =========================================================

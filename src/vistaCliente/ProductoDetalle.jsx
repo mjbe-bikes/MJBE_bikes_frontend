@@ -7,8 +7,9 @@ import { useCart } from "./Carrito";
 const API_URL = "http://127.0.0.1:8000/api";
 
 function ProductoDetalle() {
-  const { id } = useParams();   // :id de la ruta
+  const { id } = useParams(); // :id de la ruta
   const { agregarAlCarrito } = useCart();
+
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,13 +17,39 @@ function ProductoDetalle() {
   useEffect(() => {
     const cargarProducto = async () => {
       try {
-        const response = await fetch(`${API_URL}/productos/${id}`);
-        if (!response.ok) throw new Error("Producto no encontrado");
+        // Recuperamos el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Verificamos que exista el token antes de consultar la API
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
+        // Consultamos el producto enviando el JWT
+        const response = await fetch(
+          `${API_URL}/productos/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json"
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Producto no encontrado");
+        }
 
         setProducto(await response.json());
+
       } catch (err) {
         console.error(err);
-        setError("No se pudo cargar el producto desde la API.");
+
+        setError(
+          "No se pudo cargar el producto desde la API."
+        );
       } finally {
         setLoading(false);
       }
@@ -32,18 +59,33 @@ function ProductoDetalle() {
   }, [id]);
 
   if (loading) {
-    return <div className="container py-5 text-center">Cargando producto...</div>;
+    return (
+      <div className="container py-5 text-center">
+        Cargando producto...
+      </div>
+    );
   }
 
   if (error || !producto) {
     return (
       <div className="container py-5 text-center">
-        <h2>Producto no encontrado</h2>
-        <p>{error || "El producto que buscas no existe."}</p>
 
-        <Link to="/" className="btn btn-dark">
+        <h2>
+          Producto no encontrado
+        </h2>
+
+        <p>
+          {error ||
+            "El producto que buscas no existe."}
+        </p>
+
+        <Link
+          to="/"
+          className="btn btn-dark"
+        >
           Volver al inicio
         </Link>
+
       </div>
     );
   }
@@ -53,22 +95,31 @@ function ProductoDetalle() {
 
       {/* BOTÓN VOLVER */}
       <div className="mb-4">
-        <Link to="/" className="text-decoration-none">
+
+        <Link
+          to="/"
+          className="text-decoration-none"
+        >
           ← Volver
         </Link>
+
       </div>
 
       <div className="row align-items-center">
 
         {/* IMAGEN */}
         <div className="col-md-6 mb-4">
+
           <div className="producto-imagen-detalle">
+
             <img
               src={producto.img_producto}
               alt={producto.nombre_producto}
               className="img-fluid rounded"
             />
+
           </div>
+
         </div>
 
         {/* INFORMACIÓN */}
@@ -83,10 +134,15 @@ function ProductoDetalle() {
           </h1>
 
           <h2 className="text-primary fw-bold my-4">
-            ${Number(producto.valor_unitario).toLocaleString("es-CO")}
+            $
+            {Number(
+              producto.valor_unitario
+            ).toLocaleString("es-CO")}
           </h2>
 
-          <h5>Descripción</h5>
+          <h5>
+            Descripción
+          </h5>
 
           <p className="text-muted">
             {producto.descripcion}
@@ -99,23 +155,37 @@ function ProductoDetalle() {
           </h5>
 
           <ul>
-            {[producto.color_producto, producto.modelo, producto.marca_producto, `Stock: ${producto.cant_producto}`].map((caracteristica, index) => (
-              <li key={index} className="mb-2">
-                {caracteristica}
-              </li>
-            ))}
+            {[
+              producto.color_producto,
+              producto.modelo,
+              producto.marca_producto,
+              `Stock: ${producto.cant_producto}`
+            ].map(
+              (caracteristica, index) => (
+                <li
+                  key={index}
+                  className="mb-2"
+                >
+                  {caracteristica}
+                </li>
+              )
+            )}
           </ul>
 
           <div className="mt-4">
 
-            <button className="btn btn-dark btn-lg me-2">
+            <button
+              className="btn btn-dark btn-lg me-2"
+            >
               Comprar
             </button>
 
             <button
               type="button"
               className="btn btn-outline-dark btn-lg"
-              onClick={() => agregarAlCarrito(producto)}
+              onClick={() =>
+                agregarAlCarrito(producto)
+              }
             >
               Agregar al carrito
             </button>

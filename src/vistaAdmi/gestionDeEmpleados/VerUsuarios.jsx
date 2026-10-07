@@ -61,8 +61,20 @@ function VerUsuarios() {
   useEffect(() => {
     const cargarUsuarios = async () => {
       try {
+
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         const response = await fetch(`${API_URL}/usuarios`, {
           headers: {
+            // Enviar el JWT para autenticar la petición
+            "Authorization": `Bearer ${token}`,
             "Accept": "application/json"
           }
         });
@@ -124,12 +136,24 @@ function VerUsuarios() {
   const desactivarUsuario = async () => {
 
     try {
+
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/usuarios/${usuarioSeleccionado.id}`,
         {
           method: "PUT",
 
           headers: {
+            // Enviar el JWT para autenticar la petición
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
@@ -193,12 +217,24 @@ function VerUsuarios() {
   const eliminarUsuarioFisico = async () => {
 
     try {
+
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/usuarios/${usuarioSeleccionado.id}`,
         {
           method: "DELETE",
 
           headers: {
+            // Enviar el JWT para autenticar la petición
+            "Authorization": `Bearer ${token}`,
             "Accept": "application/json"
           }
         }

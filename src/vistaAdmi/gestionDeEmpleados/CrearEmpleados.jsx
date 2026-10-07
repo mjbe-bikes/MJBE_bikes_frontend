@@ -50,6 +50,16 @@ function CrearEmpleados() {
     e.preventDefault();
 
     try {
+
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Encriptar la contraseña antes de enviarla
       const hashedPassword = await hashPassword(
         form.password_harsh
@@ -59,6 +69,8 @@ function CrearEmpleados() {
         method: "POST",
 
         headers: {
+          // Enviar el JWT para autenticar la petición
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
           "Accept": "application/json"
         },

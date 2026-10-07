@@ -50,10 +50,32 @@ function VerVenta() {
   useEffect(() => {
     const cargarVentas = async () => {
       try {
+        // =====================================================
+        // Obtener el JWT guardado al iniciar sesión
+        // =====================================================
+
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
+        // Headers para autenticar las peticiones con Laravel
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        };
+
         // Consultamos ventas y clientes desde Laravel
         const [ventasRespuesta, clientesRespuesta] = await Promise.all([
-          fetch(`${API_URL}/ventas`),
-          fetch(`${API_URL}/clientes`),
+          fetch(`${API_URL}/ventas`, {
+            headers,
+          }),
+          fetch(`${API_URL}/clientes`, {
+            headers,
+          }),
         ]);
 
         // Verificamos que ambas peticiones hayan funcionado
@@ -330,4 +352,3 @@ function VerVenta() {
 }
 
 export default VerVenta;
-

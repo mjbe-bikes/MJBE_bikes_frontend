@@ -16,8 +16,24 @@ function VerClientes() {
   useEffect(() => {
     const cargarClientes = async () => {
       try {
+        // Obtener el token JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Verificar que exista una sesión válida
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         // Consultar los clientes en Laravel
-        const respuesta = await fetch(`${API_URL}/clientes`);
+        const respuesta = await fetch(`${API_URL}/clientes`, {
+          headers: {
+            // JWT necesario para acceder a la ruta protegida
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
 
         if (!respuesta.ok) {
           throw new Error("No se pudieron cargar los clientes");
@@ -43,11 +59,27 @@ function VerClientes() {
     }
 
     try {
+      // Obtener el token JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificar que exista una sesión válida
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Enviar solicitud DELETE a Laravel
       const respuesta = await fetch(
         `${API_URL}/clientes/${id}`,
         {
           method: "DELETE",
+
+          headers: {
+            // JWT necesario para acceder a la ruta protegida
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
         }
       );
 
@@ -62,7 +94,7 @@ function VerClientes() {
       );
     } catch (error) {
       console.error("Error eliminando cliente:", error);
-      alert("No se pudo eliminar el cliente");
+      alert(error.message || "No se pudo eliminar el cliente");
     }
   };
 
@@ -223,4 +255,3 @@ function VerClientes() {
 }
 
 export default VerClientes;
-

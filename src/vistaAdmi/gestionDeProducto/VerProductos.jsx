@@ -33,10 +33,21 @@ function VerProductos() {
         setLoading(true);
         setError("");
 
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         // GET http://127.0.0.1:8000/api/productos
         const response = await fetch(`${API_URL}/productos`, {
           method: "GET",
           headers: {
+            // Enviar el JWT para autenticar la petición
+            Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
         });
@@ -53,7 +64,9 @@ function VerProductos() {
         setProductosFiltrados(data);
       } catch (err) {
         console.error("Error al cargar productos:", err);
-        setError("No se pudo cargar el inventario desde la API.");
+        setError(
+          err.message || "No se pudo cargar el inventario desde la API."
+        );
       } finally {
         setLoading(false);
       }
@@ -128,6 +141,15 @@ function VerProductos() {
     try {
       setError("");
 
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // El controlador Laravel requiere todos los campos
       // para actualizar el producto.
       // Por eso enviamos el producto completo cambiando
@@ -137,6 +159,8 @@ function VerProductos() {
         {
           method: "PUT",
           headers: {
+            // Enviar el JWT para autenticar la actualización
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
             Accept: "application/json",
           },
@@ -198,7 +222,9 @@ function VerProductos() {
       cerrarModal();
     } catch (err) {
       console.error("Error al desactivar:", err);
-      setError("No se pudo desactivar el producto.");
+      setError(
+        err.message || "No se pudo desactivar el producto."
+      );
     }
   };
 
@@ -211,12 +237,23 @@ function VerProductos() {
     try {
       setError("");
 
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // DELETE http://127.0.0.1:8000/api/productos/{id}
       const response = await fetch(
         `${API_URL}/productos/${productoSeleccionado.id}`,
         {
           method: "DELETE",
           headers: {
+            // Enviar el JWT para autenticar la eliminación
+            Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
         }
@@ -243,7 +280,9 @@ function VerProductos() {
       cerrarModal();
     } catch (err) {
       console.error("Error al eliminar:", err);
-      setError("No se pudo eliminar el producto.");
+      setError(
+        err.message || "No se pudo eliminar el producto."
+      );
     }
   };
 
@@ -633,4 +672,3 @@ function VerProductos() {
 }
 
 export default VerProductos;
-

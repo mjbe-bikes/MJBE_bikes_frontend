@@ -59,8 +59,20 @@ function ActualizarProducto() {
   useEffect(() => {
     const cargarProducto = async () => {
       try {
+
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         const response = await fetch(`${API_URL}/productos/${id}`, {
           headers: {
+            // Enviar el JWT para autenticar la petición
+            "Authorization": `Bearer ${token}`,
             "Accept": "application/json"
           }
         });
@@ -69,6 +81,7 @@ function ActualizarProducto() {
 
         if (!response.ok) {
           console.error("Error de Laravel:", datos);
+
           throw new Error(
             datos.mensaje ||
             datos.message ||
@@ -95,7 +108,13 @@ function ActualizarProducto() {
 
       } catch (err) {
         console.error(err);
-        setError("No se pudo cargar el producto desde la API.");
+
+        // Mostrar el error de autenticación si no existe el token
+        setError(
+          err.message ||
+          "No se pudo cargar el producto desde la API."
+        );
+
       } finally {
         setLoading(false);
       }
@@ -109,10 +128,22 @@ function ActualizarProducto() {
     e.preventDefault();
 
     try {
+
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const response = await fetch(`${API_URL}/productos/${id}`, {
         method: "PUT",
 
         headers: {
+          // Enviar el JWT para autenticar la petición
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
@@ -155,7 +186,11 @@ function ActualizarProducto() {
 
     } catch (err) {
       console.error(err);
-      setError("No se pudo actualizar el producto.");
+
+      setError(
+        err.message ||
+        "No se pudo actualizar el producto."
+      );
     }
   };
 

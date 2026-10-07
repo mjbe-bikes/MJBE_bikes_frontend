@@ -50,17 +50,32 @@ function VerCompra() {
   useEffect(() => {
     const cargarCompras = async () => {
       try {
+
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         // Cargamos compras y proveedores al mismo tiempo
         const [comprasRespuesta, proveedoresRespuesta] =
           await Promise.all([
             fetch(`${API_URL}/compras`, {
               headers: {
-                Accept: "application/json"
+                // Enviar JWT para autenticar la petición
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json"
               }
             }),
+
             fetch(`${API_URL}/proveedores`, {
               headers: {
-                Accept: "application/json"
+                // Enviar JWT para autenticar la petición
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json"
               }
             })
           ]);
@@ -77,9 +92,13 @@ function VerCompra() {
 
         setCompras(comprasData);
         setProveedores(proveedoresData);
+
       } catch (loadError) {
         console.error("Error cargando compras:", loadError);
-        setError("No fue posible cargar el historial de compras.");
+        setError(
+          loadError.message ||
+          "No fue posible cargar el historial de compras."
+        );
       } finally {
         setCargando(false);
       }
@@ -281,4 +300,3 @@ function VerCompra() {
 }
 
 export default VerCompra;
-

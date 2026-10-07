@@ -153,10 +153,21 @@ function ActualizarProducto() {
         setLoading(true);
         setError("");
 
+        // Obtener el token JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Verificar que exista el token
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         const response = await fetch(
           `${API_URL}/productos/${id}`,
           {
             headers: {
+              Authorization: `Bearer ${token}`,
               Accept: "application/json",
             },
           }
@@ -207,15 +218,17 @@ function ActualizarProducto() {
           estado:
             productoEncontrado.estado || "activo",
         });
+
       } catch (err) {
-       console.error(
-  "ERRORES DE VALIDACIÓN DE LARAVEL:",
-  JSON.stringify(datosError, null, 2)
-);
+        console.error(
+          "Error al cargar producto:",
+          err
+        );
 
         setError(
           "No se pudo cargar el producto desde la API."
         );
+
       } finally {
         setLoading(false);
       }
@@ -234,11 +247,23 @@ function ActualizarProducto() {
       setGuardando(true);
       setError("");
 
+      // Obtener el token JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificar que exista el token
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/productos/${id}`,
         {
           method: "PUT",
+
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
             Accept: "application/json",
           },
@@ -264,50 +289,61 @@ function ActualizarProducto() {
       );
 
       if (!response.ok) {
-  const datosError =
-    await response.json().catch(() => null);
+        const datosError =
+          await response.json().catch(() => null);
 
-  // Mostrar en consola el error completo de Laravel.
-  console.error(
-    "ERRORES DE VALIDACIÓN DE LARAVEL:",
-    JSON.stringify(datosError, null, 2)
-  );
+        // Mostrar en consola el error completo de Laravel.
+        console.error(
+          "ERRORES DE VALIDACIÓN DE LARAVEL:",
+          JSON.stringify(datosError, null, 2)
+        );
 
-  // Mostrar el detalle del error también en la página.
-  const erroresLaravel = datosError?.errores;
+        // Mostrar el detalle de los errores de Laravel
+        // también en la página.
+        const erroresLaravel = datosError?.errores;
 
-  if (erroresLaravel) {
-    const mensajes = Object.entries(erroresLaravel)
-      .map(([campo, errores]) => {
-        return `${campo}: ${errores.join(", ")}`;
-      })
-      .join("\n");
+        if (erroresLaravel) {
+          const mensajes = Object.entries(erroresLaravel)
+            .map(([campo, errores]) => {
+              return `${campo}: ${errores.join(", ")}`;
+            })
+            .join("\n");
 
-    setError(mensajes);
-  } else {
-    setError(
-      datosError?.mensaje ||
-      "No se pudo actualizar el producto."
-    );
-  }
+          setError(mensajes);
 
-  throw new Error(
-    "No se pudo actualizar el producto"
-  );
+        } else {
+          setError(
+            datosError?.mensaje ||
+            "No se pudo actualizar el producto."
+          );
+        }
 
+        throw new Error(
+          "No se pudo actualizar el producto"
+        );
       }
 
       // Volver al inventario después de actualizar.
       navigate("/VerProductos");
+
     } catch (err) {
       console.error(
         "Error al actualizar producto:",
         err
       );
 
-      setError(
-        "No se pudo actualizar el producto."
-      );
+      // Si ya se estableció un error específico
+      // de Laravel, no lo reemplazamos.
+      if (
+        !err.message.includes(
+          "No se pudo actualizar el producto"
+        )
+      ) {
+        setError(
+          "No se pudo actualizar el producto."
+        );
+      }
+
     } finally {
       setGuardando(false);
     }
@@ -639,4 +675,3 @@ function ActualizarProducto() {
 }
 
 export default ActualizarProducto;
-

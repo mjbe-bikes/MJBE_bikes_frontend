@@ -139,6 +139,18 @@ function CrearProducto() {
 
         try {
             // =====================================================
+            // OBTENER TOKEN JWT
+            // =====================================================
+            // El token se guardó en localStorage al iniciar sesión.
+            const token = localStorage.getItem("mjbe_token");
+
+            if (!token) {
+                throw new Error(
+                    "No se encontró el token de sesión. Inicie sesión nuevamente."
+                );
+            }
+
+            // =====================================================
             // DATOS QUE SE ENVÍAN A LARAVEL
             // =====================================================
             // Convertimos los campos numéricos antes de enviarlos.
@@ -167,6 +179,9 @@ function CrearProducto() {
                 method: "POST",
 
                 headers: {
+                    // Enviar el JWT para autenticar la creación
+                    // del producto en Laravel.
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
@@ -245,6 +260,7 @@ function CrearProducto() {
             );
 
             alert(
+                error.message ||
                 "❌ No se pudo crear el producto. " +
                 "Revisa la consola para más información."
             );

@@ -35,9 +35,24 @@ function ActualizarClientes() {
   useEffect(() => {
     const cargarCliente = async () => {
       try {
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         // Laravel utiliza el ID real de la tabla clientes
         const respuesta = await fetch(
-          `${API_URL}/clientes/${encodeURIComponent(id_cliente)}`
+          `${API_URL}/clientes/${encodeURIComponent(id_cliente)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
         );
 
         if (!respuesta.ok) {
@@ -96,6 +111,15 @@ function ActualizarClientes() {
     setGuardando(true);
 
     try {
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Preparar los datos para Laravel
       const datosCliente = {
         // Si existe usuario asociado, convertirlo a número.
@@ -124,7 +148,10 @@ function ActualizarClientes() {
           method: "PUT",
 
           headers: {
+            // Enviar JWT para autenticar la petición
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
 
           body: JSON.stringify(datosCliente),

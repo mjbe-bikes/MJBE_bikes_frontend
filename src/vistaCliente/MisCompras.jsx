@@ -34,6 +34,17 @@ function MisCompras() {
       }
 
       try {
+        // ---------------------------------------------------
+        // OBTENER TOKEN JWT
+        // ---------------------------------------------------
+
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
 
         /*
          * Laravel se encarga de buscar:
@@ -47,8 +58,16 @@ function MisCompras() {
          * De esta manera solo recibimos las compras
          * pertenecientes al usuario actual.
          */
+
         const response = await fetch(
-          `${API_URL}?user_id=${userId}`
+          `${API_URL}?user_id=${userId}`,
+          {
+            headers: {
+              // JWT necesario para acceder a la ruta protegida
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json"
+            }
+          }
         );
 
         if (!response.ok) {
@@ -237,7 +256,6 @@ function MisCompras() {
                   {/* -------------------------------------------------
                       TOTAL DE LA COMPRA
                   ------------------------------------------------- */}
-
                   <div className="d-flex justify-content-between fw-bold mt-3">
 
                     <span>

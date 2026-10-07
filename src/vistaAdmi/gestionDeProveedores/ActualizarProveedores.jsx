@@ -36,7 +36,22 @@ function ActualizarProveedor() {
   useEffect(() => {
     const fetchProveedor = async () => {
       try {
-        const res = await fetch(`${API_URL}/proveedores/${id}`);
+        // Obtener el JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
+        const res = await fetch(`${API_URL}/proveedores/${id}`, {
+          headers: {
+            // Enviar el JWT para que Laravel autentique la petición
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json"
+          }
+        });
 
         const data = await res.json();
 
@@ -57,7 +72,7 @@ function ActualizarProveedor() {
 
       } catch (error) {
         console.error("Error al cargar proveedor:", error);
-        alert("Error de servidor");
+        alert(error.message || "Error de servidor");
 
       } finally {
         setLoading(false);
@@ -82,11 +97,22 @@ function ActualizarProveedor() {
     };
 
     try {
+      // Obtener el JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const res = await fetch(`${API_URL}/proveedores/${id}`, {
         method: "PUT",
         headers: {
+          // Enviar el JWT para autenticar la actualización
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json"
         },
         body: JSON.stringify(payload)
       });
@@ -119,7 +145,7 @@ function ActualizarProveedor() {
 
     } catch (error) {
       console.error("Error al actualizar proveedor:", error);
-      alert("Error de servidor");
+      alert(error.message || "Error de servidor");
     }
   };
 

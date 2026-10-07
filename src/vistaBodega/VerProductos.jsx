@@ -33,8 +33,20 @@ function VerProductos() {
         setLoading(true);
         setError("");
 
+        // Obtener el token JWT guardado al iniciar sesión
+        const token = localStorage.getItem("mjbe_token");
+
+        // Verificar que exista una sesión válida
+        if (!token) {
+          throw new Error(
+            "No se encontró el token de sesión. Inicie sesión nuevamente."
+          );
+        }
+
         const response = await fetch(`${API_URL}/productos`, {
           headers: {
+            // JWT necesario para acceder a la ruta protegida
+            Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
         });
@@ -50,7 +62,10 @@ function VerProductos() {
       } catch (err) {
         console.error("Error al cargar productos:", err);
 
-        setError("No se pudo cargar el inventario desde la API.");
+        setError(
+          err.message ||
+          "No se pudo cargar el inventario desde la API."
+        );
       } finally {
         setLoading(false);
       }
@@ -121,15 +136,31 @@ function VerProductos() {
     try {
       setError("");
 
+      // Obtener el token JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificar que exista una sesión válida
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       // Laravel utiliza PUT para actualizar productos
       const response = await fetch(
         `${API_URL}/productos/${productoSeleccionado.id}`,
         {
           method: "PUT",
+
           headers: {
+            // JWT necesario para acceder a la ruta protegida
+            Authorization: `Bearer ${token}`,
+
             "Content-Type": "application/json",
+
             Accept: "application/json",
           },
+
           body: JSON.stringify({
             estado: "inactivo",
           }),
@@ -165,6 +196,7 @@ function VerProductos() {
       );
 
       setError(
+        err.message ||
         "No se pudo desactivar el producto."
       );
     }
@@ -179,11 +211,24 @@ function VerProductos() {
     try {
       setError("");
 
+      // Obtener el token JWT guardado al iniciar sesión
+      const token = localStorage.getItem("mjbe_token");
+
+      // Verificar que exista una sesión válida
+      if (!token) {
+        throw new Error(
+          "No se encontró el token de sesión. Inicie sesión nuevamente."
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/productos/${productoSeleccionado.id}`,
         {
           method: "DELETE",
+
           headers: {
+            // JWT necesario para acceder a la ruta protegida
+            Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
         }
@@ -217,6 +262,7 @@ function VerProductos() {
       );
 
       setError(
+        err.message ||
         "No se pudo eliminar el producto."
       );
     }
@@ -589,4 +635,3 @@ function VerProductos() {
 }
 
 export default VerProductos;
-
