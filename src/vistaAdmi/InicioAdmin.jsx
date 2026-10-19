@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../componentes/NavAdmi";
 import FooterAdmi from "../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api'; // base; abajo se usa `${API_URL}/reportes/dashboard`
+const API_URL = 'http://localhost:5000/api'; // base; abajo se usa `${API_URL}/reportes/dashboard`
 
 function InicioAdmin() {
   

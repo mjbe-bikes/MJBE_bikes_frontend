@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NavarCliente from "../componentes/NavarCliente";
 import { Carrito } from "./Carrito";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://localhost:5000/api";
 
 function CompraCliente() {
   const navigate = useNavigate();

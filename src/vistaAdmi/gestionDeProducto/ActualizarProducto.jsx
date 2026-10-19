@@ -6,10 +6,10 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api/productos';
-const TALLAS_URL = 'http://localhost:8000/api/tallas';
-const PROVEEDORES_URL = 'http://localhost:8000/api/proveedores';
-const LOCALES_URL = 'http://localhost:8000/api/locales';
+const API_URL = 'http://localhost:5000/api/productos';
+const TALLAS_URL = 'http://localhost:5000/api/tallas';
+const PROVEEDORES_URL = 'http://localhost:5000/api/proveedores';
+const LOCALES_URL = 'http://localhost:5000/api/locales';
 
 function ActualizarProducto() {
 

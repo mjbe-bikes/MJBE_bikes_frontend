@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import NavVentas from "../../componentes/NavVentas";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:5000/api';
 
 const getSaleTotal = (venta) => Number(venta.total ?? 0);
 const getSaleDate = (venta) => venta.fecha;

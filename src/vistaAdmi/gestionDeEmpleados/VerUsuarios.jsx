@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api/usuarios';
+const API_URL = 'http://localhost:5000/api/usuarios';
 
 function VerUsuarios() {
 

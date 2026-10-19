@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://localhost:5000/api";
 
 const initialForm = {
   id_proveedor: "",

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavVentas from "../../componentes/NavVentas";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:5000/api';
 
 const getSaleId = (venta) => venta.id;
 const getSaleDate = (venta) => venta.fecha;

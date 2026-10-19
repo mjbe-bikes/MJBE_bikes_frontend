@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:8000/api/productos";
+const API_URL = "http://localhost:5000/api/productos";
 
 function VerProductos() {
   const [productos, setProductos] = useState([]);

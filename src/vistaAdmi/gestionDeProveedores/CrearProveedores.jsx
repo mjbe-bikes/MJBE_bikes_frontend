@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api/proveedores';
+const API_URL = 'http://localhost:5000/api/proveedores';
 
 function CrearProveedor() {
 

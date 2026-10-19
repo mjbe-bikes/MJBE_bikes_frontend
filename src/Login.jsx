@@ -6,7 +6,7 @@ import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
 import { saveSession } from "./auth"
 
-const API_URL = "http://localhost:8000/api/login"
+const API_URL = "http://localhost:5000/api/login"
 
 // Calcula el hash SHA-256 de la contraseña
 async function hashPassword(password) {

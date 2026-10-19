@@ -6,10 +6,10 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-const API_URL = "http://localhost:8000/api/productos";
-const TALLAS_URL = "http://localhost:8000/api/tallas";
-const PROVEEDORES_URL = "http://localhost:8000/api/proveedores";
-const LOCALES_URL = "http://localhost:8000/api/locales";
+const API_URL = "http://localhost:5000/api/productos";
+const TALLAS_URL = "http://localhost:5000/api/tallas";
+const PROVEEDORES_URL = "http://localhost:5000/api/proveedores";
+const LOCALES_URL = "http://localhost:5000/api/locales";
 
 function ActualizarProducto() {
   const { id } = useParams();

@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom"
 import NavLogin from "./componentes/NavLogin"
 import FooterLogin from "./componentes/FooterLogin"
 
-const API_URL = "http://localhost:8000/api/register"
+const API_URL = "http://localhost:5000/api/register"
 
 // Calcula el hash SHA-256 de la contraseña
 async function hashPassword(password) {

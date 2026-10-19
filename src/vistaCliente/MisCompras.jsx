@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import NavarCliente from "../componentes/NavarCliente";
 
-const API_URL = "http://localhost:8000/api/ventas";
+const API_URL = "http://localhost:5000/api/ventas";
 
 const formatearMoneda = (valor) =>
   `$${Number(valor || 0).toLocaleString("es-CO")}`;

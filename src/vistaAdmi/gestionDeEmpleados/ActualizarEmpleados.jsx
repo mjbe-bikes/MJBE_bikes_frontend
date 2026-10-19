@@ -6,7 +6,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-const API_URL = 'http://localhost:8000/api/usuarios';
+const API_URL = 'http://localhost:5000/api/usuarios';
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
