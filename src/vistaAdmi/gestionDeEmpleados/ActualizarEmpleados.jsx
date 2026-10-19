@@ -6,26 +6,14 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-// URL base de la API Laravel
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = 'http://localhost:5000/api/usuarios';
 
-// Convertir la contraseña a SHA-256
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
-
-  const hashBuffer = await window.crypto.subtle.digest(
-    "SHA-256",
-    data
-  );
-
-  const hashArray = Array.from(
-    new Uint8Array(hashBuffer)
-  );
-
-  return hashArray
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+  const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function ActualizarEmpleados() {
@@ -53,44 +41,25 @@ function ActualizarEmpleados() {
   useEffect(() => {
     const fetchUsuario = async () => {
       try {
-        const response = await fetch(
-          `${API_URL}/usuarios/${id}`,
-          {
-            headers: {
-              "Accept": "application/json"
-            }
-          }
-        );
+        const res = await fetch(`${API_URL}/${id}`, { credentials: "include" });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        console.log("USUARIO:", data);
-
-        if (!response.ok) {
-          console.error("Error de Laravel:", data);
-
-          throw new Error(
-            data?.mensaje ||
-            data?.message ||
-            "Error al cargar usuario"
-          );
+        if (!res.ok) {
+          alert(data?.mensaje || "Error al cargar usuario");
+          return;
         }
 
         setForm({
           login: data.login || "",
           email: data.email || "",
-          password_harsh: "", // No se trae la contraseña por seguridad
+          password_harsh: "", // normalmente no se trae por seguridad
           rol_id: data.rol_id || "",
           estado: data.estado || "activo"
         });
 
       } catch (error) {
-        console.error(
-          "Error cargando usuario:",
-          error
-        );
-
-        alert(error.message);
+        console.log("Error cargando usuario:", error);
+        alert("Error de servidor");
       } finally {
         setLoading(false);
       }
@@ -111,118 +80,65 @@ function ActualizarEmpleados() {
         estado: form.estado
       };
 
-      // Solo enviar contraseña si el usuario escribió una nueva
       if (form.password_harsh.trim() !== "") {
-        body.password_harsh = await hashPassword(
-          form.password_harsh
-        );
+        body.password_harsh = await hashPassword(form.password_harsh);
       }
 
-      const response = await fetch(
-        `${API_URL}/usuarios/${id}`,
-        {
-          method: "PUT",
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
 
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-
-          body: JSON.stringify(body)
-        }
-      );
-
-      const data = await response.json();
+      const data = await res.json();
 
       console.log("RESPUESTA BACKEND:", data);
 
-      if (!response.ok) {
-        console.error("Error de Laravel:", data);
-
-        if (data.errors) {
-          console.error(
-            "Errores de validación:",
-            data.errors
-          );
-        }
-
-        if (data.errores) {
-          console.error(
-            "Errores:",
-            data.errores
-          );
-        }
-
-        throw new Error(
-          data?.mensaje ||
-          data?.message ||
-          "Error al actualizar empleado"
-        );
+      if (!res.ok) {
+        const primerError = data?.errores && Object.values(data.errores)[0]?.[0]
+        alert(primerError || data?.mensaje || "Error al actualizar empleado");
+        return;
       }
 
       alert("Empleado actualizado correctamente");
-
       navigate("/VerUsuarios");
 
     } catch (error) {
-      console.error(
-        "Error actualizando empleado:",
-        error
-      );
-
-      alert(error.message);
+      console.log("Error actualizando empleado:", error);
+      alert("Error de servidor");
     }
   };
 
-  // Mostrar mientras se carga el usuario
   if (loading) {
-    return (
-      <p className="text-center mt-5">
-        Cargando usuario...
-      </p>
-    );
+    return <p className="text-center mt-5">Cargando usuario...</p>;
   }
 
   return (
     <div className="app">
-
       <NavAdmi />
 
       <main className="container-fluid py-4 contenido">
-
         <div className="row justify-content-center">
-
           <div className="col-xl-8 col-lg-9 col-md-12">
 
             <div className="card shadow border-0 rounded-4">
 
               {/* HEADER */}
               <div className="card-header bg-primary text-white py-3">
-
-                <h3 className="mb-1">
-                  ✏️ Actualizar Empleado
-                </h3>
-
-                <small>
-                  Modifique la información del usuario
-                </small>
-
+                <h3 className="mb-1">✏️ Actualizar Empleado</h3>
+                <small>Modifique la información del usuario</small>
               </div>
 
               <div className="card-body p-4">
 
-                <form
-                  className="row g-4"
-                  onSubmit={handleSubmit}
-                >
+                <form className="row g-4" onSubmit={handleSubmit}>
 
                   {/* LOGIN */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Usuario
-                    </label>
-
+                    <label className="form-label fw-semibold">Usuario</label>
                     <input
                       type="text"
                       name="login"
@@ -231,16 +147,11 @@ function ActualizarEmpleados() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* EMAIL */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Correo
-                    </label>
-
+                    <label className="form-label fw-semibold">Correo</label>
                     <input
                       type="email"
                       name="email"
@@ -249,16 +160,13 @@ function ActualizarEmpleados() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
-                  {/* PASSWORD */}
+                  {/* PASSWORD (opcional) */}
                   <div className="col-md-6">
-
                     <label className="form-label fw-semibold">
                       Nueva Contraseña (opcional)
                     </label>
-
                     <input
                       type="password"
                       name="password_harsh"
@@ -267,16 +175,11 @@ function ActualizarEmpleados() {
                       onChange={handleChange}
                       placeholder="Dejar vacío si no cambia"
                     />
-
                   </div>
 
                   {/* ROL */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Rol
-                    </label>
-
+                    <label className="form-label fw-semibold">Rol</label>
                     <select
                       name="rol_id"
                       className="form-select"
@@ -284,51 +187,25 @@ function ActualizarEmpleados() {
                       onChange={handleChange}
                       required
                     >
-
-                      <option value="">
-                        Seleccione rol
-                      </option>
-
-                      <option value="1">
-                        Administrador
-                      </option>
-
-                      <option value="2">
-                        Empleado
-                      </option>
-
-                      <option value="3">
-                        Bodeguero
-                      </option>
-
+                      <option value="">Seleccione rol</option>
+                      <option value="1">Administrador</option>
+                      <option value="2">Empleado</option>
+                      <option value="3">Bodeguero</option>
                     </select>
-
                   </div>
 
                   {/* ESTADO */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Estado
-                    </label>
-
+                    <label className="form-label fw-semibold">Estado</label>
                     <select
                       name="estado"
                       className="form-select"
                       value={form.estado}
                       onChange={handleChange}
                     >
-
-                      <option value="activo">
-                        Activo
-                      </option>
-
-                      <option value="inactivo">
-                        Inactivo
-                      </option>
-
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
                     </select>
-
                   </div>
 
                   {/* BOTONES */}
@@ -347,7 +224,13 @@ function ActualizarEmpleados() {
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() =>
-                          navigate("/VerUsuarios")
+                          setForm({
+                            login: "",
+                            email: "",
+                            password_harsh: "",
+                            rol_id: "",
+                            estado: "activo"
+                          })
                         }
                       >
                         Cancelar
@@ -371,13 +254,10 @@ function ActualizarEmpleados() {
             </div>
 
           </div>
-
         </div>
-
       </main>
 
       <FooterAdmi />
-
     </div>
   );
 }

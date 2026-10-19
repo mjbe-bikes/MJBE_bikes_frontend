@@ -1,410 +1,290 @@
-// Panel de inicio de bodega
+// Alta de producto (bodega)
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import NavBodega from "../componentes/NavBodega";
 import FooterBodega from "../componentes/FooterBodega";
 
-// API Laravel/PHP conectada a MySQL
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = "http://localhost:5000/api/productos";
+const TALLAS_URL = "http://localhost:5000/api/tallas";
+const PROVEEDORES_URL = "http://localhost:5000/api/proveedores";
+const LOCALES_URL = "http://localhost:5000/api/locales";
 
-function InicioBodega() {
-    const [dashboard, setDashboard] = useState({
-        resumen: {
-            totalProductos: 0,
-            productosActivos: 0,
-            stockBajo: 0,
-            sinStock: 0,
-            entradasHoy: 0,
-            salidasHoy: 0
-        },
-        movimientos: [],
-        alertas: []
-    });
+function CrearProducto() {
+    const navigate = useNavigate();
 
+    const [tallas, setTallas] = useState([]);
+    const [proveedores, setProveedores] = useState([]);
+    const [locales, setLocales] = useState([]);
+
+    // Catálogos reales: talla (con su medida), proveedor y local.
     useEffect(() => {
-        const cargarDashboard = async () => {
+        const cargarCatalogos = async () => {
             try {
-                // Obtener productos desde Laravel
-                const response = await fetch(`${API_URL}/productos`);
+                const [tallasRes, proveedoresRes, localesRes] = await Promise.all([
+                    fetch(TALLAS_URL, { credentials: "include" }),
+                    fetch(PROVEEDORES_URL, { credentials: "include" }),
+                    fetch(LOCALES_URL, { credentials: "include" })
+                ]);
 
-                if (!response.ok) {
-                    throw new Error("No se pudieron cargar los productos");
-                }
-
-                const productos = await response.json();
-
-                // Productos que están activos
-                const activos = productos.filter(
-                    (p) => p.estado === "activo"
-                );
-
-                // Productos con stock entre 1 y 5 unidades
-                const stockBajo = productos.filter(
-                    (p) =>
-                        Number(p.cant_producto) > 0 &&
-                        Number(p.cant_producto) <= 5
-                );
-
-                // Productos sin unidades disponibles
-                const sinStock = productos.filter(
-                    (p) => Number(p.cant_producto) === 0
-                );
-
-                // Crear alertas con los primeros productos
-                // que tienen stock bajo
-                const alertas = stockBajo.slice(0, 3).map((p) => ({
-                    id: p.id,
-                    producto: p.nombre_producto,
-                    stock: Number(p.cant_producto)
-                }));
-
-                // Generar movimientos de ejemplo a partir
-                // de los productos existentes.
-                //
-                // IMPORTANTE:
-                // Actualmente la tabla productos no guarda
-                // movimientos de entrada/salida ni fechas.
-                // Por eso estos movimientos son simulados.
-                const movimientos = productos
-                    .slice(0, 4)
-                    .map((p, index) => ({
-                        id: p.id,
-                        producto: p.nombre_producto,
-                        tipo: index % 2 === 0
-                            ? "Entrada"
-                            : "Salida",
-                        cantidad: Number(p.cant_producto),
-                        fecha: new Date().toLocaleDateString("es-ES")
-                    }));
-
-                // Actualizar información del dashboard
-                setDashboard({
-                    resumen: {
-                        totalProductos: productos.length,
-
-                        productosActivos: activos.length,
-
-                        stockBajo: stockBajo.length,
-
-                        sinStock: sinStock.length,
-
-                        entradasHoy: movimientos.filter(
-                            (m) => m.tipo === "Entrada"
-                        ).length,
-
-                        salidasHoy: movimientos.filter(
-                            (m) => m.tipo === "Salida"
-                        ).length
-                    },
-
-                    movimientos,
-
-                    alertas
-                });
-
+                setTallas(await tallasRes.json());
+                setProveedores(await proveedoresRes.json());
+                setLocales(await localesRes.json());
             } catch (error) {
-                console.error(
-                    "Error al cargar dashboard de bodega:",
-                    error
-                );
+                console.error("Error cargando catálogos:", error);
             }
         };
 
-        cargarDashboard();
+        cargarCatalogos();
     }, []);
+
+    const [producto, setProducto] = useState({
+        img_producto: "",
+        nombre_producto: "",
+        descripcion: "",
+        color_producto: "",
+        marca_producto: "",
+        cant_producto: "",
+        modelo: "",
+        id_talla: "",
+        id_proveedor: "",
+        id_local: "",
+        valor_unitario: "",
+        estado: "activo"
+    });
+
+    const handleChange = (e) => {
+        setProducto({
+            ...producto,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const guardarProducto = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ...producto,
+                    cant_producto: Number(producto.cant_producto),
+                    id_talla: Number(producto.id_talla),
+                    id_proveedor: Number(producto.id_proveedor),
+                    id_local: Number(producto.id_local),
+                    valor_unitario: Number(producto.valor_unitario)
+                })
+            });
+
+            if (!response.ok) throw new Error("No se pudo guardar el producto");
+
+            setProducto({
+                img_producto: "",
+                nombre_producto: "",
+                descripcion: "",
+                color_producto: "",
+                marca_producto: "",
+                cant_producto: "",
+                modelo: "",
+                id_talla: "",
+                id_proveedor: "",
+                id_local: "",
+                valor_unitario: "",
+                estado: "activo"
+            });
+
+            navigate("/VerProductos");
+        } catch (error) {
+            console.error(error);
+            alert("❌ No se pudo crear el producto.");
+        }
+    };
 
     return (
         <div className="app">
-
             <NavBodega />
-
-            <div className="container py-4 contenido">
-
-                {/* =====================================================
-                    RESUMEN DE BODEGA
-                ====================================================== */}
-                <div className="card shadow mb-4">
-
-                    <div className="card-header bg-primary text-white">
-                        <h3 className="mb-0">
-                            📦 Resumen de Bodega
-                        </h3>
-                    </div>
-
-                    <div className="card-body">
-
-                        <div className="row g-4">
-
-                            {/* Total de productos */}
-                            <div className="col-lg-4 col-md-6">
-                                <div className="card border-primary shadow-sm h-100">
-
-                                    <div className="card-body text-center">
-
-                                        <h1>📦</h1>
-
-                                        <h6>
-                                            Total Productos
-                                        </h6>
-
-                                        <h2>
-                                            {
-                                                dashboard?.resumen
-                                                    ?.totalProductos
-                                            }
-                                        </h2>
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Productos activos */}
-                            <div className="col-lg-4 col-md-6">
-                                <div className="card border-success shadow-sm h-100">
-
-                                    <div className="card-body text-center">
-
-                                        <h1>✅</h1>
-
-                                        <h6>
-                                            Productos Activos
-                                        </h6>
-
-                                        <h2>
-                                            {
-                                                dashboard.resumen
-                                                    .productosActivos
-                                            }
-                                        </h2>
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Stock bajo */}
-                            <div className="col-lg-4 col-md-6">
-                                <div className="card border-warning shadow-sm h-100">
-
-                                    <div className="card-body text-center">
-
-                                        <h1>⚠️</h1>
-
-                                        <h6>
-                                            Stock Bajo
-                                        </h6>
-
-                                        <h2>
-                                            {
-                                                dashboard.resumen
-                                                    .stockBajo
-                                            }
-                                        </h2>
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Productos sin stock */}
-                            <div className="col-lg-4 col-md-6">
-                                <div className="card border-danger shadow-sm h-100">
-
-                                    <div className="card-body text-center">
-
-                                        <h1>❌</h1>
-
-                                        <h6>
-                                            Sin Stock
-                                        </h6>
-
-                                        <h2>
-                                            {
-                                                dashboard.resumen
-                                                    .sinStock
-                                            }
-                                        </h2>
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Entradas */}
-                            <div className="col-lg-4 col-md-6">
-                                <div className="card border-info shadow-sm h-100">
-
-                                    <div className="card-body text-center">
-
-                                        <h1>⬆️</h1>
-
-                                        <h6>
-                                            Entradas Hoy
-                                        </h6>
-
-                                        <h2>
-                                            {
-                                                dashboard.resumen
-                                                    .entradasHoy
-                                            }
-                                        </h2>
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Salidas */}
-                            <div className="col-lg-4 col-md-6">
-                                <div className="card border-dark shadow-sm h-100">
-
-                                    <div className="card-body text-center">
-
-                                        <h1>⬇️</h1>
-
-                                        <h6>
-                                            Salidas Hoy
-                                        </h6>
-
-                                        <h2>
-                                            {
-                                                dashboard.resumen
-                                                    .salidasHoy
-                                            }
-                                        </h2>
-
-                                    </div>
-
-                                </div>
-                            </div>
-
+            <div className="contenido">
+                <div className="container mt-4 py-3">
+                    <div className="card shadow">
+                        <div className="card-header bg-success text-white">
+                            <h4>➕ Crear Producto</h4>
                         </div>
 
-                    </div>
-
-                </div>
-
-                {/* =====================================================
-                    MOVIMIENTOS RECIENTES
-                ====================================================== */}
-                <div className="card shadow mb-4">
-
-                    <div className="card-header bg-success text-white">
-
-                        <h4 className="mb-0">
-                            📋 Movimientos Recientes
-                        </h4>
-
-                    </div>
-
-                    <div className="card-body">
-
-                        <div className="list-group">
-
-                            {dashboard.movimientos.map(
-                                (movimiento) => (
-                                    <div
-                                        key={movimiento.id}
-                                        className="list-group-item d-flex justify-content-between align-items-center"
-                                    >
-
-                                        <div>
-
-                                            <h6 className="mb-1">
-                                                {
-                                                    movimiento.producto
-                                                }
-                                            </h6>
-
-                                            <small>
-                                                {
-                                                    movimiento.tipo
-                                                }
-
-                                                {" - Cantidad: "}
-
-                                                {
-                                                    movimiento.cantidad
-                                                }
-                                            </small>
-
-                                        </div>
-
-                                        <span className="badge bg-primary">
-                                            {
-                                                movimiento.fecha
-                                            }
-                                        </span>
-
+                        <div className="card-body">
+                            <form onSubmit={guardarProducto}>
+                                <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                        <label>Imagen (URL)</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="img_producto"
+                                            value={producto.img_producto}
+                                            onChange={handleChange}
+                                            required
+                                        />
                                     </div>
-                                )
-                            )}
 
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {/* =====================================================
-                    ALERTAS DE INVENTARIO
-                ====================================================== */}
-                <div className="card shadow">
-
-                    <div className="card-header bg-warning">
-
-                        <h4 className="mb-0">
-                            ⚠️ Alertas de Inventario
-                        </h4>
-
-                    </div>
-
-                    <div className="card-body">
-
-                        <div className="list-group">
-
-                            {dashboard.alertas.map(
-                                (alerta) => (
-                                    <div
-                                        key={alerta.id}
-                                        className="list-group-item d-flex justify-content-between align-items-center"
-                                    >
-
-                                        <div>
-
-                                            <h6>
-                                                {
-                                                    alerta.producto
-                                                }
-                                            </h6>
-
-                                        </div>
-
-                                        <span className="badge bg-danger">
-                                            Stock:{" "}
-                                            {
-                                                alerta.stock
-                                            }
-                                        </span>
-
+                                    <div className="col-md-6 mb-3">
+                                        <label>Nombre Producto</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="nombre_producto"
+                                            value={producto.nombre_producto}
+                                            onChange={handleChange}
+                                            required
+                                        />
                                     </div>
-                                )
-                            )}
 
+                                    <div className="col-md-12 mb-3">
+                                        <label>Descripción</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="descripcion"
+                                            value={producto.descripcion}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4 mb-3">
+                                        <label>Color</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="color_producto"
+                                            value={producto.color_producto}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4 mb-3">
+                                        <label>Marca</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="marca_producto"
+                                            value={producto.marca_producto}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4 mb-3">
+                                        <label>Modelo</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="modelo"
+                                            value={producto.modelo}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4 mb-3">
+                                        <label>Cantidad</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="cant_producto"
+                                            value={producto.cant_producto}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4 mb-3">
+                                        <label>Valor Unitario</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            name="valor_unitario"
+                                            value={producto.valor_unitario}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4 mb-3">
+                                        <label>Talla</label>
+                                        <select
+                                            className="form-select"
+                                            name="id_talla"
+                                            value={producto.id_talla}
+                                            onChange={handleChange}
+                                            required
+                                        >
+                                            <option value="">Seleccione</option>
+                                            {tallas.map((t) => (
+                                                <option key={t.id} value={t.id}>{t.talla} ({t.medida?.tipo_medida})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="col-md-6 mb-3">
+                                        <label>Proveedor</label>
+                                        <select
+                                            className="form-select"
+                                            name="id_proveedor"
+                                            value={producto.id_proveedor}
+                                            onChange={handleChange}
+                                            required
+                                        >
+                                            <option value="">Seleccione</option>
+                                            {proveedores.map((p) => (
+                                                <option key={p.id} value={p.id}>{p.nombre_proveedor}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="col-md-6 mb-3">
+                                        <label>Local</label>
+                                        <select
+                                            className="form-select"
+                                            name="id_local"
+                                            value={producto.id_local}
+                                            onChange={handleChange}
+                                            required
+                                        >
+                                            <option value="">Seleccione</option>
+                                            {locales.map((l) => (
+                                                <option key={l.id} value={l.id}>{l.nombre_local}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="col-md-6 mb-3">
+                                        <label>Estado</label>
+                                        <select
+                                            className="form-select"
+                                            name="estado"
+                                            value={producto.estado}
+                                            onChange={handleChange}
+                                        >
+                                            <option value="activo">Activo</option>
+                                            <option value="inactivo">Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button className="btn btn-success w-100">💾 Guardar Producto</button>
+                            </form>
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
             <FooterBodega />
-
         </div>
     );
 }
 
-export default InicioBodega;
+export default CrearProducto;

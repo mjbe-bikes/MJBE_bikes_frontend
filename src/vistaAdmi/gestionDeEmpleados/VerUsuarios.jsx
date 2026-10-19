@@ -7,8 +7,7 @@ import { useEffect, useState } from "react";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-// URL base de la API Laravel
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = 'http://localhost:5000/api/usuarios';
 
 function VerUsuarios() {
 
@@ -18,11 +17,10 @@ function VerUsuarios() {
   const [filtroPor, setFiltroPor] = useState("login");
   const [valorFiltro, setValorFiltro] = useState("");
 
-  // Modal
+  // MODAL
   const [showModal, setShowModal] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
 
-  // Roles
   const roleLabels = {
     1: "Administrador",
     2: "Empleado",
@@ -30,73 +28,31 @@ function VerUsuarios() {
     4: "Cliente"
   };
 
-  // Obtener nombre del rol
   const getRoleName = (usuario) => {
     if (usuario.tipo_rol) return usuario.tipo_rol;
     if (usuario.rol) return usuario.rol;
-
-    if (usuario.rol_id != null) {
-      return (
-        roleLabels[Number(usuario.rol_id)] ||
-        `Rol ${usuario.rol_id}`
-      );
-    }
-
+    if (usuario.rol_id != null) return roleLabels[Number(usuario.rol_id)] || `Rol ${usuario.rol_id}`;
     return "Desconocido";
   };
 
-  // Obtener valor del campo seleccionado para el filtro
   const getFieldValue = (usuario, field) => {
-    if (field === "tipo_rol") {
-      return getRoleName(usuario);
-    }
-
+    if (field === "tipo_rol") return getRoleName(usuario);
     return usuario[field];
   };
 
-  // =========================================================
-  // CARGAR USUARIOS DESDE LARAVEL
-  // =========================================================
-
   useEffect(() => {
-    const cargarUsuarios = async () => {
-      try {
-        const response = await fetch(`${API_URL}/usuarios`, {
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data?.mensaje ||
-            data?.message ||
-            "Error al cargar usuarios"
-          );
-        }
-
+    fetch(API_URL, { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
         setUsuarios(data);
         setUsuariosFiltrados(data);
-
-      } catch (error) {
-        console.error("Error cargando usuarios:", error);
-      }
-    };
-
-    cargarUsuarios();
+      })
+      .catch(err => console.log(err));
   }, []);
-
-  // =========================================================
-  // FILTRAR USUARIOS
-  // =========================================================
 
   const aplicarFiltro = () => {
     const filtrados = usuarios.filter((u) => {
-
       const valor = getFieldValue(u, filtroPor);
-
       if (!valor) return false;
 
       return valor
@@ -108,141 +64,61 @@ function VerUsuarios() {
     setUsuariosFiltrados(filtrados);
   };
 
-  // =========================================================
   // ABRIR MODAL
-  // =========================================================
-
   const abrirModalEliminar = (usuario) => {
     setUsuarioSeleccionado(usuario);
     setShowModal(true);
   };
 
-  // =========================================================
-  // DESACTIVAR USUARIO
-  // =========================================================
-
-  const desactivarUsuario = async () => {
-
-    try {
-      const response = await fetch(
-        `${API_URL}/usuarios/${usuarioSeleccionado.id}`,
-        {
-          method: "PUT",
-
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-
-          body: JSON.stringify({
-            login: usuarioSeleccionado.login,
-            email: usuarioSeleccionado.email,
-            rol_id: usuarioSeleccionado.rol_id,
-            estado: "inactivo"
-          })
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data?.mensaje ||
-          data?.message ||
-          "Error al desactivar usuario"
+  // DESACTIVAR (SOFT DELETE)
+  const desactivarUsuario = () => {
+    fetch(`${API_URL}/${usuarioSeleccionado.id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...usuarioSeleccionado,
+        estado: "invalido"
+      })
+    })
+      .then(() => {
+        const nuevos = usuariosFiltrados.map(u =>
+          u.id === usuarioSeleccionado.id
+            ? { ...u, estado: "invalido" }
+            : u
         );
-      }
 
-      // Actualizar la lista localmente
-      const nuevos = usuarios.map((u) =>
-        u.id === usuarioSeleccionado.id
-          ? { ...u, estado: "inactivo" }
-          : u
-      );
+        setUsuariosFiltrados(nuevos);
+        setUsuarios(nuevos);
 
-      setUsuarios(nuevos);
-
-      // Mantener el filtro actual
-      const filtrados = nuevos.filter((u) => {
-
-        const valor = getFieldValue(u, filtroPor);
-
-        if (!valor) return false;
-
-        return valor
-          .toString()
-          .toLowerCase()
-          .includes(valorFiltro.toLowerCase());
-      });
-
-      setUsuariosFiltrados(filtrados);
-
-      setShowModal(false);
-      setUsuarioSeleccionado(null);
-
-    } catch (error) {
-      console.error("Error desactivando usuario:", error);
-      alert(error.message);
-    }
+        setShowModal(false);
+        setUsuarioSeleccionado(null);
+      })
+      .catch(err => console.log(err));
   };
 
-  // =========================================================
-  // ELIMINAR USUARIO FÍSICAMENTE
-  // =========================================================
+  // ELIMINAR REAL
+  const eliminarUsuarioFisico = () => {
+    fetch(`${API_URL}/${usuarioSeleccionado.id}`, {
+      method: "DELETE",
+      credentials: "include"
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Error al eliminar");
 
-  const eliminarUsuarioFisico = async () => {
-
-    try {
-      const response = await fetch(
-        `${API_URL}/usuarios/${usuarioSeleccionado.id}`,
-        {
-          method: "DELETE",
-
-          headers: {
-            "Accept": "application/json"
-          }
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data?.mensaje ||
-          data?.message ||
-          "Error al eliminar usuario"
+        const nuevos = usuariosFiltrados.filter(
+          u => u.id !== usuarioSeleccionado.id
         );
-      }
 
-      // Eliminar usuario de la lista
-      const nuevos = usuarios.filter(
-        (u) => u.id !== usuarioSeleccionado.id
-      );
+        setUsuariosFiltrados(nuevos);
+        setUsuarios(nuevos);
 
-      setUsuarios(nuevos);
-
-      // Mantener el filtro actual
-      const filtrados = nuevos.filter((u) => {
-
-        const valor = getFieldValue(u, filtroPor);
-
-        if (!valor) return false;
-
-        return valor
-          .toString()
-          .toLowerCase()
-          .includes(valorFiltro.toLowerCase());
-      });
-
-      setUsuariosFiltrados(filtrados);
-
-      setShowModal(false);
-      setUsuarioSeleccionado(null);
-
-    } catch (error) {
-      console.error("Error eliminando usuario:", error);
-      alert(error.message);
-    }
+        setShowModal(false);
+        setUsuarioSeleccionado(null);
+      })
+      .catch(err => console.log(err));
   };
 
   return (
@@ -252,11 +128,8 @@ function VerUsuarios() {
         <NavAdmi />
 
         <div className="contenido">
-
           <div className="maincontainer-fluid py-4">
-
             <div className="container mt-12">
-
               <div className="card shadow">
 
                 {/* HEADER */}
@@ -264,49 +137,27 @@ function VerUsuarios() {
 
                   <div>
                     <h4 className="mb-0">👥 Usuarios</h4>
-                    <small>
-                      Listado de usuarios registrados
-                    </small>
+                    <small>Listado de usuarios registrados</small>
                   </div>
 
-                  {/* FILTRO */}
                   <Dropdown className="no-print">
-
                     <Dropdown.Toggle variant="light">
                       Filtrar
                     </Dropdown.Toggle>
 
-                    <Dropdown.Menu
-                      className="p-3"
-                      style={{ minWidth: "250px" }}
-                    >
+                    <Dropdown.Menu className="p-3" style={{ minWidth: "250px" }}>
 
-                      <label className="form-label">
-                        Filtrar por
-                      </label>
+                      <label className="form-label">Filtrar por</label>
 
                       <select
                         className="form-select mb-3"
                         value={filtroPor}
-                        onChange={(e) =>
-                          setFiltroPor(e.target.value)
-                        }
+                        onChange={(e) => setFiltroPor(e.target.value)}
                       >
-                        <option value="login">
-                          Usuario
-                        </option>
-
-                        <option value="email">
-                          Email
-                        </option>
-
-                        <option value="estado">
-                          Estado
-                        </option>
-
-                        <option value="tipo_rol">
-                          Rol
-                        </option>
+                        <option value="login">Usuario</option>
+                        <option value="email">Email</option>
+                        <option value="estado">Estado</option>
+                        <option value="tipo_rol">Rol</option>
                       </select>
 
                       <input
@@ -314,9 +165,7 @@ function VerUsuarios() {
                         className="form-control mb-3"
                         placeholder="Ingrese el valor"
                         value={valorFiltro}
-                        onChange={(e) =>
-                          setValorFiltro(e.target.value)
-                        }
+                        onChange={(e) => setValorFiltro(e.target.value)}
                       />
 
                       <button
@@ -327,7 +176,6 @@ function VerUsuarios() {
                       </button>
 
                     </Dropdown.Menu>
-
                   </Dropdown>
 
                 </div>
@@ -340,59 +188,36 @@ function VerUsuarios() {
                     <table className="table table-bordered table-hover align-middle">
 
                       <thead className="table-success text-center">
-
                         <tr>
                           <th>ID</th>
                           <th>Usuario</th>
                           <th>Email</th>
                           <th>Rol</th>
                           <th>Estado</th>
-                          <th className="no-print">
-                            Acciones
-                          </th>
+                          <th className="no-print">Acciones</th>
                         </tr>
-
                       </thead>
 
                       <tbody>
-
                         {usuariosFiltrados.length === 0 ? (
-
                           <tr>
-                            <td
-                              colSpan="6"
-                              className="text-center"
-                            >
+                            <td colSpan="6" className="text-center">
                               No hay usuarios disponibles
                             </td>
                           </tr>
-
                         ) : (
-
                           usuariosFiltrados.map((u) => (
-
-                            <tr
-                              key={u.id}
-                              className="text-center"
-                            >
-
+                            <tr key={u.id} className="text-center">
                               <td>{u.id}</td>
-
                               <td>{u.login}</td>
-
                               <td>{u.email}</td>
-
                               <td>{getRoleName(u)}</td>
-
                               <td>{u.estado}</td>
 
                               <td className="no-print">
-
                                 <button
                                   className="btn btn-danger btn-sm me-2 no-print"
-                                  onClick={() =>
-                                    abrirModalEliminar(u)
-                                  }
+                                  onClick={() => abrirModalEliminar(u)}
                                 >
                                   Acción
                                 </button>
@@ -403,114 +228,72 @@ function VerUsuarios() {
                                 >
                                   Actualizar
                                 </Link>
-
                               </td>
-
                             </tr>
-
                           ))
-
                         )}
-
                       </tbody>
 
                     </table>
 
-                    {/* BOTÓN IMPRIMIR */}
-                    <div className="btn no-print mx-auto d-block">
-
-                      <button
-                        className="btn bg-success text-white ms-2 col-2"
-                        onClick={() => window.print()}
-                      >
-                        <i className="bi bi-printer-fill me-2"></i>
-                        Imprimir
-                      </button>
-
-                    </div>
-
+                  {/* BOTÓN IMPRIMIR */}
+                  <div className="btn no-print mx-auto d-block">
+                    <button
+                      className="btn bg-success text-white ms-2 col-2"
+                      onClick={() => window.print()}
+                    >
+                      <i className="bi bi-printer-fill me-2"></i>
+                      Imprimir
+                    </button>
+                  </div>
                   </div>
 
-                  {/* CREAR EMPLEADO */}
                   <div className="d-flex justify-content-end mt-3">
-
-                    <Link
-                      className="btn btn-success"
-                      to="/CrearEmpleado"
-                    >
+                    <Link className="btn btn-success" to="/CrearEmpleado">
                       <i className="bi bi-plus-circle me-2"></i>
                       Crear Empleado
-                    </Link>
-
+                    </Link > 
                   </div>
 
                 </div>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
 
         <FooterAdmi />
 
-        {/* =====================================================
-            MODAL DE GESTIÓN
-        ====================================================== */}
-
+        {/* MODAL */}
         {showModal && usuarioSeleccionado && (
-
           <div className="modal show d-block" tabIndex="-1">
-
             <div className="modal-dialog">
-
               <div className="modal-content">
 
                 <div className="modal-header bg-danger text-white">
-
-                  <h5 className="modal-title">
-                    Gestión de usuario
-                  </h5>
-
+                  <h5 className="modal-title">Gestión de usuario</h5>
                   <button
                     className="btn-close"
                     onClick={() => setShowModal(false)}
                   ></button>
-
                 </div>
 
                 <div className="modal-body">
-
-                  <p>
-                    Selecciona una acción para este usuario:
-                  </p>
+                  <p>Selecciona una acción para este usuario:</p>
 
                   <ul className="list-group">
-
                     <li className="list-group-item">
-                      <b>ID:</b>{" "}
-                      {usuarioSeleccionado.id}
+                      <b>ID:</b> {usuarioSeleccionado.id}
                     </li>
-
                     <li className="list-group-item">
-                      <b>Usuario:</b>{" "}
-                      {usuarioSeleccionado.login}
+                      <b>Usuario:</b> {usuarioSeleccionado.login}
                     </li>
-
                     <li className="list-group-item">
-                      <b>Email:</b>{" "}
-                      {usuarioSeleccionado.email}
+                      <b>Email:</b> {usuarioSeleccionado.email}
                     </li>
-
                     <li className="list-group-item">
-                      <b>Estado:</b>{" "}
-                      {usuarioSeleccionado.estado}
+                      <b>Estado:</b> {usuarioSeleccionado.estado}
                     </li>
-
                   </ul>
-
                 </div>
 
                 <div className="modal-footer d-flex justify-content-between">
@@ -523,7 +306,6 @@ function VerUsuarios() {
                   </button>
 
                   <div>
-
                     <button
                       className="btn btn-warning me-2"
                       onClick={desactivarUsuario}
@@ -537,17 +319,13 @@ function VerUsuarios() {
                     >
                       Eliminar
                     </button>
-
                   </div>
 
                 </div>
 
               </div>
-
             </div>
-
           </div>
-
         )}
 
       </div>

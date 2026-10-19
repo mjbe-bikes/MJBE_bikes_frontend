@@ -38,6 +38,7 @@ import CrearProducto from "./vistaAdmi/gestionDeProducto/CrearProducto"
 import ActualizarProducto from "./vistaAdmi/gestionDeProducto/ActualizarProducto"
 
 import VerProductosBodega from "./vistaBodega/VerProductos"
+import CrearProductoBodega from "./vistaBodega/CrearProducto"
 import ActualizarProductoBodega from "./vistaBodega/ActualizarProducto"
 
 // ------------ Apartado de gestion de Proveedores ----------------------
@@ -319,18 +320,15 @@ function App() {
           <Route
             path="/CrearProducto"
             element={
-              isLoggedIn && rolId === 1
-                ? <CrearProducto />
-                : (
-                  <Navigate
-                    to={
-                      isLoggedIn && rolId === 3
-                        ? "/InicioBodega"
-                        : "/login"
-                    }
-                    replace
-                  />
+              isLoggedIn
+                ? (
+                  rolId === 1
+                    ? <CrearProducto />
+                    : rolId === 3
+                      ? <CrearProductoBodega />
+                      : <Navigate to="/login" replace />
                 )
+                : <Navigate to="/login" replace />
             }
           />
 

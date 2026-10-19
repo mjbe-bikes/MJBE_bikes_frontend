@@ -6,8 +6,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import NavVentas from "../../../componentes/NavVentas";
 import FooterAdmi from "../../../componentes/FooterAdmi";
 
-// URL base de nuestra API Laravel
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = "http://localhost:5000/api";
 
 const emptyForm = {
   usuario_id: "",
@@ -16,45 +15,44 @@ const emptyForm = {
   nombres: "",
   apellidos: "",
   direccion: "",
-  telefono_clnt: "",
+  telefono_clnt: ""
 };
 
 function ActualizarClientes() {
-  // ID del cliente recibido desde la ruta
   const { id_cliente } = useParams();
-
   const navigate = useNavigate();
-
   const [form, setForm] = useState(emptyForm);
+  const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
 
-  // =========================================================
-  // CARGAR CLIENTE
-  // =========================================================
+  // Un cliente debe estar asociado a un usuario (rol Cliente) ya existente.
+  useEffect(() => {
+    const cargarUsuarios = async () => {
+      try {
+        const respuesta = await fetch(`${API_URL}/usuarios`, { credentials: "include" });
+        if (!respuesta.ok) throw new Error("No se pudieron cargar los usuarios");
+
+        const datos = await respuesta.json();
+        setUsuarios(datos.filter((usuario) => Number(usuario.rol_id) === 4));
+      } catch (error) {
+        console.error("Error cargando usuarios:", error);
+      }
+    };
+
+    cargarUsuarios();
+  }, []);
+
   useEffect(() => {
     const cargarCliente = async () => {
       try {
-        // Laravel utiliza el ID real de la tabla clientes
-        const respuesta = await fetch(
-          `${API_URL}/clientes/${encodeURIComponent(id_cliente)}`
-        );
+        const respuesta = await fetch(`${API_URL}/clientes?id_cliente=${encodeURIComponent(id_cliente)}`, { credentials: "include" });
+        if (!respuesta.ok) throw new Error("No se pudo cargar el cliente");
 
-        if (!respuesta.ok) {
-          throw new Error("No se pudo cargar el cliente");
-        }
+        const clientes = await respuesta.json();
+        const cliente = clientes[0];
+        if (!cliente) throw new Error("Cliente no encontrado");
 
-        const datos = await respuesta.json();
-
-        // Laravel puede devolver directamente el cliente
-        // o envolverlo dentro de la propiedad "cliente".
-        const cliente = datos?.cliente ?? datos;
-
-        if (!cliente || !cliente.id) {
-          throw new Error("Cliente no encontrado");
-        }
-
-        // Cargar los datos actuales en el formulario
         setForm({
           usuario_id: cliente.usuario_id ?? "",
           tipo_documento_id: String(cliente.tipo_documento_id ?? 1),
@@ -62,13 +60,11 @@ function ActualizarClientes() {
           nombres: cliente.nombres ?? "",
           apellidos: cliente.apellidos ?? "",
           direccion: cliente.direccion ?? "",
-          telefono_clnt: cliente.telefono_clnt ?? "",
+          telefono_clnt: cliente.telefono_clnt ?? ""
         });
       } catch (error) {
         console.error("Error cargando cliente:", error);
-
         alert("No se pudo cargar el cliente");
-
         navigate("/VerClientes");
       } finally {
         setCargando(false);
@@ -78,287 +74,123 @@ function ActualizarClientes() {
     cargarCliente();
   }, [id_cliente, navigate]);
 
-  // =========================================================
-  // ACTUALIZAR FORMULARIO
-  // =========================================================
   const handleChange = (event) => {
-    setForm((current) => ({
-      ...current,
-      [event.target.name]: event.target.value,
-    }));
+    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  // =========================================================
-  // ACTUALIZAR CLIENTE
-  // =========================================================
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!form.usuario_id) {
+      alert("Selecciona el usuario asociado al cliente");
+      return;
+    }
+
     setGuardando(true);
 
     try {
-      // Preparar los datos para Laravel
-      const datosCliente = {
-        // Si existe usuario asociado, convertirlo a número.
-        // Si está vacío, enviar null.
-        usuario_id:
-          form.usuario_id === "" ? null : Number(form.usuario_id),
+      const respuesta = await fetch(`${API_URL}/clientes?id_cliente=${encodeURIComponent(id_cliente)}`, { credentials: "include" });
+      if (!respuesta.ok) throw new Error("No se pudo localizar el cliente");
 
-        tipo_documento_id: Number(form.tipo_documento_id),
+      const clientes = await respuesta.json();
+      const clienteActual = clientes[0];
+      if (!clienteActual) throw new Error("Cliente no encontrado");
 
-        numero_documento: form.numero_documento.trim(),
-
-        nombres: form.nombres.trim(),
-
-        apellidos: form.apellidos.trim(),
-
-        direccion: form.direccion.trim(),
-
-        telefono_clnt: form.telefono_clnt.trim(),
-      };
-
-      // Actualizar directamente utilizando el ID del cliente.
-      // La ruta Laravel es PUT /api/clientes/{id}
-      const respuesta = await fetch(
-        `${API_URL}/clientes/${encodeURIComponent(id_cliente)}`,
+      const respuestaActualizacion = await fetch(
+        `${API_URL}/clientes/${clienteActual.id_cliente}`,
         {
-          method: "PUT",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify(datosCliente),
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          usuario_id: Number(form.usuario_id),
+          tipo_documento_id: Number(form.tipo_documento_id),
+          numero_documento: form.numero_documento.trim(),
+          nombres: form.nombres.trim(),
+          apellidos: form.apellidos.trim(),
+          direccion: form.direccion.trim(),
+          telefono_clnt: form.telefono_clnt.trim()
+        })
         }
       );
 
-      // Intentar obtener la respuesta del servidor
-      const datos = await respuesta.json().catch(() => null);
-
-      // Si Laravel devuelve un error
-      if (!respuesta.ok) {
-        console.error("Error de Laravel:", datos);
-
-        throw new Error(
-          datos?.mensaje ||
-            datos?.message ||
-            "No se pudo actualizar el cliente"
-        );
-      }
-
-      console.log("Cliente actualizado:", datos);
-
-      // Volver al listado
+      if (!respuestaActualizacion.ok) throw new Error("No se pudo actualizar el cliente");
       navigate("/VerClientes");
     } catch (error) {
       console.error("Error actualizando cliente:", error);
-
-      alert(
-        error.message || "No se pudo actualizar el cliente"
-      );
+      alert("No se pudo actualizar el cliente");
     } finally {
       setGuardando(false);
     }
   };
 
-  // =========================================================
-  // ESTADO DE CARGA
-  // =========================================================
-  if (cargando) {
-    return (
-      <p className="text-center mt-5">
-        Cargando cliente...
-      </p>
-    );
-  }
+  if (cargando) return <p className="text-center mt-5">Cargando cliente...</p>;
 
-  // =========================================================
-  // VISTA
-  // =========================================================
   return (
     <div className="app">
       <NavVentas />
-
       <main className="container-fluid py-4 contenido">
         <div className="row justify-content-center">
           <div className="col-xl-8 col-lg-9 col-md-12">
             <div className="card shadow border-0 rounded-4">
-
-              {/* Encabezado */}
               <div className="card-header bg-primary text-white py-3">
-                <h3 className="mb-1">
-                  Actualizar cliente
-                </h3>
-
-                <small>
-                  Modifique la información del cliente
-                </small>
+                <h3 className="mb-1">Actualizar cliente</h3>
+                <small>Modifique la información del cliente</small>
               </div>
-
-              {/* Formulario */}
               <div className="card-body p-4">
-                <form
-                  className="row g-4"
-                  onSubmit={handleSubmit}
-                >
-
-                  {/* Tipo de documento */}
+                <form className="row g-4" onSubmit={handleSubmit}>
                   <div className="col-md-6">
-                    <label
-                      className="form-label fw-semibold"
-                      htmlFor="tipo_documento_id"
-                    >
-                      Tipo de documento
-                    </label>
-
-                    <select
-                      id="tipo_documento_id"
-                      name="tipo_documento_id"
-                      className="form-select"
-                      value={form.tipo_documento_id}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="1">
-                        Cédula de ciudadanía
-                      </option>
-
-                      <option value="2">
-                        Cédula de extranjería
-                      </option>
-
-                      <option value="3">
-                        Pasaporte
-                      </option>
-
-                      <option value="4">
-                        NIT
-                      </option>
+                    <label className="form-label fw-semibold" htmlFor="usuario_id">Usuario asociado</label>
+                    <select id="usuario_id" name="usuario_id" className="form-select" value={form.usuario_id} onChange={handleChange} required>
+                      <option value="">Seleccione un usuario</option>
+                      {usuarios.map((usuario) => (
+                        <option key={usuario.id} value={usuario.id}>
+                          {usuario.login} ({usuario.email})
+                        </option>
+                      ))}
                     </select>
                   </div>
-
-                  {/* Número de documento */}
                   <div className="col-md-6">
-                    <label
-                      className="form-label fw-semibold"
-                      htmlFor="numero_documento"
-                    >
-                      Número de documento
-                    </label>
-
-                    <input
-                      id="numero_documento"
-                      name="numero_documento"
-                      className="form-control"
-                      value={form.numero_documento}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label className="form-label fw-semibold" htmlFor="tipo_documento_id">Tipo de documento</label>
+                    <select id="tipo_documento_id" name="tipo_documento_id" className="form-select" value={form.tipo_documento_id} onChange={handleChange} required>
+                      <option value="1">Cédula de ciudadanía</option>
+                      <option value="2">Cédula de extranjería</option>
+                      <option value="3">Pasaporte</option>
+                      <option value="4">NIT</option>
+                    </select>
                   </div>
-
-                  {/* Nombres */}
                   <div className="col-md-6">
-                    <label
-                      className="form-label fw-semibold"
-                      htmlFor="nombres"
-                    >
-                      Nombres
-                    </label>
-
-                    <input
-                      id="nombres"
-                      name="nombres"
-                      className="form-control"
-                      value={form.nombres}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label className="form-label fw-semibold" htmlFor="numero_documento">Número de documento</label>
+                    <input id="numero_documento" name="numero_documento" className="form-control" value={form.numero_documento} onChange={handleChange} required />
                   </div>
-
-                  {/* Apellidos */}
                   <div className="col-md-6">
-                    <label
-                      className="form-label fw-semibold"
-                      htmlFor="apellidos"
-                    >
-                      Apellidos
-                    </label>
-
-                    <input
-                      id="apellidos"
-                      name="apellidos"
-                      className="form-control"
-                      value={form.apellidos}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label className="form-label fw-semibold" htmlFor="nombres">Nombres</label>
+                    <input id="nombres" name="nombres" className="form-control" value={form.nombres} onChange={handleChange} required />
                   </div>
-
-                  {/* Dirección */}
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold" htmlFor="apellidos">Apellidos</label>
+                    <input id="apellidos" name="apellidos" className="form-control" value={form.apellidos} onChange={handleChange} required />
+                  </div>
                   <div className="col-md-8">
-                    <label
-                      className="form-label fw-semibold"
-                      htmlFor="direccion"
-                    >
-                      Dirección
-                    </label>
-
-                    <input
-                      id="direccion"
-                      name="direccion"
-                      className="form-control"
-                      value={form.direccion}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label className="form-label fw-semibold" htmlFor="direccion">Dirección</label>
+                    <input id="direccion" name="direccion" className="form-control" value={form.direccion} onChange={handleChange} required />
                   </div>
-
-                  {/* Teléfono */}
                   <div className="col-md-4">
-                    <label
-                      className="form-label fw-semibold"
-                      htmlFor="telefono_clnt"
-                    >
-                      Teléfono
-                    </label>
-
-                    <input
-                      id="telefono_clnt"
-                      name="telefono_clnt"
-                      type="tel"
-                      className="form-control"
-                      value={form.telefono_clnt}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label className="form-label fw-semibold" htmlFor="telefono_clnt">Teléfono</label>
+                    <input id="telefono_clnt" name="telefono_clnt" type="tel" className="form-control" value={form.telefono_clnt} onChange={handleChange} required />
                   </div>
-
-                  {/* Botones */}
                   <div className="col-12 d-flex justify-content-between mt-4">
-                    <Link
-                      to="/VerClientes"
-                      className="btn btn-outline-secondary"
-                    >
-                      Volver
-                    </Link>
-
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      disabled={guardando}
-                    >
-                      {guardando
-                        ? "Guardando..."
-                        : "Actualizar cliente"}
+                    <Link to="/VerClientes" className="btn btn-outline-secondary">Volver</Link>
+                    <button type="submit" className="btn btn-primary" disabled={guardando}>
+                      {guardando ? "Guardando..." : "Actualizar cliente"}
                     </button>
                   </div>
-
                 </form>
               </div>
             </div>
           </div>
         </div>
       </main>
-
       <FooterAdmi />
     </div>
   );

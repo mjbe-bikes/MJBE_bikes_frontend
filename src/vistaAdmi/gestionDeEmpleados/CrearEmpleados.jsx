@@ -6,162 +6,102 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-// URL base de la API Laravel
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = 'http://localhost:5000/api/usuarios';
 
-// Convertir la contraseña a SHA-256
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
-
-  const hashBuffer = await window.crypto.subtle.digest(
-    "SHA-256",
-    data
-  );
-
-  const hashArray = Array.from(
-    new Uint8Array(hashBuffer)
-  );
-
-  return hashArray
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+  const hashBuffer = await window.crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function CrearEmpleados() {
 
-  const [form, setForm] = useState({
-    login: "",
-    email: "",
-    password_harsh: "",
-    rol_id: "",
-    estado: "activo"
+ const [form, setForm] = useState({
+  login: "",
+  email: "",
+  password_harsh: "",
+  rol_id: "",
+  estado: "activo"
+});
+
+const handleChange = (e) => {
+  setForm({
+    ...form,
+    [e.target.name]: e.target.value
   });
+};
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const hashedPassword = await hashPassword(form.password_harsh);
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        login: form.login,
+        email: form.email,
+        password_harsh: hashedPassword,
+        rol_id: Number(form.rol_id),
+        estado: form.estado
+      }),
     });
-  };
 
-  // Crear empleado
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const data = await res.json();
 
-    try {
-      // Encriptar la contraseña antes de enviarla
-      const hashedPassword = await hashPassword(
-        form.password_harsh
-      );
+    console.log("RESPUESTA BACKEND:", data);
 
-      const response = await fetch(`${API_URL}/usuarios`, {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-
-        body: JSON.stringify({
-          login: form.login,
-          email: form.email,
-          password_harsh: hashedPassword,
-          rol_id: Number(form.rol_id),
-          estado: form.estado
-        })
-      });
-
-      const data = await response.json();
-
-      console.log("RESPUESTA BACKEND:", data);
-
-      // Mostrar los errores de validación de Laravel en consola
-      if (!response.ok) {
-        console.error("Error de Laravel:", data);
-
-        if (data.errors) {
-          console.error(
-            "Errores de validación:",
-            data.errors
-          );
-        }
-
-        if (data.errores) {
-          console.error(
-            "Errores:",
-            data.errores
-          );
-        }
-
-        throw new Error(
-          data?.mensaje ||
-          data?.message ||
-          "Error al crear empleado"
-        );
-      }
-
-      alert("Empleado creado correctamente");
-
-      // Limpiar formulario después de crear el empleado
-      setForm({
-        login: "",
-        email: "",
-        password_harsh: "",
-        rol_id: "",
-        estado: "activo"
-      });
-
-    } catch (error) {
-      console.error(
-        "Error creando empleado:",
-        error
-      );
-
-      alert(error.message);
+    if (!res.ok) {
+      const primerError = data?.errores && Object.values(data.errores)[0]?.[0]
+      alert(primerError || data?.mensaje || "Error al crear empleado");
+      return;
     }
-  };
 
+    alert("Empleado creado correctamente");
+
+    setForm({
+      login: "",
+      email: "",
+      password_harsh: "",
+      rol_id: "",
+      estado: "activo"
+    });
+
+  } catch (error) {
+    console.log("Error creando empleado:", error);
+    alert("Error de servidor");
+  }
+};
   return (
     <div className="app">
-
       <NavAdmi />
 
       <main className="container-fluid py-4 contenido">
-
         <div className="row justify-content-center">
-
           <div className="col-xl-8 col-lg-9 col-md-12">
 
             <div className="card shadow border-0 rounded-4">
 
               {/* HEADER */}
               <div className="card-header bg-success text-white py-3">
-
-                <h3 className="mb-1">
-                  👤 Registrar Empleado
-                </h3>
-
-                <small>
-                  Complete la información del usuario
-                </small>
-
+                <h3 className="mb-1">👤 Registrar Empleado</h3>
+                <small>Complete la información del usuario</small>
               </div>
 
               <div className="card-body p-4">
 
-                <form
-                  className="row g-4"
-                  onSubmit={handleSubmit}
-                >
+                <form className="row g-4" onSubmit={handleSubmit}>
 
                   {/* LOGIN */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Usuario
-                    </label>
-
+                    <label className="form-label fw-semibold">Usuario</label>
                     <input
                       type="text"
                       name="login"
@@ -170,16 +110,11 @@ function CrearEmpleados() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* EMAIL */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Correo
-                    </label>
-
+                    <label className="form-label fw-semibold">Correo</label>
                     <input
                       type="email"
                       name="email"
@@ -188,16 +123,11 @@ function CrearEmpleados() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* PASSWORD */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Contraseña
-                    </label>
-
+                    <label className="form-label fw-semibold">Contraseña</label>
                     <input
                       type="password"
                       name="password_harsh"
@@ -206,16 +136,11 @@ function CrearEmpleados() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* ROL */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Rol
-                    </label>
-
+                    <label className="form-label fw-semibold">Rol</label>
                     <select
                       name="rol_id"
                       className="form-select"
@@ -223,30 +148,14 @@ function CrearEmpleados() {
                       onChange={handleChange}
                       required
                     >
-
-                      <option value="">
-                        Seleccione rol
-                      </option>
-
-                      <option value="1">
-                        Administrador
-                      </option>
-
-                      <option value="2">
-                        Empleado
-                      </option>
-
-                      <option value="3">
-                        Bodeguero
-                      </option>
-
-                      <option value="4">
-                        Cliente
-                      </option>
-
+                      <option value="">Seleccione rol</option>
+                      <option value="1">Administrador</option>
+                      <option value="2">Empleado</option>
+                      <option value="3">Bodeguero</option>
+                      <option value="4">Cliente</option>
                     </select>
-
                   </div>
+
 
                   {/* BOTONES */}
                   <div className="col-12 mt-4 d-flex justify-content-between">
@@ -261,7 +170,8 @@ function CrearEmpleados() {
                     <div className="d-flex gap-2">
 
                       <Link
-                        to="/VerUsuarios"
+                        to = "/VerUsuarios"
+                        type="button"
                         className="btn btn-outline-secondary"
                         onClick={() =>
                           setForm({
@@ -269,7 +179,6 @@ function CrearEmpleados() {
                             email: "",
                             password_harsh: "",
                             rol_id: "",
-                            estado: "activo"
                           })
                         }
                       >
@@ -294,13 +203,10 @@ function CrearEmpleados() {
             </div>
 
           </div>
-
         </div>
-
       </main>
 
       <FooterAdmi />
-
     </div>
   );
 }

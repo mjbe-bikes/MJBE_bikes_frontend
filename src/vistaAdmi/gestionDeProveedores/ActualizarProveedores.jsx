@@ -1,17 +1,18 @@
+// Editar proveedor (admin)
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-// URL base de la API Laravel
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = 'http://localhost:5000/api/proveedores';
 
 function ActualizarProveedor() {
+
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Datos del formulario
   const [form, setForm] = useState({
     nombre_proveedor: "",
     tipo_documento_id: "",
@@ -21,10 +22,9 @@ function ActualizarProveedor() {
     estado: "activo"
   });
 
-  // Estado de carga mientras se consulta el proveedor
   const [loading, setLoading] = useState(true);
 
-  // Cambiar los valores de los inputs
+  // 🔥 CAMBIAR INPUTS
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -32,12 +32,11 @@ function ActualizarProveedor() {
     });
   };
 
-  // Traer el proveedor por su ID
+  // 🔥 TRAER PROVEEDOR POR ID
   useEffect(() => {
     const fetchProveedor = async () => {
       try {
-        const res = await fetch(`${API_URL}/proveedores/${id}`);
-
+        const res = await fetch(`${API_URL}/${id}`, { credentials: "include" });
         const data = await res.json();
 
         if (!res.ok) {
@@ -45,7 +44,6 @@ function ActualizarProveedor() {
           return;
         }
 
-        // Cargar los datos recibidos en el formulario
         setForm({
           nombre_proveedor: data.nombre_proveedor || "",
           tipo_documento_id: data.tipo_documento_id || "",
@@ -56,9 +54,8 @@ function ActualizarProveedor() {
         });
 
       } catch (error) {
-        console.error("Error al cargar proveedor:", error);
+        console.log(error);
         alert("Error de servidor");
-
       } finally {
         setLoading(false);
       }
@@ -67,11 +64,10 @@ function ActualizarProveedor() {
     fetchProveedor();
   }, [id]);
 
-  // Actualizar proveedor
+  // 🔥 ACTUALIZAR PROVEEDOR
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Datos que se enviarán a Laravel
     const payload = {
       nombre_proveedor: form.nombre_proveedor,
       tipo_documento_id: Number(form.tipo_documento_id),
@@ -82,54 +78,34 @@ function ActualizarProveedor() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/proveedores/${id}`, {
+      const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
-      // Si Laravel devuelve un error
       if (!res.ok) {
-        console.log("Error de API:", data);
-
-        // Mostrar errores de validación de Laravel
-        if (data?.errores) {
-          const errores = Object.values(data.errores)
-            .flat()
-            .join("\n");
-
-          alert(errores);
-        } else {
-          alert(data?.mensaje || "Error al actualizar proveedor");
-        }
-
+        const primerError = data?.errores && Object.values(data.errores)[0]?.[0]
+        alert(primerError || data?.mensaje || "Error al actualizar proveedor");
         return;
       }
 
-      // Actualización exitosa
       alert("Proveedor actualizado correctamente");
-
-      // Volver al listado de proveedores
       navigate("/VerProveedores");
 
     } catch (error) {
-      console.error("Error al actualizar proveedor:", error);
+      console.log(error);
       alert("Error de servidor");
     }
   };
 
-  // Mostrar mensaje mientras se carga el proveedor
   if (loading) {
-    return (
-      <p className="text-center mt-5">
-        Cargando proveedor...
-      </p>
-    );
+    return <p className="text-center mt-5">Cargando proveedor...</p>;
   }
 
   return (
@@ -148,30 +124,18 @@ function ActualizarProveedor() {
 
               {/* HEADER */}
               <div className="card-header bg-primary text-white py-3">
-                <h3 className="mb-0">
-                  ✏️ Actualizar Proveedor
-                </h3>
-
-                <small>
-                  Modifique la información del proveedor
-                </small>
+                <h3 className="mb-0">✏️ Actualizar Proveedor</h3>
+                <small>Modifique la información del proveedor</small>
               </div>
 
               {/* BODY */}
               <div className="card-body p-4">
 
-                <form
-                  className="row g-4"
-                  onSubmit={handleSubmit}
-                >
+                <form className="row g-4" onSubmit={handleSubmit}>
 
                   {/* NOMBRE */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Nombre Proveedor
-                    </label>
-
+                    <label className="form-label fw-semibold">Nombre Proveedor</label>
                     <input
                       type="text"
                       name="nombre_proveedor"
@@ -180,15 +144,11 @@ function ActualizarProveedor() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* TIPO DOCUMENTO */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Tipo Documento
-                    </label>
+                    <label className="form-label fw-semibold">Tipo Documento</label>
 
                     <select
                       name="tipo_documento_id"
@@ -197,38 +157,19 @@ function ActualizarProveedor() {
                       onChange={handleChange}
                       required
                     >
+                      <option value="">Seleccione tipo de documento</option>
 
-                      <option value="">
-                        Seleccione tipo de documento
-                      </option>
-
-                      <option value="1">
-                        Cédula Ciudadanía
-                      </option>
-
-                      <option value="2">
-                        Tarjeta Identidad
-                      </option>
-
-                      <option value="3">
-                        Registro Civil
-                      </option>
-
-                      <option value="4">
-                        NIT
-                      </option>
+                      <option value="1">Cédula Ciudadanía</option>
+                      <option value="2">Tarjeta Identidad</option>
+                      <option value="3">Registro Civil</option>
+                      <option value="4">NIT</option>
 
                     </select>
-
                   </div>
 
                   {/* IDENTIDAD */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Número de Identidad
-                    </label>
-
+                    <label className="form-label fw-semibold">Número de Identidad</label>
                     <input
                       type="text"
                       name="numero_identidad"
@@ -237,16 +178,11 @@ function ActualizarProveedor() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* TELEFONO */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Teléfono
-                    </label>
-
+                    <label className="form-label fw-semibold">Teléfono</label>
                     <input
                       type="text"
                       name="telefono_prv"
@@ -255,16 +191,11 @@ function ActualizarProveedor() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* DIRECCION */}
                   <div className="col-md-12">
-
-                    <label className="form-label fw-semibold">
-                      Dirección
-                    </label>
-
+                    <label className="form-label fw-semibold">Dirección</label>
                     <input
                       type="text"
                       name="direccion"
@@ -273,33 +204,20 @@ function ActualizarProveedor() {
                       onChange={handleChange}
                       required
                     />
-
                   </div>
 
                   {/* ESTADO */}
                   <div className="col-md-6">
-
-                    <label className="form-label fw-semibold">
-                      Estado
-                    </label>
-
+                    <label className="form-label fw-semibold">Estado</label>
                     <select
                       name="estado"
                       className="form-select"
                       value={form.estado}
                       onChange={handleChange}
                     >
-
-                      <option value="activo">
-                        Activo
-                      </option>
-
-                      <option value="inactivo">
-                        Inactivo
-                      </option>
-
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
                     </select>
-
                   </div>
 
                   {/* BOTONES */}
@@ -332,7 +250,6 @@ function ActualizarProveedor() {
       </main>
 
       <FooterAdmi />
-
     </div>
   );
 }

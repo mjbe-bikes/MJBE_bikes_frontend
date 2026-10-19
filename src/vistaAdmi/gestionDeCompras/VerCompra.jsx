@@ -6,39 +6,27 @@ import { Link } from "react-router-dom";
 import NavAdmi from "../../componentes/NavAdmi";
 import FooterAdmi from "../../componentes/FooterAdmi";
 
-// URL base de la API Laravel
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = "http://localhost:5000/api";
 
 const getPurchaseId = (compra) => compra.id;
-
 const getPurchaseDate = (compra) => compra.fecha;
-
-const getPurchaseTotal = (compra) =>
-  Number(compra.total_compra ?? 0);
-
+const getPurchaseTotal = (compra) => Number(compra.total_compra ?? 0);
 const getProviderName = (compra, proveedores) => {
-  // Si la API ya devuelve el proveedor como texto, lo usamos directamente
-  if (typeof compra.proveedor === "string") {
-    return compra.proveedor;
-  }
+  // La API embebe el objeto completo del proveedor, no un texto.
+  if (compra.proveedor) return compra.proveedor.nombre_proveedor;
 
-  // Buscamos el proveedor por su ID
   const proveedor = proveedores.find(
     (item) => Number(item.id) === Number(compra.id_proveedor)
   );
 
-  return proveedor
-    ? proveedor.nombre_proveedor
-    : `Proveedor #${compra.id_proveedor}`;
+  return proveedor ? proveedor.nombre_proveedor : `Proveedor #${compra.id_proveedor}`;
 };
 
-// Formatea los valores como pesos colombianos
-const formatCurrency = (value) =>
-  new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    maximumFractionDigits: 0
-  }).format(value);
+const formatCurrency = (value) => new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0
+}).format(value);
 
 function VerCompra() {
   const [compras, setCompras] = useState([]);
@@ -50,33 +38,16 @@ function VerCompra() {
   useEffect(() => {
     const cargarCompras = async () => {
       try {
-        // Cargamos compras y proveedores al mismo tiempo
-        const [comprasRespuesta, proveedoresRespuesta] =
-          await Promise.all([
-            fetch(`${API_URL}/compras`, {
-              headers: {
-                Accept: "application/json"
-              }
-            }),
-            fetch(`${API_URL}/proveedores`, {
-              headers: {
-                Accept: "application/json"
-              }
-            })
-          ]);
-
-        // Verificamos que ambas peticiones hayan funcionado
+        const [comprasRespuesta, proveedoresRespuesta] = await Promise.all([
+          fetch(`${API_URL}/compras`, { credentials: "include" }),
+          fetch(`${API_URL}/proveedores`, { credentials: "include" })
+        ]);
         if (!comprasRespuesta.ok || !proveedoresRespuesta.ok) {
-          throw new Error(
-            "No se pudieron cargar las compras y proveedores"
-          );
+          throw new Error("No se pudieron cargar las compras y proveedores");
         }
 
-        const comprasData = await comprasRespuesta.json();
-        const proveedoresData = await proveedoresRespuesta.json();
-
-        setCompras(comprasData);
-        setProveedores(proveedoresData);
+        setCompras(await comprasRespuesta.json());
+        setProveedores(await proveedoresRespuesta.json());
       } catch (loadError) {
         console.error("Error cargando compras:", loadError);
         setError("No fue posible cargar el historial de compras.");
@@ -88,90 +59,51 @@ function VerCompra() {
     cargarCompras();
   }, []);
 
-  // Filtra las compras según ID, proveedor o estado
   const comprasFiltradas = compras.filter((compra) => {
-    const texto = `
-      ${getPurchaseId(compra)}
-      ${getProviderName(compra, proveedores)}
-      ${compra.pago ? "pagada" : "pendiente"}
-    `.toLowerCase();
-
+    const texto = `${getPurchaseId(compra)} ${getProviderName(compra, proveedores)} ${compra.pago ? "pagada" : "pendiente"}`.toLowerCase();
     return texto.includes(busqueda.toLowerCase());
   });
 
   return (
     <div className="app">
       <NavAdmi />
-
       <main className="contenido">
         <div className="container mt-4 py-3">
           <div className="card shadow">
-
             <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
               <h4 className="mb-0">Compras</h4>
-
-              <Link
-                to="/CrearCompra"
-                className="btn btn-light"
-              >
+              <Link to="/CrearCompra" className="btn btn-light">
                 Crear compra
               </Link>
             </div>
 
             <div className="card-body">
-
-              {/* Buscador */}
               <div className="row mb-4 g-2">
                 <div className="col-md-8">
-                  <label
-                    className="form-label"
-                    htmlFor="buscar-compra"
-                  >
-                    Buscar compra
-                  </label>
-
+                  <label className="form-label" htmlFor="buscar-compra">Buscar compra</label>
                   <input
                     id="buscar-compra"
                     type="search"
                     className="form-control"
                     placeholder="ID, proveedor o estado"
                     value={busqueda}
-                    onChange={(event) =>
-                      setBusqueda(event.target.value)
-                    }
+                    onChange={(event) => setBusqueda(event.target.value)}
                   />
                 </div>
-
                 <div className="col-md-4 d-flex align-items-end">
-                  <button
-                    className="btn btn-primary w-100"
-                    type="button"
-                  >
+                  <button className="btn btn-primary w-100" type="button">
                     Buscar
                   </button>
                 </div>
               </div>
 
-              {/* Mensaje de error */}
-              {error && (
-                <div className="alert alert-danger">
-                  {error}
-                </div>
+              {error && <div className="alert alert-danger">{error}</div>}
+              {!cargando && !error && compras.length === 0 && (
+                <div className="alert alert-info">No hay compras registradas.</div>
               )}
 
-              {/* No existen compras */}
-              {!cargando &&
-                !error &&
-                compras.length === 0 && (
-                  <div className="alert alert-info">
-                    No hay compras registradas.
-                  </div>
-                )}
-
-              {/* Tabla */}
               <div className="table-responsive">
                 <table className="table table-bordered table-hover align-middle">
-
                   <thead className="table-dark">
                     <tr>
                       <th>ID de la compra</th>
@@ -182,103 +114,41 @@ function VerCompra() {
                       <th>Detalle</th>
                     </tr>
                   </thead>
-
                   <tbody>
                     {cargando ? (
-                      <tr>
-                        <td
-                          colSpan="6"
-                          className="text-center"
-                        >
-                          Cargando compras...
-                        </td>
-                      </tr>
+                      <tr><td colSpan="6" className="text-center">Cargando compras...</td></tr>
                     ) : comprasFiltradas.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan="6"
-                          className="text-center"
-                        >
-                          No se encontraron compras
-                        </td>
-                      </tr>
+                      <tr><td colSpan="6" className="text-center">No se encontraron compras</td></tr>
                     ) : (
                       comprasFiltradas.map((compra) => (
                         <tr key={getPurchaseId(compra)}>
-
-                          {/* ID */}
+                          <td>{getPurchaseId(compra)}</td>
+                          <td>{getProviderName(compra, proveedores)}</td>
+                          <td>{getPurchaseDate(compra) ? new Date(getPurchaseDate(compra)).toLocaleDateString("es-CO") : "Sin fecha"}</td>
+                          <td>{formatCurrency(getPurchaseTotal(compra))}</td>
                           <td>
-                            {getPurchaseId(compra)}
-                          </td>
-
-                          {/* Proveedor */}
-                          <td>
-                            {getProviderName(
-                              compra,
-                              proveedores
-                            )}
-                          </td>
-
-                          {/* Fecha */}
-                          <td>
-                            {getPurchaseDate(compra)
-                              ? new Date(
-                                  getPurchaseDate(compra)
-                                ).toLocaleDateString("es-CO")
-                              : "Sin fecha"}
-                          </td>
-
-                          {/* Total */}
-                          <td>
-                            {formatCurrency(
-                              getPurchaseTotal(compra)
-                            )}
-                          </td>
-
-                          {/* Estado de pago */}
-                          <td>
-                            <span
-                              className={`badge ${
-                                compra.pago
-                                  ? "bg-success"
-                                  : "bg-secondary"
-                              }`}
-                            >
-                              {compra.pago
-                                ? "Pagada"
-                                : "Pendiente"}
+                            <span className={`badge ${compra.pago ? "bg-success" : "bg-secondary"}`}>
+                              {compra.pago ? "Pagada" : "Pendiente"}
                             </span>
                           </td>
-
-                          {/* Detalle */}
                           <td>
-                            <Link
-                              className="btn btn-primary btn-sm"
-                              to={`/DetallesCompra/${getPurchaseId(
-                                compra
-                              )}`}
-                            >
+                            <Link className="btn btn-primary btn-sm" to={`/DetallesCompra/${getPurchaseId(compra)}`}>
                               Ver detalle
                             </Link>
                           </td>
-
                         </tr>
                       ))
                     )}
                   </tbody>
-
                 </table>
               </div>
-
             </div>
           </div>
         </div>
       </main>
-
       <FooterAdmi />
     </div>
   );
 }
 
 export default VerCompra;
-

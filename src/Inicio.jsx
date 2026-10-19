@@ -7,7 +7,7 @@ import NavarCliente from "./componentes/NavarCliente";
 import { useCart } from "./vistaCliente/Carrito";
 
 // API Laravel/PHP que obtiene los productos desde MySQL
-const API_URL = "http://127.0.0.1:8000/api/productos";
+const API_URL = "http://localhost:5000/api/productos";
 
 function Inicio() {
   // Función para agregar productos al carrito
