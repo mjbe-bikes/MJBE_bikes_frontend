@@ -260,7 +260,7 @@ describe('Pruebas de Caja Negra - Administración de usuarios (UI)', () => {
 
     // 3. Esperar a que se complete y verificar el estado
     cy.wait('@desactivarUsuario').its('response.statusCode').should('eq', 200);
-    cy.contains('tr', nombreUnico).should('contain', 'inactivo');
+    cy.contains('tr', nombreUnico).should('contain', 'Inactivo');
   });
 
   it('CP-UI-108: Debe eliminar un usuario existente', () => {

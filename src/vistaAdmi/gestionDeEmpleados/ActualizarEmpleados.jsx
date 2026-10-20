@@ -223,15 +223,7 @@ function ActualizarEmpleados() {
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
-                        onClick={() =>
-                          setForm({
-                            login: "",
-                            email: "",
-                            password_harsh: "",
-                            rol_id: "",
-                            estado: "activo"
-                          })
-                        }
+                        onClick={() => navigate("/VerUsuarios")}
                       >
                         Cancelar
                       </button>

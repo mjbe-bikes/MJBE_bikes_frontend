@@ -80,13 +80,13 @@ function VerUsuarios() {
       },
       body: JSON.stringify({
         ...usuarioSeleccionado,
-        estado: "invalido"
+        estado: "Inactivo"
       })
     })
       .then(() => {
         const nuevos = usuariosFiltrados.map(u =>
           u.id === usuarioSeleccionado.id
-            ? { ...u, estado: "invalido" }
+            ? { ...u, estado: "Inactivo" }
             : u
         );
 
