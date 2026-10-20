@@ -92,7 +92,7 @@ function InicioVentas() {
           <div className="card shadow">
             <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
               <h4 className="mb-0">Ventas recientes</h4>
-              <a className="btn btn-light" href="/Historialventas">Ver historial</a>
+              <a className="btn btn-light" href="/Ventas">Ver historial</a>
             </div>
             <div className="card-body">
               {cargando ? <p className="mb-0">Cargando ventas...</p> : (

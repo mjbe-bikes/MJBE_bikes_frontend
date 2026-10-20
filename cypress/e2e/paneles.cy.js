@@ -148,7 +148,11 @@ describe('Pruebas de Caja Negra - Paneles de inicio (UI)', () => {
     cy.visit('/InicioVentas', sesionVendedor);
 
     cy.contains('a', 'Ver historial').click();
-    cy.url().should('include', '/DetallesVenta');
+    // 👇 El historial de ventas del vendedor es la ruta /Ventas.
+    //    DEFECTO: el enlace apunta a /Historialventas, una ruta que no existe
+    //    en App.jsx, así que esta prueba falla a propósito hasta que se corrija
+    //    el href en InicioVentas.jsx.
+    cy.url().should('include', '/Ventas');
   });
 
 });
