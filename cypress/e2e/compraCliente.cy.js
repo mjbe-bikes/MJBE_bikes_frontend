@@ -5,8 +5,8 @@ describe('Pruebas de Caja Negra - Finalizar compra del cliente (UI)', () => {
   const sesionCliente = {
     onBeforeLoad(win) {
       win.localStorage.setItem('mjbe_auth', 'true');
-      win.localStorage.setItem('mjbe_user_id', '4');
-      win.localStorage.setItem('mjbe_user_login', 'cliente');
+      win.localStorage.setItem('mjbe_user_id', '6');
+      win.localStorage.setItem('mjbe_user_login', 'user_cli1');
       win.localStorage.setItem('mjbe_rol_id', '4');       // 4 = Cliente
     },
   };
